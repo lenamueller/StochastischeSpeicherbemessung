@@ -1,14 +1,10 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd 
+
 from read_data import read_data
-from process_data import accumulate_yearly
-from plot_data import visualize_discharge
+from setup import pegelname, tu_mediumblue, tu_red, tu_grey
 
 
-fn = "Daten_Ammelsdorf.txt"
-raw = read_data(fn)
-print(raw)
-
-visualize_discharge(
-    monthly_data=raw,
-    yearly_data=accumulate_yearly(raw),
-    fn="Durchfluss_Ammelsdorf.png"
-)
+raw_path = f"Daten_{pegelname}.txt"
+raw = read_data(raw_path)
