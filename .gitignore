@@ -1,1 +1,4 @@
-__pycache__/*
+
+env/*
+code/__pycache__/*
+other.py
