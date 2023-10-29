@@ -1,4 +1,3 @@
-pegelname = "Klingenthal"
 image_path = "images/"
 
 tu_darkblue = (0/255, 48/255, 93/255)

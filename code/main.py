@@ -1,14 +1,18 @@
+import sys
 import time
 import numpy as np
 
-from setup import pegelname, tu_mediumblue, tu_red, tu_grey
+from setup import tu_mediumblue, tu_red, tu_grey
 from Timeseries import TimeSeries
 
+
+# read first argument from command line
+pegelname = sys.argv[1]
 
 t = TimeSeries(pegelname)
 
 
-print("Zeit:", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
 
 print("------------------------------------------------------------")
 print("PRIMÄRE INFORMATION")
@@ -53,3 +57,4 @@ t.plot_hist()
 
 print("------------------------------------------------------------")
 print("FERTIG!")
+print("Created:", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
