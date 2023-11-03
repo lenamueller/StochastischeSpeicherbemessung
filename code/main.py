@@ -51,6 +51,12 @@ print("\tFehlende Zeitschritte:", t.missing_dates())
 print("\tDuplikate:", t.duplicates())
 
 print("------------------------------------------------------------")
+print("FFT")
+t.plot_spectrum()
+t.plot_sin_waves()
+t.plot_saisonfigur()
+
+print("------------------------------------------------------------")
 print("PLOTTEN ... ")
 t.plot_raw()
 t.plot_hist()

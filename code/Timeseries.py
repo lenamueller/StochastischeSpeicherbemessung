@@ -1,9 +1,13 @@
 import os
+from collections import Counter
+
 import numpy as np
 import scipy
 import pandas as pd
-from collections import Counter
 
+# from scipy.signal import detrend
+# from scipy.signal.windows import blackman, hamming, flattop, tukey, cosine, boxcar
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from setup import image_path,tu_mediumblue, tu_red, tu_grey
 
@@ -13,6 +17,7 @@ class TimeSeries:
     def __init__(self, name: str):
         """Constructor."""
         self.name: str = name
+        
         self.data: pd.DataFrame = None
         self._read_data(filename=f"Daten_{name}.txt")
         
@@ -30,6 +35,14 @@ class TimeSeries:
         self.data["Datum"] = pd.to_datetime(self.data["Monat"], format="%m/%Y")
     
     # ---------------------------------------------------------------
+    # Datenstrukturen
+    # ---------------------------------------------------------------
+    
+    def df_data_to_np(self):
+        data_np = self.data["Durchfluss_m3s"].to_numpy()
+        return  np.reshape(data_np, (-1, 12))
+    
+    # ---------------------------------------------------------------
     # Primäre Informationen
     # ---------------------------------------------------------------
     
@@ -45,6 +58,10 @@ class TimeSeries:
         """Returns the latest date."""
         return self.data["Datum"].max()
     
+    def years(self):
+        """Returns a list of the years."""
+        return self.data["Datum"].dt.year.unique()
+
     # ---------------------------------------------------------------
     # Primärstatistik
     # ---------------------------------------------------------------
@@ -126,6 +143,34 @@ class TimeSeries:
                 self.data["Durchfluss_m3s"].quantile(q=0.25)
 
     # ---------------------------------------------------------------
+    # Monatliche Statistiken
+    # ---------------------------------------------------------------
+        
+    def monthly_mean(self):
+        data_np = self.df_data_to_np()
+        mean = np.mean(data_np, axis=0)
+        print("\tmonathlicher Durchfluss arith. Mittel: ", mean)
+        return mean
+    
+    def monthly_median(self):
+        data_np = self.df_data_to_np()
+        median = np.median(data_np, axis=0)
+        print("\tmonathlicher Durchfluss Median: ", median)
+        return median
+    
+    def monthly_variance(self):
+        data_np = self.df_data_to_np()
+        monthly_var = np.var(data_np, axis=0)
+        print("\tmonathlicher Durchfluss Varianz: ", monthly_var)
+        return monthly_var
+
+    def monthly_skewness(self):
+        data_np = self.df_data_to_np()
+        monthly_skewness = scipy.stats.skew(data_np, axis=0, bias=True)
+        print("\tmonathlicher Durchfluss Skewness: ", monthly_skewness)
+        return monthly_skewness
+    
+    # ---------------------------------------------------------------
     # Hydrologische Kennwerte
     # ---------------------------------------------------------------
     
@@ -180,7 +225,7 @@ class TimeSeries:
     def missing_values(self):
         """Returns a dictionary with the number of missing values per column."""
         return self.data.isnull().sum().to_dict()
-
+    
     def missing_dates(self):
         """Returns a list of missing dates."""
         min_date = self.data["Datum"].min()
@@ -196,6 +241,60 @@ class TimeSeries:
         days = self.data.index.tolist()
         return [item for item, count in Counter(days).items() if count > 1]
 
+    def detrend_signal(self) -> None:
+        """Detrend the time series."""
+        data = self.data["Durchfluss_m3s"].to_numpy()
+        return np.mean(data) + scipy.signal.detrend(data, type="linear")
+
+    # ---------------------------------------------------------------
+    # FFT
+    # ---------------------------------------------------------------
+    
+    def calc_spectrum(self, sample_rate: int = 1) -> None:
+        """Calculate the FFT of the time series."""
+
+        arr = self.data["Durchfluss_m3s"].to_numpy()
+        n = len(arr)
+        
+        # detrend signal
+        arr = np.mean(arr) + scipy.signal.detrend(arr, type="linear")
+        
+        # Apply window function (tapering)
+        arr = scipy.signal.windows.cosine(M=n) * arr
+        
+        # 1D Discrete Fourier Transform
+        fft_output = scipy.fft.fft(arr)
+        
+        # Remove first element (mean) and frequencies above Nyquist frequency.
+        fft_output = fft_output[1:n//2]
+        
+        # Discrete Fourier Transform sample frequencies
+        freqs = scipy.fft.fftfreq(n, 1/sample_rate)[1:n//2]
+        
+        # Calculate the square of the norm of each complex number
+        # Norm = sqrt(Re² + Im²)
+        spectrum = np.square(np.abs(fft_output))
+
+        # Multiply spectral energy density by frequency
+        # spectrum *= freqs
+        
+        # Multiply spectrum by 2 to account for negative frequencies
+        spectrum = [i*2 for i in spectrum]
+        
+        return freqs, spectrum
+    
+    def get_dominant_frequency(self, nb: int):
+        """Get the nb most dominant frequencies."""
+        
+        freqs, spectrum = self.calc_spectrum()
+
+        idx = np.argpartition(spectrum, -nb)[-nb:]
+        freqs = freqs[idx] # Einheit: 1/Monat
+        period = [round(1/f, 2) for f in freqs] # Einheit: Monat
+        print("\t5 maximum frequencies [1/month]", freqs)
+        print("\t5 maximum periods [months]", period)
+        return freqs, period
+    
     # ---------------------------------------------------------------
     # Plotting
     # ---------------------------------------------------------------
@@ -272,4 +371,88 @@ class TimeSeries:
         
         return None
     
+    def plot_spectrum(self):
+        """Plot FFT spectrum"""
+        
+        freqs, spectrum = self.calc_spectrum()
+        
+        fig, ax1 = plt.subplots(figsize=(10, 5))
+        ax1.plot(freqs[1:], spectrum[1:], c=tu_mediumblue)
+        ax2 = ax1.secondary_xaxis(-0.18)
+        x_ticks_ax1 = [1/24, 1/12, 1/6, 1/4, 1/3, 1/2]
+        x_ticks_ax1 = [round(i, 2) for i in x_ticks_ax1]
+        x_ticks_ax2 = [24, 12, 6, 4, 3, 2]
+        ax1.set_xticks(x_ticks_ax1)
+        ax2.set_xticks(x_ticks_ax1)
+        ax2.set_xticklabels(x_ticks_ax2)
+        ax1.set_xlabel("Frequenz [1/Monat]")
+        ax2.set_xlabel("Periode [Monate]")
+        ax1.set_ylabel("Spektrale Dichte")
+        plt.grid()
+        plt.savefig(image_path+f"{self.name}_fft.png", dpi=300, bbox_inches="tight")
     
+    def plot_sin_waves(self):
+        """Plot the dominant frequencies as sin waves."""
+        
+        freqs, period = self.get_dominant_frequency(nb=5)
+        freqs = freqs[:-1] # del mean
+        period = period[:-1] # del mean
+        
+        fig, ax = plt.subplots(figsize=(10, 5))
+        colors = ["gold", "salmon", "red", "darkred"]
+        x = np.linspace(0, 12*2*np.pi, 1000)        
+        rank = [5,4,3,2,1]
+
+        # plot single sin waves        
+        for i in range(len(freqs)):
+            y = np.sin(freqs[i] * x)
+            ax.plot(x, y, label=f"{round(period[i], 1)} Monate", 
+                    c=colors[i], linewidth=1.5)
+        
+        # plot sum sin wave
+        y = np.zeros(1000)
+        for i in range(len(freqs)):
+            y += np.sin(freqs[i] * x)
+        ax.plot(x, y, label="Summe", c=tu_mediumblue, linewidth=2, linestyle="--")
+        
+        x_ticks = np.linspace(0, 12*2*np.pi, 13)
+        x_ticks_labels = [round(i/(2*np.pi), 1) for i in x_ticks]
+        x_ticks_labels = [int(x+1) for x in x_ticks_labels]
+        ax.set_xlim([0,12])
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_ticks_labels)
+        ax.set_xlabel("Zeit [Monate]")
+        ax.set_ylabel("Amplitude")
+        ax.grid()
+        ax.legend()
+        
+        plt.savefig(image_path+f"{self.name}_sin.png", dpi=300, bbox_inches="tight")
+    
+    def plot_saisonfigur(self):
+        """Plot monthly mean and median (Saisonfigur)."""
+        
+        data_np = self.df_data_to_np()
+        monthly_mean = self.monthly_mean()
+        monthly_med = self.monthly_median()
+        monthly_var = self.monthly_variance()
+        monthly_skewness = self.monthly_skewness()
+        
+        fig, ax = plt.subplots(figsize=(10, 5))
+        x = np.arange(1, 13)
+        
+        ax.plot(x, monthly_mean, c="green", linewidth=1.5, label="Arith. Mittel")
+        ax.plot(x, monthly_med, c=tu_mediumblue, linewidth=1.5, label="Median")
+        ax.plot(x, monthly_var, c=tu_red, linewidth=1.5, label="Varianz")
+        ax.plot(x, monthly_skewness, c="orange", linewidth=1.5, label="Skewness")
+        
+        for i in range(len(data_np)):
+            ax.plot(x, data_np[i, :], linewidth=0.5, alpha=0.3, c=tu_grey)
+        ax.set_xlabel("Monat")
+        ax.set_ylabel("Durchfluss [m³/s]")
+        ax.set_xticks(x)
+        ax.set_xticklabels(["Nov", "Dez", "Jan", "Feb", "Mär", "Apr", 
+                            "Mai", "Jun", "Jul", "Aug", "Sep", "Okt"])
+        ax.grid()
+        plt.legend()
+        plt.savefig(image_path+f"{self.name}_saison.png", dpi=300, bbox_inches="tight")
+        
