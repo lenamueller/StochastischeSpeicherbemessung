@@ -1,6 +1,13 @@
+import os
 import numpy as np
 import pandas as pd
 
+
+def check_path(path):
+    """Check if path exists, otherwise create it."""
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return None
 
 def read_data(filename: str):
     """Read data from file."""

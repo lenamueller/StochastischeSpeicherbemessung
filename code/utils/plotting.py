@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,19 +8,11 @@ from utils.primary_stats import max_val, max_val_month, min_val, min_val_month, 
 from utils.trend_analysis import linreg_monthly, linreg_yearly
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency
 from utils.binned_stats import mean, median, variance, skewness
-from utils.data_structures import df_to_np
-
-def check_path(path):
-    """Check if path exists, otherwise create it."""
-    if not os.path.exists(path):
-        os.makedirs(path)
-    return None
+from utils.data_structures import df_to_np, check_path
 
 
 def plot_raw(df: pd.DataFrame):
     """Plot raw data."""
-    
-    check_path(image_path)
         
     max_value = max_val(df)
     max_month = max_val_month(df)
@@ -56,8 +47,6 @@ def plot_raw(df: pd.DataFrame):
 
 def plot_hist(df: pd.DataFrame):
     """Plot histogram of raw data."""
-    check_path(image_path)
-    
         
     max_value = max_val(df)
 
@@ -84,8 +73,7 @@ def plot_hist(df: pd.DataFrame):
 
 def plot_trend(df: pd.DataFrame):
     # todo
-    
-    check_path(image_path)
+
     
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
     
@@ -138,8 +126,6 @@ def plot_trend(df: pd.DataFrame):
 
 def plot_spectrum(df: pd.DataFrame):
     """Plot FFT spectrum"""
-    check_path(image_path)
-    
     
     freqs, spectrum = calc_spectrum(df)
     
@@ -162,7 +148,7 @@ def plot_spectrum(df: pd.DataFrame):
 
 def plot_sin_waves(df):
     """Plot the dominant frequencies as sin waves."""
-    check_path(image_path)
+
     freqs, period = get_dominant_frequency(*calc_spectrum(df), n=5)
     freqs = freqs[:-1] # del mean
     period = period[:-1] # del mean
@@ -198,7 +184,6 @@ def plot_sin_waves(df):
 
 def plot_saisonfigur(df: pd.DataFrame):
     """Plot monthly mean and median (Saisonfigur)."""
-    check_path(image_path)
     
     data_np = df_to_np(df)
     

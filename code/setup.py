@@ -1,4 +1,5 @@
 image_path = "images/"
+report_path = "reports/"
 pegelname = "Klingenthal"
 
 tu_darkblue = (0/255, 48/255, 93/255)

@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from setup import pegelname
+from setup import pegelname, report_path, image_path
 
-from utils.data_structures import read_data   
+from utils.data_structures import read_data, check_path
 from utils.primary_stats import sample_number, earliest_date, latest_date, max_val, min_val, \
     first_central_moment, second_central_moment, third_central_moment, fourth_central_moment, \
     standard_deviation_biased, standard_deviation_unbiased, skewness_biased, skewness_unbiased, \
@@ -74,12 +74,14 @@ def timeseries_report(df: pd.DataFrame):
     # Autocorrelation analysis
     # TODO
     
+    check_path(report_path)
     info.to_csv(f"reports/{pegelname}_TSA.csv", index=False)
 
     print(info)
 
 def plotting_agenda(df):
     print("------------------------------------------------------------")
+    check_path(image_path)
     print("Plotting ... ")
     plot_raw(df)
     plot_hist(df)
