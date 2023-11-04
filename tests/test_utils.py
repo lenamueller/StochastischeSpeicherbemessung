@@ -1,6 +1,13 @@
+import os
+import sys
+import inspect
 import pytest
 import numpy as np
 import pandas as pd
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir) 
 
 from code.utils.data_structures import read_data
 from code.utils.primary_stats import *
