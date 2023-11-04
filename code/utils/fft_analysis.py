@@ -43,7 +43,7 @@ def get_dominant_frequency(
         n: int
         ):
     """Returns the n-th most dominant frequencies in ascending order."""
-    # todo: check algorithm
+    # TODO: #5 check algorithm argpartition
     
     idx = np.argpartition(spectrum, -n)[-n:]
     freqs = freqs[idx] # unit: 1/month

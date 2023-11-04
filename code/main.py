@@ -30,10 +30,11 @@ def timeseries_report(df: pd.DataFrame):
     info.loc[len(info)] = ["Duplikate", duplicates(df), "m³/s"]
     
     # Homogenity check
-    # TODO
+    # TODO: #6 Check for outliers
+    # TODO: #7 double sum analysis
     
     # Stationarity check
-    # TODO
+    # TODO: #8 Check for stationarity
     
     # Primary stats
     info.loc[len(info)] = ["Minimum", np.round(min_val(df), 3), "m³/s"]
@@ -54,7 +55,7 @@ def timeseries_report(df: pd.DataFrame):
     info.loc[len(info)] = ["Interquartilsabstand", np.round(iqr(df), 3), "m³/s"]
     
     # Distribution
-    # TODO
+    # TODO: #9 Fit distribution to data
 
     # Hydrological values
     hv = hydro_values(df)
@@ -64,15 +65,18 @@ def timeseries_report(df: pd.DataFrame):
     # Trend analysis
     info.loc[len(info)] = ["Lineare Regression (Jahreswerte)", linreg_yearly(df), "m³/s/a"]
     info.loc[len(info)] = ["Lineare Regression (Monatswerte)", linreg_monthly(df), "m³/s/a"]
+    # TODO: #10 Create detrended data
     
     # Seasonal analysis
     freqs, spectrum = calc_spectrum(df)
     freqs, period = get_dominant_frequency(freqs, spectrum, n=5)
     info.loc[len(info)] = ["5 dominantesten Frequenzen", freqs, "1/Monat"]
     info.loc[len(info)] = ["5 dominantesten Periodendauern", period, "Monate"]
+    # TODO: #11 Create seasonal data
     
     # Autocorrelation analysis
-    # TODO
+    # TODO: #12 Autocorrelation analysis
+    # TODO: #13 Create residual data
     
     check_path(report_path)
     info.to_csv(f"reports/{pegelname}_TSA.csv", index=False)
@@ -95,9 +99,9 @@ def plotting_agenda(df):
         
 fns = [
     f"Daten_{pegelname}_raw.txt",
-    # f"Daten_{pegelname}_detrended.txt", # TODO
-    # f"Daten_{pegelname}_seasonal.txt", # TODO
-    # f"Daten_{pegelname}_residual.txt" # TODO
+    # f"Daten_{pegelname}_detrended.txt",
+    # f"Daten_{pegelname}_seasonal.txt",
+    # f"Daten_{pegelname}_residual.txt"
 ]
 
 for fn in fns:

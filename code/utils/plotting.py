@@ -72,8 +72,7 @@ def plot_hist(df: pd.DataFrame):
     return None
 
 def plot_trend(df: pd.DataFrame):
-    # todo
-
+    # TODO: #4 Beautify trend analysis plot
     
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
     
