@@ -5,11 +5,18 @@
 # Content
 
 #### code/
-code for the project containing the main.py file and the class TimeSeries as well as an setup file for color and path definitions
+- utils/*.py:    helper functions
+- main.py:       main script
+- setup.py:      setup script
+
 #### data/
-data source for the project
+- Daten_*_raw.txt:  raw data
+- Daten_*_detrended.txt:  detrended data
+- Daten_*_seasonal.txt:  seasonal data
+- Daten_*_residual.txt:  residual data
+
 ####  images/
-images for the project
+images generated with main.py
 #### reports/
 reports generated with main.py
 
