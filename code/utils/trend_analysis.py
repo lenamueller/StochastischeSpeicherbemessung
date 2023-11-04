@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import scipy
 
-from utils.binned_stats import mean
-from utils.primary_stats import hyd_years
+from code.utils.binned_stats import mean
+from code.utils.primary_stats import hyd_years
 
 
 def linreg_monthly(df: pd.DataFrame):
