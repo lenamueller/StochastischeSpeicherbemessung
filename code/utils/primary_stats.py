@@ -59,36 +59,36 @@ def fourth_central_moment(df: pd.DataFrame):
 
 def standard_deviation_biased(df: pd.DataFrame):
     """Returns the biased standard deviation."""
-    return np.sqrt(second_central_moment())
+    return np.sqrt(second_central_moment(df))
 
 def standard_deviation_unbiased(df: pd.DataFrame):
     """Returns the unbiased standard deviation."""
-    return np.sqrt(second_central_moment() * \
+    return np.sqrt(second_central_moment(df) * \
         (sample_number(df) / (sample_number(df) - 1)))
 
 def skewness_biased(df: pd.DataFrame):
     """Returns the biased skewness."""
-    mean = first_central_moment()
-    std = standard_deviation_biased()
-    n = sample_number()
+    mean = first_central_moment(df)
+    std = standard_deviation_biased(df)
+    n = sample_number(df)
     return np.sum(((df["Durchfluss_m3s"] - mean)/std)**3) / n
 
 def skewness_unbiased(df: pd.DataFrame):
     """Returns the unbiased skewness."""
-    n = sample_number()
-    return skewness_biased() * n/(n-1) * (n-1)/(n-2)
+    n = sample_number(df)
+    return skewness_biased(df) * n/(n-1) * (n-1)/(n-2)
 
 def kurtosis_biased(df: pd.DataFrame):
     """Returns the biased kurtosis."""
-    mean = first_central_moment()
-    std = standard_deviation_biased()
-    n = sample_number()
+    mean = first_central_moment(df)
+    std = standard_deviation_biased(df)
+    n = sample_number(df)
     return np.sum(((df["Durchfluss_m3s"] - mean)/std)**4) / n - 3
 
-def kurtois_unbiased(df: pd.DataFrame):
+def kurtosis_unbiased(df: pd.DataFrame):
     """Returns the unbiased kurtosis."""
-    n = sample_number()
-    return kurtosis_biased() * n/(n-1) * (n-1)/(n-2) * (n-2)/(n-3)        
+    n = sample_number(df)
+    return kurtosis_biased(df) * n/(n-1) * (n-1)/(n-2) * (n-2)/(n-3)        
 
 def quartile(df: pd.DataFrame, q: int):
     """Returns the q-th quartile."""

@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 
 from setup import tu_darkblue, tu_mediumblue, tu_grey, tu_red # TU colors
 from setup import image_path, pegelname
-from primary_stats import max_val, max_val_month, min_val, min_val_month, hyd_years
-from trend_analysis import linreg_monthly, linreg_yearly
-from fft_analysis import calc_spectrum, get_dominant_frequency
-from binned_stats import mean, median, variance, skewness
-from data_structures import df_to_np
+from utils.primary_stats import max_val, max_val_month, min_val, min_val_month, hyd_years
+from utils.trend_analysis import linreg_monthly, linreg_yearly
+from utils.fft_analysis import calc_spectrum, get_dominant_frequency
+from utils.binned_stats import mean, median, variance, skewness
+from utils.data_structures import df_to_np
 
 def check_path(path):
     """Check if path exists, otherwise create it."""
@@ -90,15 +90,12 @@ def plot_trend(df: pd.DataFrame):
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
     
     days = np.arange(1, len(df)+1, 1)
-    res_m = linreg_monthly()
-    res_y = linreg_yearly()
+    res_m = linreg_monthly(df)
+    res_y = linreg_yearly(df)
     
     # store regression function in str
     res_m_func = f"y = {res_m.slope:.4f}x + {res_m.intercept:.4f}"
     res_y_func = f"y = {res_y.slope:.4f}x + {res_y.intercept:.4f}"
-    
-    print(f"\tLinear regression function (monthly):\t\t{res_m_func}")
-    print(f"\tLinear regression function (yearly):\t\t{res_y_func}")
     
     ax1.plot(df["Monat"], df["Durchfluss_m3s"], 
                 c=tu_mediumblue, linewidth=0.8, label="Monatswerte (Rohdaten)")
@@ -106,7 +103,7 @@ def plot_trend(df: pd.DataFrame):
                 label=f"lin. Regressionsgerade {res_m_func} (R²: {res_m.rvalue**2:.3f})")
     
     ax2.plot(hyd_years(df), mean(df, which="yearly"), label="Jahreswerte (arith. Mittel)")
-    ax2.plot(hyd_years(df), res_y.intercept + res_y.slope*hyd_years(), c=tu_red,
+    ax2.plot(hyd_years(df), res_y.intercept + res_y.slope*hyd_years(df), c=tu_red,
                 label=f"lin. Regressionsgerade {res_y_func} (R²: {res_y.rvalue**2:.3f})")
     
     ax1.set_ylim([0,8])
@@ -124,7 +121,7 @@ def plot_trend(df: pd.DataFrame):
     ax2.set_xticks(hyd_years(df), minor=True)
     ax2.set_yticks(np.arange(0, 3.1, 0.5), minor=True)
     ax2.set_yticks(np.arange(0, 4, 1), minor=False)
-    ax2.set_xlim(left=hyd_years()[0], right=hyd_years()[-1])
+    ax2.set_xlim(left=hyd_years(df)[0], right=hyd_years(df)[-1])
     ax2.grid(which="major", axis="x", color="grey", alpha=0.15)
     ax2.grid(which="minor", axis="x", color="grey", alpha=0.15)
     ax2.grid(which="major", axis="y", color="grey", alpha=0.15)
@@ -163,11 +160,10 @@ def plot_spectrum(df: pd.DataFrame):
     plt.savefig(image_path+f"{pegelname}_fft.png", dpi=300, bbox_inches="tight")
     return None
 
-def plot_sin_waves():
+def plot_sin_waves(df):
     """Plot the dominant frequencies as sin waves."""
     check_path(image_path)
-    
-    freqs, period = get_dominant_frequency(nb=5)
+    freqs, period = get_dominant_frequency(*calc_spectrum(df), n=5)
     freqs = freqs[:-1] # del mean
     period = period[:-1] # del mean
     x = np.linspace(0, 12*2*np.pi, 1000)
