@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 import pandas as pd
 
-from data_structures import df_to_np
+from utils.data_structures import df_to_np
 
 
 def mean(df: pd.DataFrame, which: str):

@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 
 from config import tu_darkblue, tu_mediumblue, tu_grey, tu_red # TU colors
 from config import image_path, pegelname
-from primary_stats import max_val, max_val_month, min_val, min_val_month, hyd_years
-from trend_analysis import linreg_monthly, linreg_yearly
-from fft_analysis import calc_spectrum, get_dominant_frequency
-from binned_stats import mean, median, variance, skewness
-from data_structures import df_to_np
+from utils.primary_stats import max_val, max_val_month, min_val, min_val_month, hyd_years
+from utils.trend_analysis import linreg_monthly, linreg_yearly
+from utils.fft_analysis import calc_spectrum, get_dominant_frequency
+from utils.binned_stats import mean, median, variance, skewness
+from utils.data_structures import df_to_np
 
 
 def plot_raw(df: pd.DataFrame):

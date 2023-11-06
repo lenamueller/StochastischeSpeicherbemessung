@@ -42,20 +42,29 @@ def max_val(df: pd.DataFrame):
     return df["Durchfluss_m3s"].max()
 
 def first_central_moment(df: pd.DataFrame):
-    """Returns the first central moment."""
+    """Returns the first central moment (mean)."""
     return df["Durchfluss_m3s"].mean()
 
 def second_central_moment(df: pd.DataFrame):
-    """Returns the second central moment."""
-    return df["Durchfluss_m3s"].var()
+    """Returns the second central moment (variance)."""
+    n = sample_number(df)
+    mean = first_central_moment(df)
+    diff = [(i-mean)**2 for i in df["Durchfluss_m3s"]]
+    return np.sum(diff) / n
 
 def third_central_moment(df: pd.DataFrame):
     """Returns the third central moment."""
-    return scipy.stats.skew(df["Durchfluss_m3s"], bias=True)
+    n = sample_number(df)
+    mean = first_central_moment(df)
+    diff = [(i-mean)**3 for i in df["Durchfluss_m3s"]]
+    return np.sum(diff) / n
 
 def fourth_central_moment(df: pd.DataFrame):
     """Returns the fourth central moment."""
-    return scipy.stats.kurtosis(df["Durchfluss_m3s"], bias=True)
+    n = sample_number(df)
+    mean = first_central_moment(df)
+    diff = [(i-mean)**4 for i in df["Durchfluss_m3s"]]
+    return np.sum(diff) / n
 
 def standard_deviation_biased(df: pd.DataFrame):
     """Returns the biased standard deviation."""
@@ -82,19 +91,27 @@ def kurtosis_biased(df: pd.DataFrame):
     """Returns the biased kurtosis."""
     mean = first_central_moment(df)
     std = standard_deviation_biased(df)
-    n = sample_number(df)
-    return np.sum(((df["Durchfluss_m3s"] - mean)/std)**4) / n - 3
+    res = np.sum(((df["Durchfluss_m3s"] - mean)/std)**4) - 3
+    return res
 
 def kurtosis_unbiased(df: pd.DataFrame):
     """Returns the unbiased kurtosis."""
     n = sample_number(df)
     return kurtosis_biased(df) * n/(n-1) * (n-1)/(n-2) * (n-2)/(n-3)        
 
-def quartile(df: pd.DataFrame, q: int):
-    """Returns the q-th quartile."""
-    return df["Durchfluss_m3s"].quantile(q=q)
+def quartile(df: pd.DataFrame, which: int):
+    """Returns the first, second or third quartile."""
+    if which == "Q1":
+        return df["Durchfluss_m3s"].quantile(q=0.25, interpolation="nearest")
+    elif which == "Q2":
+        return df["Durchfluss_m3s"].quantile(q=0.5, interpolation="nearest")
+    elif which == "Q3":
+        return df["Durchfluss_m3s"].quantile(q=0.75, interpolation="nearest")
+    else:
+        raise ValueError("q must be 1, 2, 3 or 4.")
+    
 
 def iqr(df: pd.DataFrame):
-    """"Returns the interquartile range."""
-    return df["Durchfluss_m3s"].quantile(q=0.75) - \
-            df["Durchfluss_m3s"].quantile(q=0.25)
+    """"Returns the interquartile range using nearest rank method."""
+    return df["Durchfluss_m3s"].quantile(q=0.75, interpolation="nearest") - \
+            df["Durchfluss_m3s"].quantile(q=0.25, interpolation="nearest")

@@ -50,9 +50,9 @@ def timeseries_report(df: pd.DataFrame):
     info.loc[len(info)] = ["Skewness (unbiased)", np.round(skewness_unbiased(df), 3), "-"]
     info.loc[len(info)] = ["Kurtosis (biased)", np.round(kurtosis_biased(df), 3), "-"]
     info.loc[len(info)] = ["Kurtosis (unbiased)", np.round(kurtosis_unbiased(df), 3), "-"]
-    info.loc[len(info)] = ["25%-Quantil", np.round(quartile(df, 0.25), 3), "m³/s"]
-    info.loc[len(info)] = ["50%-Quantil", np.round(quartile(df, 0.50), 3), "m³/s"]
-    info.loc[len(info)] = ["75%-Quantil", np.round(quartile(df, 0.75), 3), "m³/s"]
+    info.loc[len(info)] = ["25%-Quantil", np.round(quartile(df, which="Q1"), 3), "m³/s"]
+    info.loc[len(info)] = ["50%-Quantil", np.round(quartile(df, which="Q2"), 3), "m³/s"]
+    info.loc[len(info)] = ["75%-Quantil", np.round(quartile(df, which="Q3"), 3), "m³/s"]
     info.loc[len(info)] = ["Interquartilsabstand", np.round(iqr(df), 3), "m³/s"]
     
     # Distribution
