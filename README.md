@@ -32,5 +32,5 @@ pip install -r requirements.txt
 ```
 #### 3. Run the code (e.g. for Klingenthal)
 ```bash 
-python code/main.py Klingenthal > reports/Klingenthal.txt
+python code/main.py
 ```
