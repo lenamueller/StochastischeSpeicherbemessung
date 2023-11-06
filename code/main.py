@@ -1,7 +1,8 @@
+import sys
 import numpy as np
 import pandas as pd
 
-from setup import pegelname, report_path, image_path
+from config import pegelname, report_path, image_path
 
 from utils.data_structures import read_data, check_path
 from utils.primary_stats import sample_number, earliest_date, latest_date, max_val, min_val, \
