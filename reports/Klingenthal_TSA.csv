@@ -31,5 +31,7 @@ Lineare Regression (Jahreswerte),"LinregressResult(slope=-0.002111069418386492, 
 Lineare Regression (Monatswerte),"LinregressResult(slope=-0.0025673340596119704, intercept=6.270214465779172, rvalue=-0.030154620751408158, pvalue=0.5098431062148938, stderr=0.0038923960328492227, intercept_stderr=7.706913020053636)",-
 Teststatistik lin. Regression (Jahreswerte),-0.492,-
 Teststatistik lin. Regression (Monatswerte),-0.66,-
+MK-Test (Jahreswerte),"Mann_Kendall_Test(trend='no trend', h=False, p=0.5066205695044608, z=-0.6641089699604278, Tau=-0.07435897435897436, s=-58.0, var_s=7366.666666666667, slope=-0.003614583333333382, intercept=1.293359375000001)",-
+MK-Test (Monatswerte),"Seasonal_Mann_Kendall_Test(trend='no trend', h=False, p=0.9758497724829516, z=0.03027244464783469, Tau=0.0010683760683760685, s=10.0, var_s=88387.33333333334, slope=0.0, intercept=0.8835)",-
 5 dominantesten Frequenzen,[0.33333333 0.0875     0.25       0.08333333 0.00208333],1/Monat
 5 dominantesten Periodendauern,"[3.0, 11.43, 4.0, 12.0, 480.0]",Monate

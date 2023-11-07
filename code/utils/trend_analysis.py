@@ -41,7 +41,7 @@ def linreg(df: pd.DataFrame, which: str):
     return scipy.stats.linregress(t, x, alternative="two-sided")
 
 def test_statistic(df: pd.DataFrame, which: str):
-    """Returns test statistic for the trend test with yearly values."""
+    """Returns test statistic for the t-test."""
     return linreg(df, which=which).slope / linreg(df, which=which).stderr
 
 def detrend_signal(df: pd.DataFrame) -> None:

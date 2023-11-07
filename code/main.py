@@ -1,10 +1,11 @@
-import sys
+import pymannkendall as mk
 import numpy as np
 import pandas as pd
 
 from config import pegelname, report_path, image_path
 
 from utils.data_structures import read_data, check_path
+from utils.binned_stats import mean
 from utils.primary_stats import sample_number, earliest_date, latest_date, max_val, min_val, \
     first_central_moment, second_central_moment, third_central_moment, fourth_central_moment, \
     standard_deviation_biased, standard_deviation_unbiased, skewness_biased, skewness_unbiased, \
@@ -63,12 +64,16 @@ def timeseries_report(df: pd.DataFrame):
     for k, v in hv.items():
         info.loc[len(info)] = [k, v, "m³/s"]
         
-    # Trend analysis
+    # Trend analysis: linear regression and t-test
     info.loc[len(info)] = ["Lineare Regression (Jahreswerte)", linreg(df, which="yearly"), "-"]
     info.loc[len(info)] = ["Lineare Regression (Monatswerte)", linreg(df, which="monthly"), "-"]
-
     info.loc[len(info)] = ["Teststatistik lin. Regression (Jahreswerte)", np.round(test_statistic(df, which="yearly"), 3), "-"]
     info.loc[len(info)] = ["Teststatistik lin. Regression (Monatswerte)", np.round(test_statistic(df, which="monthly"), 3), "-"]
+    
+    # Trend analysis: Theil-Sen regression and MK-test
+    info.loc[len(info)] = ["MK-Test (Jahreswerte)", mk.original_test(mean(df, which="yearly"), alpha=0.05), "-"]
+    info.loc[len(info)] = ["MK-Test (Monatswerte)", mk.seasonal_test(df["Durchfluss_m3s"].to_numpy(), alpha=0.05, period=12), "-"]
+    
     # TODO: #10 Create detrended data
     
     # Seasonal analysis
