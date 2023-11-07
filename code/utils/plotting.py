@@ -76,21 +76,26 @@ def plot_trend(df: pd.DataFrame):
     
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
     
-    days = np.arange(1, len(df)+1, 1)
+    years = hyd_years(df)
+    x_yearly = years
+    x_monthly = np. arange(years[0], years[-1]+1, 1/12)
+    
     res_m = linreg(df, which="monthly")
     res_y = linreg(df, which="yearly")
     
     # store regression function in str
-    res_m_func = f"y = {res_m.slope:.4f}x + {res_m.intercept:.4f}"
-    res_y_func = f"y = {res_y.slope:.4f}x + {res_y.intercept:.4f}"
+    res_m_func = f"y = {res_m.slope:.5f}x + {res_m.intercept:.5f}"
+    res_y_func = f"y = {res_y.slope:.5f}x + {res_y.intercept:.5f}"
     
+    # plot monthly trend
     ax1.plot(df["Monat"], df["Durchfluss_m3s"], 
                 c=tu_mediumblue, linewidth=0.8, label="Monatswerte (Rohdaten)")
-    ax1.plot(days, res_m.intercept + res_m.slope*days, c=tu_red, 
+    ax1.plot(df["Monat"], res_m.intercept + res_m.slope*x_monthly, c=tu_red, 
                 label=f"lin. Regressionsgerade {res_m_func} (R²: {res_m.rvalue**2:.3f})")
     
-    ax2.plot(hyd_years(df), mean(df, which="yearly"), label="Jahreswerte (arith. Mittel)")
-    ax2.plot(hyd_years(df), res_y.intercept + res_y.slope*hyd_years(df), c=tu_red,
+    # plot yearly trend
+    ax2.scatter(x_yearly, mean(df, which="yearly"), label="Jahreswerte (arith. Mittel)")
+    ax2.plot(x_yearly, res_y.intercept + res_y.slope*x_yearly, c=tu_red,
                 label=f"lin. Regressionsgerade {res_y_func} (R²: {res_y.rvalue**2:.3f})")
     
     ax1.set_ylim([0,8])
@@ -105,10 +110,10 @@ def plot_trend(df: pd.DataFrame):
         
     ax2.set_ylim([0,3])
     ax2.set_ylabel("Zeit (Jahre)")
-    ax2.set_xticks(hyd_years(df), minor=True)
+    ax2.set_xticks(x_yearly, minor=True)
     ax2.set_yticks(np.arange(0, 3.1, 0.5), minor=True)
     ax2.set_yticks(np.arange(0, 4, 1), minor=False)
-    ax2.set_xlim(left=hyd_years(df)[0], right=hyd_years(df)[-1])
+    ax2.set_xlim(left=x_yearly[0], right=x_yearly[-1])
     ax2.grid(which="major", axis="x", color="grey", alpha=0.15)
     ax2.grid(which="minor", axis="x", color="grey", alpha=0.15)
     ax2.grid(which="major", axis="y", color="grey", alpha=0.15)
