@@ -10,6 +10,7 @@ from utils.trend_analysis import linreg, moving_average
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency
 from utils.binned_stats import mean, median, variance, skewness
 from utils.data_structures import df_to_np
+from utils.autocorr import autocorr
 
 
 def plot_raw(df: pd.DataFrame):
@@ -72,35 +73,6 @@ def plot_hist(df: pd.DataFrame):
     plt.savefig(image_path+f"{pegelname}_hist.png", dpi=300, bbox_inches="tight")
     return None
 
-def plot_detrending(df_raw: pd.DataFrame, df_detrended: pd.DataFrame):
-    """Plot raw and detrended data."""
-    
-    plt.figure(figsize=(10, 5))
-    plt.plot(df_raw["Monat"], df_raw["Durchfluss_m3s"], 
-                c=tu_grey, lw=0.5, label="Rohdaten")
-    plt.plot(df_detrended["Monat"], df_detrended["Durchfluss_m3s"], 
-                c=tu_darkblue, lw=0.5, label="Trendbereingte Zeitreihe")
-    plt.plot(df_raw["Monat"], df_raw["Durchfluss_m3s"]-df_detrended["Durchfluss_m3s"],
-                c=tu_red, linewidth=0.8, label="Rohdaten - trendbereinigte Zeitreihe")
-    
-    # plot area between first two plots
-    plt.fill_between(df_raw["Monat"], df_raw["Durchfluss_m3s"], df_detrended["Durchfluss_m3s"],
-                        where=df_raw["Durchfluss_m3s"] >= df_detrended["Durchfluss_m3s"],
-                        facecolor=tu_red, interpolate=True, alpha=0.3)
-    
-    plt.xlabel("Monat")
-    plt.ylabel("Durchfluss [m³/s]")
-    plt.xticks(df_raw["Monat"][::12], rotation=90)
-    plt.yticks(np.arange(0, max_val(df_raw), 1), minor=False)
-    plt.yticks(np.arange(0, max_val(df_raw), 0.25), minor=True)
-    plt.grid(which="major", axis="x", color="grey", alpha=0.15)
-    plt.grid(which="major", axis="y", color="grey", alpha=0.75)
-    plt.grid(which="minor", axis="y", color="grey", alpha=0.15)
-    # plt.ylim(bottom=0)
-    plt.xlim(left=df_raw["Monat"].min(), right=df_raw["Monat"].max())
-    plt.legend(loc="upper right")
-    plt.savefig(image_path+f"{pegelname}_detrended.png", dpi=300, bbox_inches="tight")
-    
 def plot_trend(df: pd.DataFrame):
     """Plot trend analysis summary."""
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
@@ -248,29 +220,61 @@ def plot_saisonfigur(df: pd.DataFrame):
     
     data_np = df_to_np(df)
     
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(10, 3), sharex=True)
+    
     x = np.arange(1, 13)
+    titles = ["Rohdaten", "Trendbereinigt", "Saisonbereinigt", "Zufallsanteil"]
     
-    ax.plot(x, mean(df, which="monthly"), 
-            c="green", linewidth=1.5, label="Arith. Mittel")
-    ax.plot(x, median(df, which="monthly"),
-            c=tu_mediumblue, linewidth=1.5, label="Median")
-    ax.plot(x, variance(df, which="monthly"), 
-            c=tu_red, linewidth=1.5, label="Varianz")
-    ax.plot(x, skewness(df, which="monthly"),
-            c="orange", linewidth=1.5, label="Skewness")
+    for col_i in range(4):
+        ax[col_i].plot(x, mean(df, which="monthly"), 
+                c="green", linewidth=1.5, label="Arith. Mittel")
+        ax[col_i].plot(x, variance(df, which="monthly"), 
+                c=tu_red, linewidth=1.5, label="Varianz")
+        ax[col_i].plot(x, skewness(df, which="monthly"),
+                c="orange", linewidth=1.5, label="Skewness")
+        
+        # TODO
+        ax[col_i].plot(x, median(df, which="monthly"),
+                c=tu_mediumblue, linewidth=1.5, label="Autokorr.")
+
+        for i in range(len(data_np)):
+            ax[col_i].plot(x, data_np[i, :], linewidth=0.5, alpha=0.3, c=tu_grey)
+        
+        # config
+        ax[col_i].set_title(titles[col_i])
+        ax[col_i].set_xticks(np.arange(1, 13, 1))
+        ax[col_i].set_xticklabels(["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"])
+        ax[col_i].set_xlabel("Monat")
+        ax[0].set_ylabel("Durchfluss [m³/s]")
+        
+    # ax.set_ylabel("Durchfluss [m³/s]")
     
-    for i in range(len(data_np)):
-        ax.plot(x, data_np[i, :], linewidth=0.5, alpha=0.3, c=tu_grey)
-    ax.set_xlabel("Monat")
-    ax.set_ylabel("Durchfluss [m³/s]")
-    ax.set_xticks(x)
-    ax.set_xticklabels(["Nov", "Dez", "Jan", "Feb", "Mär", "Apr", 
-                        "Mai", "Jun", "Jul", "Aug", "Sep", "Okt"])
-    ax.grid()
+    
+    # ax.grid()
     plt.legend()
     plt.savefig(image_path+f"{pegelname}_saison.png", dpi=300, bbox_inches="tight")
 
+def plot_acf(df: pd.DataFrame):
+    """Plots the autocorrelation function."""
+    lags, ac, lower_conf, upper_conf = autocorr(df)
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(lags, ac, marker="x", color=tu_mediumblue, lw=1)
+    # plot horizontal lines
+    ax.axhline(y=lower_conf, color=tu_red, linestyle="--", alpha=0.5)
+    ax.axhline(y=upper_conf, color=tu_red, linestyle="--", alpha=0.5)
+    ax.set_xlim([0, 50])
+    ax.set_ylim([-0.5, 1])
+    ax.set_xticks(np.arange(0, 51, 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, 1.1, 0.1), minor=True)
+    ax.grid(which="major", axis="x", color="grey", alpha=0.75)
+    ax.grid(which="minor", axis="x", color="grey", alpha=0.15)
+    ax.grid(which="major", axis="y", color="grey", alpha=0.15)
+    ax.grid(which="minor", axis="y", color="grey", alpha=0.15)
+    ax.set_xlabel("Lag")
+    ax.set_ylabel("Autokorrelation")
+    ax.set_title("Autokorrelationsfunktion")
+    plt.savefig(image_path+f"{pegelname}_acf.png", dpi=300, bbox_inches="tight")
+    
 def plot_components(
         df: pd.DataFrame
     ):
