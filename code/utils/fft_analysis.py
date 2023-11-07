@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import scipy
 
+from utils.binned_stats import mean
+
 
 def calc_spectrum(df: pd.DataFrame, sample_rate: int = 1) -> None:
     """Calculate the FFT of the time series."""
@@ -50,3 +52,11 @@ def get_dominant_frequency(
     period = [round(1/f, 2) for f in freqs] # unit: months
     
     return freqs, period
+
+def season_signal(df: pd.DataFrame):
+    df_season = df.copy(deep=True)
+    df_deseason = df.copy(deep=True)
+    df_season["Durchfluss_m3s"] = np.tile(mean(df, which="monthly"), 40)
+    df_deseason["Durchfluss_m3s"] = df["Durchfluss_m3s"] - df_season["Durchfluss_m3s"]
+    return df_season, df_deseason
+    

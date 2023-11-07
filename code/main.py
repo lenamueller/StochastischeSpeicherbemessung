@@ -13,7 +13,7 @@ from utils.hydrological_values import hydro_values
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.trend_analysis import linreg, t_test_statistic, mk_test, detrend_signal
 from utils.plotting import plot_raw, plot_hist, plot_trend, plot_detrending, plot_spectrum, plot_sin_waves, plot_saisonfigur
-from utils.fft_analysis import calc_spectrum, get_dominant_frequency
+from utils.fft_analysis import calc_spectrum, get_dominant_frequency, season_signal
 
 
 def agenda(df: pd.DataFrame):
@@ -92,11 +92,13 @@ def agenda(df: pd.DataFrame):
     info.loc[len(info)] = ["5 dominantesten Frequenzen", freqs, "1/Monat"]
     info.loc[len(info)] = ["5 dominantesten Periodendauern", period, "Monate"]
     
-    # TODO: #11 Create seasonal data
-    
     plot_spectrum(df)
     plot_sin_waves(df)
     plot_saisonfigur(df)
+    
+    df_season, df_deseason = season_signal(df)    
+    df_season.to_csv(f"data/{pegelname}_season.csv", index=False)
+    df_deseason.to_csv(f"data/{pegelname}_deseasonal.csv", index=False)
     
     # Autocorrelation analysis
     # TODO: #12 Autocorrelation analysis
