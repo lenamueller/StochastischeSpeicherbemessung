@@ -72,8 +72,37 @@ def plot_hist(df: pd.DataFrame):
     plt.savefig(image_path+f"{pegelname}_hist.png", dpi=300, bbox_inches="tight")
     return None
 
-def plot_trend(df: pd.DataFrame):
+def plot_detrending(df_raw: pd.DataFrame, df_detrended: pd.DataFrame):
+    """Plot raw and detrended data."""
     
+    plt.figure(figsize=(10, 5))
+    plt.plot(df_raw["Monat"], df_raw["Durchfluss_m3s"], 
+                c=tu_grey, lw=0.5, label="Rohdaten")
+    plt.plot(df_detrended["Monat"], df_detrended["Durchfluss_m3s"], 
+                c=tu_darkblue, lw=0.5, label="Trendbereingte Zeitreihe")
+    plt.plot(df_raw["Monat"], df_raw["Durchfluss_m3s"]-df_detrended["Durchfluss_m3s"],
+                c=tu_red, linewidth=0.8, label="Rohdaten - trendbereinigte Zeitreihe")
+    
+    # plot area between first two plots
+    plt.fill_between(df_raw["Monat"], df_raw["Durchfluss_m3s"], df_detrended["Durchfluss_m3s"],
+                        where=df_raw["Durchfluss_m3s"] >= df_detrended["Durchfluss_m3s"],
+                        facecolor=tu_red, interpolate=True, alpha=0.3)
+    
+    plt.xlabel("Monat")
+    plt.ylabel("Durchfluss [m³/s]")
+    plt.xticks(df_raw["Monat"][::12], rotation=90)
+    plt.yticks(np.arange(0, max_val(df_raw), 1), minor=False)
+    plt.yticks(np.arange(0, max_val(df_raw), 0.25), minor=True)
+    plt.grid(which="major", axis="x", color="grey", alpha=0.15)
+    plt.grid(which="major", axis="y", color="grey", alpha=0.75)
+    plt.grid(which="minor", axis="y", color="grey", alpha=0.15)
+    # plt.ylim(bottom=0)
+    plt.xlim(left=df_raw["Monat"].min(), right=df_raw["Monat"].max())
+    plt.legend(loc="upper right")
+    plt.savefig(image_path+f"{pegelname}_detrended.png", dpi=300, bbox_inches="tight")
+    
+def plot_trend(df: pd.DataFrame):
+    """Plot trend analysis summary."""
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
     
     years = hyd_years(df)
@@ -126,9 +155,7 @@ def plot_trend(df: pd.DataFrame):
     # ax2.plot(x_yearly[1:], diff_y, c="orange", lw=0.8,
     #             label=f"Differenzmethode")
     
-    
-    
-    # ax1.set_ylim([0,8])
+    ax1.set_ylim([0,8])
     ax1.set_xlabel("Zeit (Monate)")
     ax1.set_xticks(df["Monat"][::12], minor=False)
     ax1.set_xticklabels(df["Monat"][::12], rotation=90)
