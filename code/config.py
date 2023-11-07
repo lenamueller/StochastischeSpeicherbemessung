@@ -1,6 +1,9 @@
+pegelname = "Klingenthal"
+
 image_path = "images/"
 report_path = "reports/"
-pegelname = "Klingenthal"
+
+fn_results = f"data/Daten_{pegelname}_results.csv"
 
 tu_darkblue = (0/255, 48/255, 93/255)
 tu_mediumblue = (0/255, 105/255, 180/255)

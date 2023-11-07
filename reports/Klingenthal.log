@@ -1,0 +1,45 @@
+Primärinformationen
+	Pegelname: Klingenthal
+	Stichprobenumfang: 480
+	Frühestes Datum: 1959-11-01 00:00:00
+	Spätestes Datum: 1999-10-01 00:00:00
+
+Konsistenzprüfung
+	Fehlwerte: {'Monat': 0, 'Durchfluss_m3s': 0, 'Datum': 0}
+	Fehlende Zeitschritte: []
+	Duplikate: []
+
+Primärstatistik
+	Minimum: 0.161
+	Maximum: 7.342
+	1. zentrales Moment: 1.187
+	2. zentrales Moment: 0.9664822333333334
+	3. zentrales Moment: 2.053832978049999
+	4. zentrales Moment: 9.08822294231903
+	Standardabweichung (biased): 0.9830982826418391
+	Standardabweichung (unbiased): 0.9841239462308013
+	Skewness (biased): 2.1615949180677685
+	Skewness (unbiased): 2.1706392482688885
+	Kurtosis (biased): 4667.16752705193
+	Kurtosis (unbiased): 4696.520781939049
+	25%-Quantil: 0.506
+	50%-Quantil: 0.887
+	75%-Quantil: 1.545
+	Interquartilsabstand: 1.039
+	HHQ: (7.342, '12/1974')
+	MHQ: 3.2618750000000007
+	MQ: 1.1879626893939395
+	MNQ: 0.3448
+	NNQ: (0.161, '08/1964')
+
+Trendanalyse
+	Lineare Regression (Jahreswerte): LinregressResult(slope=-0.002111069418386492, intercept=5.365861913696061, rvalue=-0.07949117894125547, pvalue=0.6258494451143433, stderr=0.004294526671423316, intercept_stderr=8.501160087838983)
+	Lineare Regression (Monatswerte): LinregressResult(slope=-0.0025673340596119704, intercept=6.270214465779172, rvalue=-0.030154620751408158, pvalue=0.5098431062148938, stderr=0.0038923960328492227, intercept_stderr=7.706913020053636)
+	Teststatistik lin. Regression (Jahreswerte): -0.492
+	Teststatistik lin. Regression (Monatswerte): -0.66
+	MK-Test (Jahreswerte): Mann_Kendall_Test(trend='no trend', h=False, p=0.5066205695044608, z=-0.6641089699604278, Tau=-0.07435897435897436, s=-58.0, var_s=7366.666666666667, slope=-0.003614583333333382, intercept=1.293359375000001)
+	MK-Test (Monatswerte): Seasonal_Mann_Kendall_Test(trend='no trend', h=False, p=0.9758497724829516, z=0.03027244464783469, Tau=0.0010683760683760685, s=10.0, var_s=88387.33333333334, slope=0.0, intercept=0.8835)
+
+Saisonanalyse
+	Top 5 Frequenzen:  [0.33333333 0.0875     0.25       0.08333333 0.00208333] 1/Monat
+	Top 5 Periodendauern [3.0, 11.43, 4.0, 12.0, 480.0] Monate

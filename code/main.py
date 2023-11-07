@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from config import pegelname, report_path, image_path
+from config import pegelname, report_path, image_path, fn_results
 
 from utils.data_structures import read_data, check_path
-from utils.binned_stats import mean
 from utils.primary_stats import sample_number, earliest_date, latest_date, max_val, min_val, \
     first_central_moment, second_central_moment, third_central_moment, fourth_central_moment, \
     standard_deviation_biased, standard_deviation_unbiased, skewness_biased, skewness_unbiased, \
@@ -12,112 +11,138 @@ from utils.primary_stats import sample_number, earliest_date, latest_date, max_v
 from utils.hydrological_values import hydro_values
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.trend_analysis import linreg, t_test_statistic, mk_test, detrend_signal
-from utils.plotting import plot_raw, plot_hist, plot_trend, plot_detrending, plot_spectrum, plot_sin_waves, plot_saisonfigur
+from utils.plotting import plot_raw, plot_hist, plot_trend, plot_components, plot_spectrum, plot_sin_waves, plot_saisonfigur
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency, season_signal
 
 
-def agenda(df: pd.DataFrame):
-    check_path(image_path)
-    check_path(report_path)
 
-    plot_raw(df)
-    plot_hist(df)
-    
-    info = pd.DataFrame(columns=["Name", "Wert", "Einheit"])
-    
-    # Primary information
-    info.loc[len(info)] = ["Pegelname", pegelname, "-"]
-    info.loc[len(info)] = ["Stichprobenumfang", sample_number(df), "-"]
-    info.loc[len(info)] = ["Frühestes Datum", earliest_date(df), "-"]
-    info.loc[len(info)] = ["Spätestes Datum", latest_date(df), "-"]
-    
-    # Consistency check    
-    info.loc[len(info)] = ["Fehlwerte", missing_values(df), "-"]
-    info.loc[len(info)] = ["Fehlende Zeitschritte", missing_dates(df), "-"]
-    info.loc[len(info)] = ["Duplikate", duplicates(df), "m³/s"]
-    
-    # Homogenity check
-    # TODO: #6 Check for outliers
-    # TODO: #7 double sum analysis
-    
-    # Stationarity check
-    # TODO: #8 Check for stationarity
-    
-    # Primary stats
-    info.loc[len(info)] = ["Minimum", np.round(min_val(df), 3), "m³/s"]
-    info.loc[len(info)] = ["Maximum", np.round(max_val(df), 3), "m³/s"]
-    info.loc[len(info)] = ["1. zentrales Moment", np.round(first_central_moment(df), 3), "m³/s"]
-    info.loc[len(info)] = ["2. zentrales Moment", np.round(second_central_moment(df), 3), "(m³/s)²"]
-    info.loc[len(info)] = ["3. zentrales Moment", np.round(third_central_moment(df), 3), "(m³/s)³"]
-    info.loc[len(info)] = ["4. zentrales Moment", np.round(fourth_central_moment(df), 3), "(m³/s)⁴"]
-    info.loc[len(info)] = ["Standardabweichung (biased)", np.round(standard_deviation_biased(df), 3), "m³/s"]
-    info.loc[len(info)] = ["Standardabweichung (unbiased)", np.round(standard_deviation_unbiased(df), 3), "m³/s"]
-    info.loc[len(info)] = ["Skewness (biased)", np.round(skewness_biased(df), 3), "-"]
-    info.loc[len(info)] = ["Skewness (unbiased)", np.round(skewness_unbiased(df), 3), "-"]
-    info.loc[len(info)] = ["Kurtosis (biased)", np.round(kurtosis_biased(df), 3), "-"]
-    info.loc[len(info)] = ["Kurtosis (unbiased)", np.round(kurtosis_unbiased(df), 3), "-"]
-    info.loc[len(info)] = ["25%-Quantil", np.round(quartile(df, which="Q1"), 3), "m³/s"]
-    info.loc[len(info)] = ["50%-Quantil", np.round(quartile(df, which="Q2"), 3), "m³/s"]
-    info.loc[len(info)] = ["75%-Quantil", np.round(quartile(df, which="Q3"), 3), "m³/s"]
-    info.loc[len(info)] = ["Interquartilsabstand", np.round(iqr(df), 3), "m³/s"]
-    
-    # Distribution
-    # TODO: #9 Fit distribution to data
+check_path(image_path)
+check_path(report_path)
 
-    # Hydrological values
-    hv = hydro_values(df)
-    for k, v in hv.items():
-        info.loc[len(info)] = [k, v, "m³/s"]
-        
-    # Trend analysis: linear regression and t-test
-    info.loc[len(info)] = ["Lineare Regression (Jahreswerte)", linreg(df, which="yearly"), "-"]
-    info.loc[len(info)] = ["Lineare Regression (Monatswerte)", linreg(df, which="monthly"), "-"]
-    info.loc[len(info)] = ["Teststatistik lin. Regression (Jahreswerte)", np.round(t_test_statistic(df, which="yearly"), 3), "-"]
-    info.loc[len(info)] = ["Teststatistik lin. Regression (Monatswerte)", np.round(t_test_statistic(df, which="monthly"), 3), "-"]
-    
-    # Trend analysis: Theil-Sen regression and MK-test
-    info.loc[len(info)] = ["MK-Test (Jahreswerte)", mk_test(df, which="yearly"), "-"]
-    info.loc[len(info)] = ["MK-Test (Monatswerte)", mk_test(df, which="monthly"), "-"]
-    
-    # Detrending
-    df_detrended = detrend_signal(df)
-    df_detrended.to_csv(f"data/{pegelname}_detrended.csv", index=False)
-    
-    plot_trend(df)
-    plot_detrending(df, df_detrended)
-    
-    # Seasonal analysis
-    freqs, spectrum = calc_spectrum(df)
-    freqs, period = get_dominant_frequency(freqs, spectrum, n=5)
-    info.loc[len(info)] = ["5 dominantesten Frequenzen", freqs, "1/Monat"]
-    info.loc[len(info)] = ["5 dominantesten Periodendauern", period, "Monate"]
-    
-    plot_spectrum(df)
-    plot_sin_waves(df)
-    plot_saisonfigur(df)
-    
-    df_season, df_deseason = season_signal(df)    
-    df_season.to_csv(f"data/{pegelname}_season.csv", index=False)
-    df_deseason.to_csv(f"data/{pegelname}_deseasonal.csv", index=False)
-    
-    # Autocorrelation analysis
-    # TODO: #12 Autocorrelation analysis
-    # TODO: #13 Create residual data
-    
 
-    info.to_csv(f"reports/{pegelname}_TSA.csv", index=False)
+df = read_data(filename="Daten_Klingenthal_raw.txt")
 
+info = pd.DataFrame(columns=["Name", "Wert", "Einheit"])
+
+# -----------------------------------------
+#           Primary information
+# -----------------------------------------
+
+print("Primärinformationen")
+print("\tPegelname:", pegelname)
+print("\tStichprobenumfang:", sample_number(df))
+print("\tFrühestes Datum:", earliest_date(df))
+print("\tSpätestes Datum:", latest_date(df))
+
+# -----------------------------------------
+#           Consistency check    
+# -----------------------------------------
+
+print("\nKonsistenzprüfung")
+print("\tFehlwerte:", missing_values(df))
+print("\tFehlende Zeitschritte:", missing_dates(df))
+print("\tDuplikate:", duplicates(df))
+
+# -----------------------------------------
+#           Homogenity check
+# -----------------------------------------
+
+# TODO: #6 Check for outliers
+# TODO: #7 double sum analysis
+
+# -----------------------------------------
+#           Stationarity check
+# -----------------------------------------
+
+# TODO: #8 Check for stationarity
+
+# -----------------------------------------
+#           Primary statistics
+# -----------------------------------------
+
+print("\nPrimärstatistik")
+print("\tMinimum:", min_val(df))
+print("\tMaximum:", max_val(df))
+print("\t1. zentrales Moment:", first_central_moment(df))
+print("\t2. zentrales Moment:", second_central_moment(df))
+print("\t3. zentrales Moment:", third_central_moment(df))
+print("\t4. zentrales Moment:", fourth_central_moment(df))
+print("\tStandardabweichung (biased):", standard_deviation_biased(df))
+print("\tStandardabweichung (unbiased):", standard_deviation_unbiased(df))
+print("\tSkewness (biased):", skewness_biased(df))
+print("\tSkewness (unbiased):", skewness_unbiased(df))
+print("\tKurtosis (biased):", kurtosis_biased(df))
+print("\tKurtosis (unbiased):", kurtosis_unbiased(df))
+print("\t25%-Quantil:", quartile(df, which="Q1"))
+print("\t50%-Quantil:", quartile(df, which="Q2"))
+print("\t75%-Quantil:", quartile(df, which="Q3"))
+print("\tInterquartilsabstand:", iqr(df))
+
+hv = hydro_values(df)
+for k, v in hv.items():
+    print(f"\t{k}: {v}")
     
+# -----------------------------------------
+#               Distribution
+# -----------------------------------------
 
-    
-        
-fn_raw = f"Daten_{pegelname}_raw.txt"
-fn_det = f"Daten_{pegelname}_detrended.txt"
-fn_sea = f"Daten_{pegelname}_seasonal.txt"
-fn_res = f"Daten_{pegelname}_residual.txt"
+# TODO: #9 Fit distribution to data
+plot_raw(df)
+plot_hist(df)
 
-df = read_data(filename=fn_raw)
-df.to_csv(f"data/{pegelname}_raw.csv", index=False)
-agenda(df)
+# -----------------------------------------
+#           Trend analysis
+# -----------------------------------------
 
-print("Done!")
+# Statistical tests
+print("\nTrendanalyse")
+print("\tLineare Regression (Jahreswerte):", linreg(df, which="yearly"))
+print("\tLineare Regression (Monatswerte):", linreg(df, which="monthly"))
+print("\tTeststatistik lin. Regression (Jahreswerte):", np.round(t_test_statistic(df, which="yearly"), 3))
+print("\tTeststatistik lin. Regression (Monatswerte):", np.round(t_test_statistic(df, which="monthly"), 3))
+print("\tMK-Test (Jahreswerte):", mk_test(df, which="yearly"))
+print("\tMK-Test (Monatswerte):", mk_test(df, which="monthly"))
+
+# Data cleaning
+df = detrend_signal(df)
+
+# Plotting
+plot_trend(df)
+
+# -----------------------------------------
+#           Seasonal analysis
+# -----------------------------------------
+
+print("\nSaisonanalyse")
+freqs, spectrum = calc_spectrum(df)
+freqs, period = get_dominant_frequency(freqs, spectrum, n=5)
+print("\tTop 5 Frequenzen: ", freqs, "1/Monat")
+print("\tTop 5 Periodendauern", period, "Monate")
+
+# Data cleaning
+df = season_signal(df)    
+
+# Plotting
+plot_spectrum(df)
+plot_sin_waves(df)
+plot_saisonfigur(df)
+
+# -----------------------------------------
+#        Autocorrelation analysis
+# -----------------------------------------
+
+# TODO: #12 Autocorrelation analysis
+
+# Data cleaning
+# TODO: #13 Create residual data
+
+# Plotting
+# TODO: plot all components
+
+# -----------------------------------------
+#               Save data
+# -----------------------------------------
+df.to_csv(fn_results, index=False)
+
+plot_components(df)
+

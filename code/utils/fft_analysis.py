@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy
 
-from utils.binned_stats import mean
+from utils.binned_stats import mean, variance
 
 
 def calc_spectrum(df: pd.DataFrame, sample_rate: int = 1) -> None:
@@ -54,9 +54,11 @@ def get_dominant_frequency(
     return freqs, period
 
 def season_signal(df: pd.DataFrame):
-    df_season = df.copy(deep=True)
-    df_deseason = df.copy(deep=True)
-    df_season["Durchfluss_m3s"] = np.tile(mean(df, which="monthly"), 40)
-    df_deseason["Durchfluss_m3s"] = df["Durchfluss_m3s"] - df_season["Durchfluss_m3s"]
-    return df_season, df_deseason
+    saisonfigur_mean = np.tile(mean(df, which="monthly"), 40)
+    saisonfigur_var = np.tile(variance(df, which="monthly"), 40)
+    saisonfigur_std = np.sqrt(saisonfigur_var)
+    df["saisonfigur_mean"] = saisonfigur_mean
+    df["saisonfigur_std"] = saisonfigur_std
+    df["saisonber"] = df["Durchfluss_m3s"] - df["saisonfigur_mean"]
+    return df
     

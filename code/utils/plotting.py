@@ -270,3 +270,50 @@ def plot_saisonfigur(df: pd.DataFrame):
     ax.grid()
     plt.legend()
     plt.savefig(image_path+f"{pegelname}_saison.png", dpi=300, bbox_inches="tight")
+
+def plot_components(
+        df: pd.DataFrame
+    ):
+    
+    fig, ax = plt.subplots(nrows=8, ncols=1, figsize=(10,15), 
+                           sharex=True, sharey=False)
+
+    ax[0].plot(df["Monat"], df["Durchfluss_m3s"], 
+               c=tu_grey, lw=1)
+    ax[1].plot(df["Monat"], df["trend"], 
+               c=tu_red, lw=1)
+    ax[2].plot(df["Monat"], df["trendber"], 
+               c=tu_red, lw=1)
+    ax[3].plot(df["Monat"], df["saisonfigur_mean"], 
+               c=tu_mediumblue, lw=1)
+    ax[4].plot(df["Monat"], df["saisonfigur_std"],
+                c=tu_mediumblue, lw=1)
+    ax[5].plot(df["Monat"], df["saisonber"], 
+               c=tu_mediumblue, lw=1)
+    
+    # ax[5].plot(df["Monat"], df["autokorr"], 
+    #            c="green", lw=1)
+    # ax[6].plot(df["Monat"], df["autokorrber"], 
+    #            c="green", lw=1)
+    
+    ax[0].set_title("Rohdaten")
+    ax[1].set_title("Trend (nicht signifikant)")
+    ax[2].set_title("Trendbereinigt")
+    ax[3].set_title("Saisonfigur (Monatsmittel)")
+    ax[4].set_title("Saisonfigur (Standardabweichung)")
+    ax[5].set_title("Saisonbereinigt Zeitreihe")
+    ax[6].set_title("Autokorrelation")
+    ax[7].set_title("Zufallsanteil")
+    
+    for i in range(len(ax)):
+        ax[i].set_xticks(df["Monat"][::12])
+        ax[i].set_xticklabels(df["Monat"][::12], rotation=90)
+        ax[i].set_xlim(left=df["Monat"].min(), right=df["Monat"].max())
+        ax[i].set_ylabel("Durchfluss [m³/s]")
+        ax[i].set_ylim([-3, 8])
+    
+    ax[1].set_ylim([-0.1, 0.1])
+    
+    plt.tight_layout()
+    plt.savefig(image_path+f"{pegelname}_components.png", dpi=300, bbox_inches="tight")
+    

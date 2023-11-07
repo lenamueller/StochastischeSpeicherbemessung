@@ -58,7 +58,7 @@ def moving_average(df: pd.DataFrame, which: str, window: int):
 
 def detrend_signal(df: pd.DataFrame) -> None:
     """Detrend the time series."""
-    df_detrend = df.copy(deep=True)
-    df_detrend["Durchfluss_m3s"] = np.mean(df["Durchfluss_m3s"].to_numpy()) + \
+    df["trendber"] = np.mean(df["Durchfluss_m3s"].to_numpy()) + \
         scipy.signal.detrend(df["Durchfluss_m3s"].to_numpy(), type="linear")
-    return df_detrend
+    df["trend"] = df["Durchfluss_m3s"].to_numpy() - df["trendber"].to_numpy()
+    return df
