@@ -51,6 +51,7 @@ def moving_average(df: pd.DataFrame, which: str, window: int):
 
 def detrend_signal(df: pd.DataFrame) -> None:
     """Detrend the time series."""
-    # TODO: #3 Check algorithm for detrending
-    data = df["Durchfluss_m3s"].to_numpy()
-    return np.mean(data) + scipy.signal.detrend(data, type="linear")
+    df_detrend = df.copy(deep=True)
+    df_detrend["Durchfluss_m3s"] = np.mean(df["Durchfluss_m3s"].to_numpy()) + \
+        scipy.signal.detrend(df["Durchfluss_m3s"].to_numpy(), type="linear")
+    return df_detrend

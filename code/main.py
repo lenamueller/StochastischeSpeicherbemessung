@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pymannkendall as mk
 import numpy as np
 import pandas as pd
@@ -12,14 +13,20 @@ from utils.primary_stats import sample_number, earliest_date, latest_date, max_v
     kurtosis_biased, kurtosis_unbiased, quartile, iqr
 from utils.hydrological_values import hydro_values
 from utils.consistency_check import missing_values, missing_dates, duplicates
-from utils.trend_analysis import linreg, test_statistic
-from utils.plotting import plot_raw, plot_hist, plot_trend, plot_spectrum, plot_sin_waves, plot_saisonfigur
+from utils.trend_analysis import linreg, test_statistic, detrend_signal
+from utils.plotting import plot_raw, plot_hist, plot_trend, plot_detrending, plot_spectrum, plot_sin_waves, plot_saisonfigur
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency
 
 
-def timeseries_report(df: pd.DataFrame):
-    info = pd.DataFrame(columns=["Name", "Wert", "Einheit"])
+def agenda(df: pd.DataFrame):
+    check_path(image_path)
+    check_path(report_path)
 
+    plot_raw(df)
+    plot_hist(df)
+    
+    info = pd.DataFrame(columns=["Name", "Wert", "Einheit"])
+    
     # Primary information
     info.loc[len(info)] = ["Pegelname", pegelname, "-"]
     info.loc[len(info)] = ["Stichprobenumfang", sample_number(df), "-"]
@@ -74,36 +81,34 @@ def timeseries_report(df: pd.DataFrame):
     info.loc[len(info)] = ["MK-Test (Jahreswerte)", mk.original_test(mean(df, which="yearly"), alpha=0.05), "-"]
     info.loc[len(info)] = ["MK-Test (Monatswerte)", mk.seasonal_test(df["Durchfluss_m3s"].to_numpy(), alpha=0.05, period=12), "-"]
     
-    # TODO: #10 Create detrended data
+    # Detrending
+    df_detrended = detrend_signal(df)
+    df_detrended.to_csv(f"data/{pegelname}_detrended.csv", index=False)
+    
+    plot_trend(df)
+    plot_detrending(df, df_detrended)
     
     # Seasonal analysis
     freqs, spectrum = calc_spectrum(df)
     freqs, period = get_dominant_frequency(freqs, spectrum, n=5)
     info.loc[len(info)] = ["5 dominantesten Frequenzen", freqs, "1/Monat"]
     info.loc[len(info)] = ["5 dominantesten Periodendauern", period, "Monate"]
+    
     # TODO: #11 Create seasonal data
+    
+    plot_spectrum(df)
+    plot_sin_waves(df)
+    plot_saisonfigur(df)
     
     # Autocorrelation analysis
     # TODO: #12 Autocorrelation analysis
     # TODO: #13 Create residual data
     
-    check_path(report_path)
+
     info.to_csv(f"reports/{pegelname}_TSA.csv", index=False)
 
-    # print(info)
-
-def plotting_agenda(df):
-    print("------------------------------------------------------------")
-    check_path(image_path)
-    print("Plotting ... ")
-    plot_raw(df)
-    plot_hist(df)
-    plot_trend(df)
-    plot_spectrum(df)
-    plot_sin_waves(df)
-    plot_saisonfigur(df)
-    print("Done!")
-    print("------------------------------------------------------------")
+    
+print("Done!")
     
         
 fns = [
@@ -115,5 +120,5 @@ fns = [
 
 for fn in fns:
     df = read_data(filename=fn)
-    timeseries_report(df)
-    plotting_agenda(df)
+    df.to_csv(f"data/{pegelname}_raw.csv", index=False)
+    agenda(df)
