@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pymannkendall as mk
 
 from config import tu_darkblue, tu_mediumblue, tu_grey, tu_red # TU colors
 from config import image_path, pegelname
 from utils.primary_stats import max_val, max_val_month, min_val, min_val_month, hyd_years
-from utils.trend_analysis import linreg
+from utils.trend_analysis import linreg, moving_average
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency
 from utils.binned_stats import mean, median, variance, skewness
 from utils.data_structures import df_to_np
@@ -72,33 +73,62 @@ def plot_hist(df: pd.DataFrame):
     return None
 
 def plot_trend(df: pd.DataFrame):
-    # TODO: #4 Beautify trend analysis plot
     
-    fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
+    fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
     
     years = hyd_years(df)
     x_yearly = years
     x_monthly = np. arange(years[0], years[-1]+1, 1/12)
     
-    res_m = linreg(df, which="monthly")
-    res_y = linreg(df, which="yearly")
+    # raw data
+    ax1.plot(df["Monat"], df["Durchfluss_m3s"], c=tu_grey, linewidth=0.8, 
+             alpha=0.3, marker="o", markersize=2, label="Monatswerte (Rohdaten)")
+    ax2.plot(x_yearly, mean(df, which="yearly"), c=tu_grey, linewidth=0.8, 
+             alpha=0.3, marker="o", markersize=3, label="Jahreswerte (arith. Mittel)")
     
-    # store regression function in str
-    res_m_func = f"y = {res_m.slope:.5f}x + {res_m.intercept:.5f}"
-    res_y_func = f"y = {res_y.slope:.5f}x + {res_y.intercept:.5f}"
+    # linear regression
+    linreg_m = linreg(df, which="monthly")
+    linreg_y = linreg(df, which="yearly")
+    linreg_m_func = f"y = {linreg_m.slope:.5f}x + {linreg_m.intercept:.5f}"
+    linreg_y_func = f"y = {linreg_y.slope:.5f}x + {linreg_y.intercept:.5f}"
+
+    ax1.plot(df["Monat"], linreg_m.intercept + linreg_m.slope*x_monthly, c=tu_red, ls="--",
+                label=f"Lineare Regression {linreg_m_func}")
+    ax2.plot(x_yearly, linreg_y.intercept + linreg_y.slope*x_yearly, c=tu_red, ls="--",
+                label=f"Lineare Regression {linreg_y_func}")
     
-    # plot monthly trend
-    ax1.plot(df["Monat"], df["Durchfluss_m3s"], 
-                c=tu_mediumblue, linewidth=0.8, label="Monatswerte (Rohdaten)")
-    ax1.plot(df["Monat"], res_m.intercept + res_m.slope*x_monthly, c=tu_red, 
-                label=f"lin. Regressionsgerade {res_m_func} (R²: {res_m.rvalue**2:.3f})")
+    # theil sen regression
+    mk_m = mk.original_test(df["Durchfluss_m3s"], alpha=0.05)
+    mk_y = mk.seasonal_test(df["Durchfluss_m3s"], alpha=0.05, period=12)
+    mk_m_func = f"y = {mk_m.slope:.5f}x + {mk_m.intercept:.5f}"
+    mk_y_func = f"y = {mk_y.slope:.5f}x + {mk_y.intercept:.5f}"
     
-    # plot yearly trend
-    ax2.scatter(x_yearly, mean(df, which="yearly"), label="Jahreswerte (arith. Mittel)")
-    ax2.plot(x_yearly, res_y.intercept + res_y.slope*x_yearly, c=tu_red,
-                label=f"lin. Regressionsgerade {res_y_func} (R²: {res_y.rvalue**2:.3f})")
+    ax1.plot(df["Monat"], mk_m.intercept + mk_m.slope*x_monthly, c="green", ls="--",
+                label=f"Theil-Sen-Regression {mk_m_func}")
+    ax2.plot(x_yearly, mk_y.intercept + mk_y.slope*x_yearly, c="green", ls="--",
+                label=f"Theil-Sen-Regression {mk_y_func}")
     
-    ax1.set_ylim([0,8])
+    # moving average
+    ma_m = moving_average(df, which="monthly", window=12)
+    ma_y = moving_average(df, which="yearly", window=5)
+    
+    ax1.plot(df["Monat"][5:-6], ma_m, c=tu_mediumblue, lw=0.8,
+                label=f"Gleitender Durchschnitt (Fensterbreite: 1a)")
+    ax2.plot(x_yearly[2:-2], ma_y, c=tu_mediumblue, lw=0.8,
+                label=f"Gleitender Durchschnitt (Fensterbreite: 5a)")
+    
+    # difference method
+    # diff_m = np.diff(df["Durchfluss_m3s"])
+    # diff_y = np.diff(mean(df, which="yearly"))
+    
+    # ax1.plot(df["Monat"][1:], diff_m, c="orange", lw=0.8,
+    #             label=f"Differenzmethode")
+    # ax2.plot(x_yearly[1:], diff_y, c="orange", lw=0.8,
+    #             label=f"Differenzmethode")
+    
+    
+    
+    # ax1.set_ylim([0,8])
     ax1.set_xlabel("Zeit (Monate)")
     ax1.set_xticks(df["Monat"][::12], minor=False)
     ax1.set_xticklabels(df["Monat"][::12], rotation=90)
@@ -121,7 +151,7 @@ def plot_trend(df: pd.DataFrame):
     
     for ax in [ax1, ax2]:
         ax.set_ylabel("Durchfluss [m³/s]")
-        ax.legend(loc="upper right")
+        ax.legend(loc="upper left")
         
     fig.tight_layout()
     

@@ -44,6 +44,11 @@ def test_statistic(df: pd.DataFrame, which: str):
     """Returns test statistic for the t-test."""
     return linreg(df, which=which).slope / linreg(df, which=which).stderr
 
+def moving_average(df: pd.DataFrame, which: str, window: int):
+    """Returns the moving average of the time series."""
+    x, _, _ = __preprocess(df, which)
+    return np.convolve(x, np.ones(window), "valid") / window
+
 def detrend_signal(df: pd.DataFrame) -> None:
     """Detrend the time series."""
     # TODO: #3 Check algorithm for detrending
