@@ -1,17 +1,8 @@
-import os
-import sys
-import inspect
 import pytest
 import numpy as np
 import pandas as pd
 
-
-from code.utils.primary_stats import sample_number, earliest_date, latest_date, \
-    years, hyd_years, min_val, max_val, min_val_month, max_val_month, \
-    first_central_moment, second_central_moment, third_central_moment, \
-    fourth_central_moment, standard_deviation_biased, standard_deviation_unbiased, \
-    skewness_biased, skewness_unbiased, kurtosis_biased, kurtosis_unbiased, \
-    quartile, iqr
+import code.utils.statistics as st
   
 
 @pytest.fixture
@@ -62,36 +53,28 @@ def test_hydrological_values():
 
 def test_primary_stats(first_4_rows: pd.DataFrame):
     
-    assert sample_number(first_4_rows) == 4
-    assert earliest_date(first_4_rows) == pd.Timestamp("1959-11-01")
-    assert latest_date(first_4_rows) == pd.Timestamp("1960-02-01")
+    assert st.sample_number(first_4_rows) == 4
+    assert st.earliest_date(first_4_rows) == pd.Timestamp("1959-11-01")
+    assert st.latest_date(first_4_rows) == pd.Timestamp("1960-02-01")
     
-    assert (years(first_4_rows) == np.array([1959, 1960])).all()
-    assert (hyd_years(first_4_rows) == np.array([1960])).all()
-    
-    assert min_val(first_4_rows) == 0
-    assert max_val(first_4_rows) == 2
-    assert min_val_month(first_4_rows) == "11/1959"
-    assert max_val_month(first_4_rows) == "02/1960"
-    
-    assert first_central_moment(first_4_rows) == 1.0
-    assert second_central_moment(first_4_rows) == 0.5
-    assert third_central_moment(first_4_rows) == 0.0
-    assert fourth_central_moment(first_4_rows) == 0.5
-    
-    assert round(standard_deviation_biased(first_4_rows), 4) == 0.7071
-    assert round(standard_deviation_unbiased(first_4_rows), 4) == 0.8165
-    
-    assert skewness_biased(first_4_rows) == 0.0
-    assert skewness_unbiased(first_4_rows) == 0.0
-    
-    assert round(kurtosis_biased(first_4_rows), 1) == 5.0
-    assert round(kurtosis_unbiased(first_4_rows), 1) == 20.0
-    
-    assert quartile(first_4_rows, which="Q1") == 1.0
-    assert quartile(first_4_rows, which="Q2") == 1.0
-    assert quartile(first_4_rows, which="Q3") == 1.0
-    assert iqr(first_4_rows) == 0.0
+    assert (st.years(first_4_rows) == np.array([1959, 1960])).all()
+    assert (st.hyd_years(first_4_rows) == np.array([1960])).all()
+    assert st.min_val(first_4_rows) == 0
+    assert st.max_val(first_4_rows) == 2
+    assert st.min_val_month(first_4_rows) == "11/1959"
+    assert st.max_val_month(first_4_rows) == "02/1960"
+    assert st.first_central_moment(first_4_rows) == 1.0
+    assert st.second_central_moment(first_4_rows) == 0.5
+    assert st.third_central_moment(first_4_rows) == 0.0
+    assert st.fourth_central_moment(first_4_rows) == 0.5
+    assert round(st.standard_deviation_biased(first_4_rows), 4) == 0.7071
+    assert round(st.standard_deviation_unbiased(first_4_rows), 4) == 0.8165
+    assert st.skewness_biased(first_4_rows) == 0.0
+    assert st.skewness_unbiased(first_4_rows) == 0.0
+    assert round(st.kurtosis_biased(first_4_rows), 1) == 5.0
+    assert round(st.kurtosis_unbiased(first_4_rows), 1) == 20.0
+    assert st.quartile(first_4_rows) == (1.0, 1.0, 1.0)
+    assert st.iqr(first_4_rows) == 0.0
 
 
 def test_trend_analysis():

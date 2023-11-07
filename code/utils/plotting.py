@@ -5,12 +5,11 @@ import pymannkendall as mk
 
 from config import tu_darkblue, tu_mediumblue, tu_grey, tu_red # TU colors
 from config import image_path, pegelname
-from utils.primary_stats import max_val, max_val_month, min_val, min_val_month, hyd_years
-from utils.trend_analysis import linreg, moving_average
-from utils.fft_analysis import calc_spectrum, get_dominant_frequency
-from utils.binned_stats import mean, median, variance, skewness
-from utils.data_structures import df_to_np
-from utils.autocorr import autocorr
+from utils.statistics import max_val, max_val_month, min_val, \
+    min_val_month, hyd_years, monthly_autocorr, yearly_autocorr, \
+    monthly_mean, yearly_mean, monthly_variance, yearly_variance, \
+    monthly_skewness, yearly_skewness, autocorr, confidence_interval, \
+        linreg, moving_average, calc_spectrum, get_dominant_frequency
 
 
 def plot_raw(df: pd.DataFrame):
@@ -84,7 +83,7 @@ def plot_trend(df: pd.DataFrame):
     # raw data
     ax1.plot(df["Monat"], df["Durchfluss_m3s"], c=tu_grey, linewidth=0.8, 
              alpha=0.3, marker="o", markersize=2, label="Monatswerte (Rohdaten)")
-    ax2.plot(x_yearly, mean(df, which="yearly"), c=tu_grey, linewidth=0.8, 
+    ax2.plot(x_yearly, yearly_mean(df), c=tu_grey, linewidth=0.8, 
              alpha=0.3, marker="o", markersize=3, label="Jahreswerte (arith. Mittel)")
     
     # linear regression
@@ -118,15 +117,6 @@ def plot_trend(df: pd.DataFrame):
     ax2.plot(x_yearly[2:-2], ma_y, c=tu_mediumblue, lw=0.8,
                 label=f"Gleitender Durchschnitt (Fensterbreite: 5a)")
     
-    # difference method
-    # diff_m = np.diff(df["Durchfluss_m3s"])
-    # diff_y = np.diff(mean(df, which="yearly"))
-    
-    # ax1.plot(df["Monat"][1:], diff_m, c="orange", lw=0.8,
-    #             label=f"Differenzmethode")
-    # ax2.plot(x_yearly[1:], diff_y, c="orange", lw=0.8,
-    #             label=f"Differenzmethode")
-    
     ax1.set_ylim([0,8])
     ax1.set_xlabel("Zeit (Monate)")
     ax1.set_xticks(df["Monat"][::12], minor=False)
@@ -153,7 +143,6 @@ def plot_trend(df: pd.DataFrame):
         ax.legend(loc="upper left")
         
     fig.tight_layout()
-    
     plt.savefig(image_path+f"{pegelname}_trend.png", dpi=300, bbox_inches="tight")
     return None
 
@@ -218,28 +207,25 @@ def plot_sin_waves(df):
 def plot_saisonfigur(df: pd.DataFrame):
     """Plot monthly mean and median (Saisonfigur)."""
     
-    data_np = df_to_np(df)
+    # data_np = df_to_np(df)
     
-    fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(10, 3), sharex=True)
+    _, ax = plt.subplots(nrows=1, ncols=4, figsize=(10, 3), sharex=True)
     
     x = np.arange(1, 13)
     titles = ["Rohdaten", "Trendbereinigt", "Saisonbereinigt", "Zufallsanteil"]
     
     for col_i in range(4):
-        ax[col_i].plot(x, mean(df, which="monthly"), 
+        ax[col_i].plot(x, monthly_mean(df), 
                 c="green", linewidth=1.5, label="Arith. Mittel")
-        ax[col_i].plot(x, variance(df, which="monthly"), 
+        ax[col_i].plot(x, monthly_variance(df), 
                 c=tu_red, linewidth=1.5, label="Varianz")
-        ax[col_i].plot(x, skewness(df, which="monthly"),
+        ax[col_i].plot(x, monthly_skewness(df),
                 c="orange", linewidth=1.5, label="Skewness")
         
         # TODO
-        ax[col_i].plot(x, median(df, which="monthly"),
-                c=tu_mediumblue, linewidth=1.5, label="Autokorr.")
+        # ax[col_i].plot(x, monthly_autocorr(df),
+        #         c=tu_mediumblue, linewidth=1.5, label="Autokorr.")
 
-        for i in range(len(data_np)):
-            ax[col_i].plot(x, data_np[i, :], linewidth=0.5, alpha=0.3, c=tu_grey)
-        
         # config
         ax[col_i].set_title(titles[col_i])
         ax[col_i].set_xticks(np.arange(1, 13, 1))
@@ -256,8 +242,11 @@ def plot_saisonfigur(df: pd.DataFrame):
 
 def plot_acf(df: pd.DataFrame):
     """Plots the autocorrelation function."""
-    lags, ac, lower_conf, upper_conf = autocorr(df)
-    fig, ax = plt.subplots(figsize=(10, 5))
+    lags = np.arange(0,51,1)
+    ac = [autocorr(df, lag=i, var="saisonber") for i in lags]
+    lower_conf, upper_conf = confidence_interval(df)
+    
+    _, ax = plt.subplots(figsize=(10, 5))
     ax.plot(lags, ac, marker="x", color=tu_mediumblue, lw=1)
     # plot horizontal lines
     ax.axhline(y=lower_conf, color=tu_red, linestyle="--", alpha=0.5)

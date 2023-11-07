@@ -18,7 +18,3 @@ def read_data(filename: str):
     data["Durchfluss_m3s"] = data["Durchfluss_m3s"].astype(float)
     data["Datum"] = pd.to_datetime(data["Monat"], format="%m/%Y")
     return data
-
-def df_to_np(df: pd.DataFrame):
-    data_np = df["Durchfluss_m3s"].to_numpy()
-    return  np.reshape(data_np, (-1, 12))
