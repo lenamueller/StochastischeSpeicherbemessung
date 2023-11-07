@@ -1,8 +1,7 @@
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import scipy
-from collections import namedtuple
+import pymannkendall as mk
 
 from utils.binned_stats import mean
 from utils.primary_stats import hyd_years
@@ -40,9 +39,17 @@ def linreg(df: pd.DataFrame, which: str):
     x, t, _ = __preprocess(df, which)
     return scipy.stats.linregress(t, x, alternative="two-sided")
 
-def test_statistic(df: pd.DataFrame, which: str):
+def t_test_statistic(df: pd.DataFrame, which: str):
     """Returns test statistic for the t-test."""
     return linreg(df, which=which).slope / linreg(df, which=which).stderr
+
+def mk_test(df: pd.DataFrame, which: str):
+    if which == "monthly":
+        return mk.seasonal_test(df["Durchfluss_m3s"].to_numpy(), alpha=0.05, period=12)
+    elif which == "yearly":
+        return mk.original_test(mean(df, which="yearly"), alpha=0.05)
+    else:
+        raise ValueError("which must be 'monthly' or 'yearly'")
 
 def moving_average(df: pd.DataFrame, which: str, window: int):
     """Returns the moving average of the time series."""

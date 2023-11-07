@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import pymannkendall as mk
 import numpy as np
 import pandas as pd
 
@@ -13,7 +11,7 @@ from utils.primary_stats import sample_number, earliest_date, latest_date, max_v
     kurtosis_biased, kurtosis_unbiased, quartile, iqr
 from utils.hydrological_values import hydro_values
 from utils.consistency_check import missing_values, missing_dates, duplicates
-from utils.trend_analysis import linreg, test_statistic, detrend_signal
+from utils.trend_analysis import linreg, t_test_statistic, mk_test, detrend_signal
 from utils.plotting import plot_raw, plot_hist, plot_trend, plot_detrending, plot_spectrum, plot_sin_waves, plot_saisonfigur
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency
 
@@ -74,12 +72,12 @@ def agenda(df: pd.DataFrame):
     # Trend analysis: linear regression and t-test
     info.loc[len(info)] = ["Lineare Regression (Jahreswerte)", linreg(df, which="yearly"), "-"]
     info.loc[len(info)] = ["Lineare Regression (Monatswerte)", linreg(df, which="monthly"), "-"]
-    info.loc[len(info)] = ["Teststatistik lin. Regression (Jahreswerte)", np.round(test_statistic(df, which="yearly"), 3), "-"]
-    info.loc[len(info)] = ["Teststatistik lin. Regression (Monatswerte)", np.round(test_statistic(df, which="monthly"), 3), "-"]
+    info.loc[len(info)] = ["Teststatistik lin. Regression (Jahreswerte)", np.round(t_test_statistic(df, which="yearly"), 3), "-"]
+    info.loc[len(info)] = ["Teststatistik lin. Regression (Monatswerte)", np.round(t_test_statistic(df, which="monthly"), 3), "-"]
     
     # Trend analysis: Theil-Sen regression and MK-test
-    info.loc[len(info)] = ["MK-Test (Jahreswerte)", mk.original_test(mean(df, which="yearly"), alpha=0.05), "-"]
-    info.loc[len(info)] = ["MK-Test (Monatswerte)", mk.seasonal_test(df["Durchfluss_m3s"].to_numpy(), alpha=0.05, period=12), "-"]
+    info.loc[len(info)] = ["MK-Test (Jahreswerte)", mk_test(df, which="yearly"), "-"]
+    info.loc[len(info)] = ["MK-Test (Monatswerte)", mk_test(df, which="monthly"), "-"]
     
     # Detrending
     df_detrended = detrend_signal(df)
@@ -108,17 +106,16 @@ def agenda(df: pd.DataFrame):
     info.to_csv(f"reports/{pegelname}_TSA.csv", index=False)
 
     
-print("Done!")
+
     
         
-fns = [
-    f"Daten_{pegelname}_raw.txt",
-    # f"Daten_{pegelname}_detrended.txt",
-    # f"Daten_{pegelname}_seasonal.txt",
-    # f"Daten_{pegelname}_residual.txt"
-]
+fn_raw = f"Daten_{pegelname}_raw.txt"
+fn_det = f"Daten_{pegelname}_detrended.txt"
+fn_sea = f"Daten_{pegelname}_seasonal.txt"
+fn_res = f"Daten_{pegelname}_residual.txt"
 
-for fn in fns:
-    df = read_data(filename=fn)
-    df.to_csv(f"data/{pegelname}_raw.csv", index=False)
-    agenda(df)
+df = read_data(filename=fn_raw)
+df.to_csv(f"data/{pegelname}_raw.csv", index=False)
+agenda(df)
+
+print("Done!")
