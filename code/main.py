@@ -11,7 +11,7 @@ from utils.primary_stats import sample_number, earliest_date, latest_date, max_v
     kurtosis_biased, kurtosis_unbiased, quartile, iqr
 from utils.hydrological_values import hydro_values
 from utils.consistency_check import missing_values, missing_dates, duplicates
-from utils.trend_analysis import linreg_monthly, linreg_yearly
+from utils.trend_analysis import linreg, linreg_ab, coeff_of_determination
 from utils.plotting import plot_raw, plot_hist, plot_trend, plot_spectrum, plot_sin_waves, plot_saisonfigur
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency
 
@@ -64,8 +64,12 @@ def timeseries_report(df: pd.DataFrame):
         info.loc[len(info)] = [k, v, "m³/s"]
         
     # Trend analysis
-    info.loc[len(info)] = ["Lineare Regression (Jahreswerte)", linreg_yearly(df), "m³/s/a"]
-    info.loc[len(info)] = ["Lineare Regression (Monatswerte)", linreg_monthly(df), "m³/s/a"]
+    info.loc[len(info)] = ["Lineare Regression (Jahreswerte)", linreg(df, which="yearly"), "-"]
+    info.loc[len(info)] = ["Lineare Regression (Monatswerte)", linreg(df, which="monthly"), "-"]
+    info.loc[len(info)] = ["Bestimmtheitsmaß R² (Jahreswerte)", coeff_of_determination(df, which="yearly"), "-"]
+    info.loc[len(info)] = ["Bestimmtheitsmaß R² (Monatswerte)", coeff_of_determination(df, which="monthly"), "-"]
+    info.loc[len(info)] = ["Lineare Regression (Jahreswerte, händisch)", linreg_ab(df, which="yearly"), "-"]
+    info.loc[len(info)] = ["Lineare Regression (Monatswerte, händisch)", linreg_ab(df, which="monthly"), "-"]
     # TODO: #10 Create detrended data
     
     # Seasonal analysis

@@ -27,7 +27,11 @@ MHQ,3.2618750000000007,m³/s
 MQ,1.1879626893939395,m³/s
 MNQ,0.3448,m³/s
 NNQ,"(0.161, '08/1964')",m³/s
-Lineare Regression (Jahreswerte),"LinregressResult(slope=-0.002111069418386492, intercept=5.365861913696061, rvalue=-0.07949117894125547, pvalue=0.6258494451143433, stderr=0.004294526671423316, intercept_stderr=8.501160087838983)",m³/s/a
-Lineare Regression (Monatswerte),"LinregressResult(slope=-0.00021394450496746924, intercept=1.2384536534446764, rvalue=-0.030154620751408116, pvalue=0.5098431062148945, stderr=0.00032436633607047335, intercept_stderr=0.09003147846459596)",m³/s/a
+Lineare Regression (Jahreswerte),"LinregressResult(slope=-0.002111069418386492, intercept=5.365861913696061, rvalue=-0.07949117894125547, pvalue=0.6258494451143433, stderr=0.004294526671423316, intercept_stderr=8.501160087838983)",-
+Lineare Regression (Monatswerte),"LinregressResult(slope=-0.06143636363636364, intercept=1.5863363636363637, rvalue=-0.43601364306393714, pvalue=0.15650102688345718, stderr=0.04009950445614925, intercept_stderr=0.2951243618457984)",-
+Bestimmtheitsmaß R² (Jahreswerte),0.006318847529470697,-
+Bestimmtheitsmaß R² (Monatswerte),0.19010789693788638,-
+"Lineare Regression (Jahreswerte, händisch)","LineareRegression(slope=0.0005996547554405181, intercept=-1.658839450557892e-05)",-
+"Lineare Regression (Monatswerte, händisch)","LineareRegression(slope=0.18439324503311258, intercept=-0.011556092715231614)",-
 5 dominantesten Frequenzen,[0.33333333 0.0875     0.25       0.08333333 0.00208333],1/Monat
 5 dominantesten Periodendauern,"[3.0, 11.43, 4.0, 12.0, 480.0]",Monate
