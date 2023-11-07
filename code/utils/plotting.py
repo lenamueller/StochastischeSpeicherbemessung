@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from config import tu_darkblue, tu_mediumblue, tu_grey, tu_red # TU colors
 from config import image_path, pegelname
 from utils.primary_stats import max_val, max_val_month, min_val, min_val_month, hyd_years
-from utils.trend_analysis import linreg_monthly, linreg_yearly
+from utils.trend_analysis import linreg
 from utils.fft_analysis import calc_spectrum, get_dominant_frequency
 from utils.binned_stats import mean, median, variance, skewness
 from utils.data_structures import df_to_np
@@ -77,8 +77,8 @@ def plot_trend(df: pd.DataFrame):
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
     
     days = np.arange(1, len(df)+1, 1)
-    res_m = linreg_monthly(df)
-    res_y = linreg_yearly(df)
+    res_m = linreg(df, which="monthly")
+    res_y = linreg(df, which="yearly")
     
     # store regression function in str
     res_m_func = f"y = {res_m.slope:.4f}x + {res_m.intercept:.4f}"
