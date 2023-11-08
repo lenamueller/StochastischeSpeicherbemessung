@@ -104,13 +104,8 @@ def kurtosis_unbiased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     n = sample_number(df)
     return kurtosis_biased(df, var) * n/(n-1) * (n-1)/(n-2) * (n-2)/(n-3)        
 
-def quartile(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the first, second or third quartile."""
-    return (
-        df[var].quantile(q=0.25, interpolation="nearest"),
-        df[var].quantile(q=0.5, interpolation="nearest"),
-        df[var].quantile(q=0.75, interpolation="nearest")
-    )
+def quantiles(df: pd.DataFrame, q: float, var: str = "Durchfluss_m3s"):
+    return df[var].quantile(q=q, interpolation="nearest")
     
 def iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """"Returns the interquartile range using nearest rank method."""
@@ -253,13 +248,6 @@ def moving_average(df: pd.DataFrame, which: str, window: int):
     x, _, _ = __preprocess(df, which)
     return np.convolve(x, np.ones(window), "valid") / window
 
-def detrend_signal(df: pd.DataFrame) -> None:
-    """Detrend the time series."""
-    df["trendber"] = np.mean(df["Durchfluss_m3s"].to_numpy()) + \
-        scipy.signal.detrend(df["Durchfluss_m3s"].to_numpy(), type="linear")
-    df["trend"] = df["Durchfluss_m3s"].to_numpy() - df["trendber"].to_numpy()
-    return df
-
 # -----------------------------------------
 #            Seasonal analysis
 # -----------------------------------------
@@ -310,32 +298,54 @@ def get_dominant_frequency(
     
     return freqs, period
 
-def season_signal(df: pd.DataFrame):
-    saisonfigur_mean = np.tile(monthly_mean(df), 40)
-    saisonfigur_var = np.tile(monthly_variance(df), 40)
-    saisonfigur_std = np.sqrt(saisonfigur_var)
-    df["saisonfigur_mean"] = saisonfigur_mean
-    df["saisonfigur_std"] = saisonfigur_std
-    df["saisonber"] = df["trendber"] - df["saisonfigur_mean"]
-    return df
-
 # -----------------------------------------
 #           autocorrelation
 # -----------------------------------------
 
-def autocorr(df: pd.DataFrame, lag: int, var: str = "Durchfluss_m3s"):
-    """Returns the autocorrelation."""
-    return df[var].autocorr(lag=lag)
+def autocorrelation(df: pd.DataFrame, var: str, lag: int = 1):
+    """Returns the autocorrelation function."""
+    return pd.Series(df[var]).autocorr(lag=lag)
 
-def confidence_interval(df: pd.DataFrame):
+def confidence_interval(df: pd.DataFrame, lags: list[float]):
     """Returns the confidence interval."""
-    lower_conf = -1.96 / np.sqrt(len(df))
-    upper_conf = 1.96 / np.sqrt(len(df))
+    k = lags
+    n = len(df)
+    T_ALPHA = 1.645 # alpha = 0.05
+    lower_conf = (-1 - T_ALPHA*np.sqrt(n-k-1)) / (n-k+1)
+    upper_conf = (1 + T_ALPHA*np.sqrt(n-k-1)) / (n-k+1)
     return lower_conf, upper_conf
 
-def monthly_autocorr(df: pd.DataFrame, lag: int, var: str = "Durchfluss_m3s"):
-    """Returns a list of monthly autocorrelations."""
-    # TODO
+def monthly_autocorr(df: pd.DataFrame, which: str = "maniak"):
+    """Returns a list of monthly autocorrelations for lag (k) = 1."""
+
+    months = df["Monat"]
+    pairs = [("11", "12"), ("12", "01"), ("01", "02"), ("02", "03"),
+             ("03", "04"), ("04", "05"), ("05", "06"), ("06", "07"),
+             ("07", "08"), ("08", "09"), ("09", "10"), ("10", "11")]
+    
+    coeff = []
+    for i in range(12):
+        first_month, second_month = pairs[i]
+        x_i = df["saisonber"][months.str.startswith(first_month)].tolist()
+        x_ik = df["saisonber"][months.str.startswith(second_month)].tolist()
+        assert len(x_i) == len(x_ik)
+        
+        mean_x_i = np.mean(x_i)
+        mean_x_ik = np.mean(x_ik)
+        std_x_i = np.std(x_i)
+        std_x_ik = np.std(x_ik)
+        k = 1
+        n = len(x_i)
+        
+        if which == "pearson":
+            coeff.append(scipy.stats.stats.pearsonr(x_i, x_ik).statistic)
+        elif which == "maniak":
+            prod = [(i - mean_x_i) * (ik - mean_x_ik) for i, ik in zip(x_i, x_ik)]
+            r_k_maniak = (sum(prod[:-k])) / (std_x_i*std_x_ik) / (n-k)
+            coeff.append(r_k_maniak)
+        else:
+            raise ValueError("which must be 'pearson' or 'maniak'")
+    return coeff
 
 def yearly_autocorr(
     df: pd.DataFrame,
@@ -344,3 +354,39 @@ def yearly_autocorr(
     """Returns a list of yearly autocorrelations."""
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
     return [pd.Series(i).autocorr(lag=lag) for i in arr]
+
+# -----------------------------------------
+#           calculate components
+# -----------------------------------------
+
+def calc_components(df: pd.DataFrame, detrend: bool = False):
+    """Calculates the components of the additive time series model."""
+    
+    # Trendkomponente
+    df["trendber"] = np.mean(df["Durchfluss_m3s"].to_numpy()) + \
+        scipy.signal.detrend(df["Durchfluss_m3s"].to_numpy(), type="linear")
+    df["trend"] = df["Durchfluss_m3s"].to_numpy() - df["trendber"].to_numpy()
+    
+    # Saisonale Komponente
+    df["saisonfigur_mean"] = np.tile(monthly_mean(df), 40)
+    df["saisonfigur_std"] = np.sqrt(np.tile(monthly_variance(df), 40))
+    if detrend:
+        df["saisonber"] = df["trendber"] - df["saisonfigur_mean"]
+        df["normiert"] = (df["trendber"] - df["saisonfigur_mean"]) / df["saisonfigur_std"]
+    else:
+        df["saisonber"] = df["Durchfluss_m3s"] - df["saisonfigur_mean"]
+        df["normiert"] = (df["Durchfluss_m3s"] - df["saisonfigur_mean"]) / df["saisonfigur_std"]
+    
+    # Autokorrelative Komponente
+    df["autokorr_saisonfigur"] = np.tile(monthly_autocorr(df=df), 40)
+    df["autokorr"] = df["autokorr_saisonfigur"] * df["normiert"]
+    
+    # Zufallskomponente
+    df["zufall"] = df["normiert"] - df["autokorr"]
+    
+    for var in ["trendber", "trend", "saisonfigur_mean", "saisonfigur_std",
+                "saisonber", "normiert", "autokorr_saisonfigur", "autokorr",
+                "zufall"]:
+        df[var] = round(df[var], 5)
+    
+    
