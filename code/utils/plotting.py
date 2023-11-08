@@ -5,10 +5,10 @@ import pymannkendall as mk
 
 from config import tu_darkblue, tu_mediumblue, tu_grey, tu_red # TU colors
 from config import image_path, pegelname
-from utils.statistics import max_val, max_val_month, min_val, \
+from utils.statistics import hyd_years, max_val, max_val_month, min_val, \
     min_val_month, hyd_years, monthly_autocorr, yearly_autocorr, \
     monthly_mean, yearly_mean, monthly_variance, yearly_variance, \
-    monthly_skewness, yearly_skewness, autocorr, confidence_interval, \
+    monthly_skewness, yearly_skewness, confidence_interval, \
         linreg, moving_average, calc_spectrum, get_dominant_frequency
 
 
@@ -204,53 +204,70 @@ def plot_sin_waves(df):
     
     plt.savefig(image_path+f"{pegelname}_sin.png", dpi=300, bbox_inches="tight")
 
-def plot_saisonfigur(df: pd.DataFrame):
+def plot_characteristics(df: pd.DataFrame):
     """Plot monthly mean and median (Saisonfigur)."""
     
-    # data_np = df_to_np(df)
+    _, ax = plt.subplots(nrows=2, ncols=4, figsize=(13, 6))
     
-    _, ax = plt.subplots(nrows=1, ncols=4, figsize=(10, 3), sharex=True)
-    
-    x = np.arange(1, 13)
-    titles = ["Rohdaten", "Trendbereinigt", "Saisonbereinigt", "Zufallsanteil"]
-    
-    for col_i in range(4):
-        ax[col_i].plot(x, monthly_mean(df), 
-                c="green", linewidth=1.5, label="Arith. Mittel")
-        ax[col_i].plot(x, monthly_variance(df), 
-                c=tu_red, linewidth=1.5, label="Varianz")
-        ax[col_i].plot(x, monthly_skewness(df),
-                c="orange", linewidth=1.5, label="Skewness")
-        
-        # TODO
-        # ax[col_i].plot(x, monthly_autocorr(df),
-        #         c=tu_mediumblue, linewidth=1.5, label="Autokorr.")
+    labels = ["Rohdaten", "Zufallsanteil"]
+    vars = ["Durchfluss_m3s", "zufall"]
+    colors = [tu_grey, tu_red]
+    titles = ["Arith. Mittel (m³/s)", "Varianz (m³/s)²", "Schiefe (-)", "Autokorrelation $r_{1}$(-)"]
 
-        # config
-        ax[col_i].set_title(titles[col_i])
-        ax[col_i].set_xticks(np.arange(1, 13, 1))
-        ax[col_i].set_xticklabels(["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"])
-        ax[col_i].set_xlabel("Monat")
-        ax[0].set_ylabel("Durchfluss [m³/s]")
-        
-    # ax.set_ylabel("Durchfluss [m³/s]")
-    
-    
-    # ax.grid()
-    plt.legend()
-    plt.savefig(image_path+f"{pegelname}_saison.png", dpi=300, bbox_inches="tight")
+    for i in range(len(labels)):
+        var, label, color = vars[i], labels[i], colors[i]
 
-def plot_acf(df: pd.DataFrame):
+        x_months = np.arange(1, 13)
+        x_years = hyd_years(df)
+        
+        ax[0,0].plot(x_months, monthly_mean(df, var=var),
+                    c=color, linewidth=1, label=label)
+        ax[0,1].plot(x_months, monthly_variance(df, var=var),
+                    c=color, linewidth=1, label=label)
+        ax[0,2].plot(x_months, monthly_skewness(df, var=var),
+                    c=color, linewidth=1, label=label)
+        ax[0,3].plot(x_months, monthly_autocorr(df, which="pearson"),
+                    c=color, linewidth=1, label=label)
+        
+        ax[1,0].plot(x_years, yearly_mean(df, var=var),
+                    c=color, linewidth=1, label=label)
+        ax[1,1].plot(x_years, yearly_variance(df, var=var),
+                    c=color, linewidth=1, label=label)
+        ax[1,2].plot(x_years, yearly_skewness(df, var=var),
+                    c=color, linewidth=1, label=label)
+        ax[1,3].plot(x_years, yearly_autocorr(df, lag=1),
+                    c=color, linewidth=1, label=label)
+        
+    for row_i in range(len(ax)):
+        for col_i in range(len(ax[row_i])):
+            ax[0, col_i].set_xlabel("Monat")
+            ax[0, col_i].set_xticks(x_months)
+            ax[0, col_i].set_xticklabels(["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"])
+            ax[1, col_i].set_xlabel("Jahre")
+            ax[1, col_i].set_xticks([1960, 1970, 1980, 1990, 2000])
+            ax[1, col_i].set_xticklabels([1960, 1970, 1980, 1990, 2000])
+            ax[0, col_i].set_title(titles[col_i])
+            ax[row_i, col_i].grid()
+            ax[1,0].legend(bbox_to_anchor=(0.8, -0.3), ncol=1, frameon=False)
+
+    plt.tight_layout()
+    plt.savefig(image_path+f"{pegelname}_characteristics.png", dpi=300, bbox_inches="tight")    
+
+def plot_acf(df: pd.DataFrame, var: str = "normiert"):
     """Plots the autocorrelation function."""
     lags = np.arange(0,51,1)
-    ac = [autocorr(df, lag=i, var="saisonber") for i in lags]
-    lower_conf, upper_conf = confidence_interval(df)
+    ac = [df[var].autocorr(lag=i) for i in lags]
+    lower_conf, upper_conf = confidence_interval(df, lags)
     
     _, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(lags, ac, marker="x", color=tu_mediumblue, lw=1)
-    # plot horizontal lines
-    ax.axhline(y=lower_conf, color=tu_red, linestyle="--", alpha=0.5)
-    ax.axhline(y=upper_conf, color=tu_red, linestyle="--", alpha=0.5)
+    ax.plot(lags, ac, marker="o", markersize=3, color=tu_mediumblue, lw=1, zorder=1)
+    ax.plot(lags, lower_conf, color=tu_red, linestyle="--", alpha=0.5)
+    ax.plot(lags, upper_conf, color=tu_red, linestyle="--", alpha=0.5)
+    for i in range(len(ac)):
+        if ac[i] < lower_conf[i] or ac[i] > upper_conf[i]:
+            ax.scatter(lags[i], ac[i], color=tu_red, marker="o", s=10, zorder=2)
+            ax.text(lags[i]+0.2, ac[i]+0.05, lags[i], color=tu_red, rotation=0, ha="center", va="top", fontsize=5)
+    
     ax.set_xlim([0, 50])
     ax.set_ylim([-0.5, 1])
     ax.set_xticks(np.arange(0, 51, 1), minor=True)
@@ -262,50 +279,45 @@ def plot_acf(df: pd.DataFrame):
     ax.set_xlabel("Lag")
     ax.set_ylabel("Autokorrelation")
     ax.set_title("Autokorrelationsfunktion")
-    plt.savefig(image_path+f"{pegelname}_acf.png", dpi=300, bbox_inches="tight")
+    if var == "normiert":
+        fn = image_path+f"{pegelname}_acf.png"
+    elif var == "Durchfluss_m3s":
+        fn = image_path+f"{pegelname}_acf_raw.png"
+    else:
+        raise ValueError("var must be 'normiert' or 'Durchfluss_m3s'")
+    plt.savefig(fn, dpi=300, bbox_inches="tight")
     
 def plot_components(
         df: pd.DataFrame
     ):
     
-    fig, ax = plt.subplots(nrows=8, ncols=1, figsize=(10,15), 
+    _, ax = plt.subplots(nrows=9, ncols=1, figsize=(10,15), 
                            sharex=True, sharey=False)
 
-    ax[0].plot(df["Monat"], df["Durchfluss_m3s"], 
-               c=tu_grey, lw=1)
-    ax[1].plot(df["Monat"], df["trend"], 
-               c=tu_red, lw=1)
-    ax[2].plot(df["Monat"], df["trendber"], 
-               c=tu_red, lw=1)
-    ax[3].plot(df["Monat"], df["saisonfigur_mean"], 
-               c=tu_mediumblue, lw=1)
-    ax[4].plot(df["Monat"], df["saisonfigur_std"],
-                c=tu_mediumblue, lw=1)
-    ax[5].plot(df["Monat"], df["saisonber"], 
-               c=tu_mediumblue, lw=1)
-    
-    # ax[5].plot(df["Monat"], df["autokorr"], 
-    #            c="green", lw=1)
-    # ax[6].plot(df["Monat"], df["autokorrber"], 
-    #            c="green", lw=1)
-    
-    ax[0].set_title("Rohdaten")
-    ax[1].set_title("Trend (nicht signifikant)")
-    ax[2].set_title("Trendbereinigt")
-    ax[3].set_title("Saisonfigur (Monatsmittel)")
-    ax[4].set_title("Saisonfigur (Standardabweichung)")
-    ax[5].set_title("Saisonbereinigt Zeitreihe")
-    ax[6].set_title("Autokorrelation")
-    ax[7].set_title("Zufallsanteil")
-    
-    for i in range(len(ax)):
+    plot_config = {
+        "Durchfluss_m3s": ("A.", "Rohdaten", tu_grey, [0, 8]),
+        "trend": ("B.", "Trendkomponente (nicht sig.)", tu_red, [-0.1, 0.1]),
+        "saisonfigur_mean": ("C.", "Saisonfigur (Mittelwert)", tu_mediumblue, [0, 4]),
+        "saisonfigur_std": ("D.", "Saisonfigur (Standardabweichung)", tu_mediumblue, [0, 2]),
+        "saisonber": ("E.", "Saisonbereinigte Zeitreihe", tu_mediumblue, [-2, 8]),
+        "normiert": ("F.", "Normierte Zeitreihe", tu_mediumblue, [-2, 8]),
+        "autokorr_saisonfigur": ("G.", "Autokorrelation (Saisonfigur)", "green", [-0.5, 1]),
+        "autokorr": ("H.", "Autokorrelative Komponente", "green", [-2, 3]),
+        "zufall": ("I.", "Zufallskomponente / Residuum", "green", [-2, 5])
+    }
+
+    for i in range(len(plot_config)):
+        key = list(plot_config.keys())[i]
+        letter, title, color, ylim = plot_config[key]
+        ax[i].plot(df["Monat"], df[key], c=color, lw=1)
+        ax[i].set_title(title)
+        ax[i].text(0.01, 0.85, letter, transform=ax[i].transAxes, 
+                fontsize=12, fontweight="bold")    
+        ax[i].set_ylim(ylim)
         ax[i].set_xticks(df["Monat"][::12])
         ax[i].set_xticklabels(df["Monat"][::12], rotation=90)
         ax[i].set_xlim(left=df["Monat"].min(), right=df["Monat"].max())
-        ax[i].set_ylabel("Durchfluss [m³/s]")
-        ax[i].set_ylim([-3, 8])
-    
-    ax[1].set_ylim([-0.1, 0.1])
+        # TODO: ylabels
     
     plt.tight_layout()
     plt.savefig(image_path+f"{pegelname}_components.png", dpi=300, bbox_inches="tight")
