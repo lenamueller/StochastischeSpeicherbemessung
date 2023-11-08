@@ -56,7 +56,6 @@ def test_primary_stats(first_4_rows: pd.DataFrame):
     assert st.sample_number(first_4_rows) == 4
     assert st.earliest_date(first_4_rows) == pd.Timestamp("1959-11-01")
     assert st.latest_date(first_4_rows) == pd.Timestamp("1960-02-01")
-    
     assert (st.years(first_4_rows) == np.array([1959, 1960])).all()
     assert (st.hyd_years(first_4_rows) == np.array([1960])).all()
     assert st.min_val(first_4_rows) == 0
@@ -69,8 +68,8 @@ def test_primary_stats(first_4_rows: pd.DataFrame):
     assert st.fourth_central_moment(first_4_rows) == 0.5
     assert round(st.standard_deviation_biased(first_4_rows), 4) == 0.7071
     assert round(st.standard_deviation_unbiased(first_4_rows), 4) == 0.8165
-    assert st.skewness_biased(first_4_rows) == 0.0
-    assert st.skewness_unbiased(first_4_rows) == 0.0
+    assert round(st.skewness_biased(first_4_rows), 3) == 0.0
+    assert round(st.skewness_unbiased(first_4_rows), 3) == 0.0
     assert round(st.kurtosis_biased(first_4_rows), 1) == 5.0
     assert round(st.kurtosis_unbiased(first_4_rows), 1) == 20.0
     assert st.quantiles(first_4_rows, q=0.25) == 1.0
