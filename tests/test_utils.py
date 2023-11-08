@@ -73,7 +73,9 @@ def test_primary_stats(first_4_rows: pd.DataFrame):
     assert st.skewness_unbiased(first_4_rows) == 0.0
     assert round(st.kurtosis_biased(first_4_rows), 1) == 5.0
     assert round(st.kurtosis_unbiased(first_4_rows), 1) == 20.0
-    assert st.quartile(first_4_rows) == (1.0, 1.0, 1.0)
+    assert st.quantiles(first_4_rows, q=0.25) == 1.0
+    assert st.quantiles(first_4_rows, q=0.50) == 1.0
+    assert st.quantiles(first_4_rows, q=0.75) == 1.0
     assert st.iqr(first_4_rows) == 0.0
 
 
