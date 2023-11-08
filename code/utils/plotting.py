@@ -3,8 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pymannkendall as mk
 
-from config import tu_darkblue, tu_mediumblue, tu_grey, tu_red # TU colors
-from config import image_path, pegelname
+from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red
 from utils.statistics import hyd_years, max_val, max_val_month, min_val, \
     min_val_month, hyd_years, monthly_autocorr, yearly_autocorr, \
     monthly_mean, yearly_mean, monthly_variance, yearly_variance, \
@@ -36,41 +35,13 @@ def plot_raw(df: pd.DataFrame):
     plt.xticks(df["Monat"][::12], rotation=90)
     plt.yticks(np.arange(0, max_value, 1), minor=False)
     plt.yticks(np.arange(0, max_value, 0.25), minor=True)
-    plt.grid(which="major", axis="x", color="grey", alpha=0.15)
-    plt.grid(which="major", axis="y", color="grey", alpha=0.75)
-    plt.grid(which="minor", axis="y", color="grey", alpha=0.15)
+    plt.grid(which="major", axis="x", color="grey", alpha=0.05)
+    plt.grid(which="major", axis="y", color="grey", alpha=0.40)
+    plt.grid(which="minor", axis="y", color="grey", alpha=0.05)
     plt.ylim(bottom=0)
     plt.xlim(left=df["Monat"].min(), right=df["Monat"].max())
     plt.legend(loc="upper right")
-    
     plt.savefig(image_path+f"{pegelname}_raw.png", dpi=300, bbox_inches="tight")
-    return None
-
-def plot_hist(df: pd.DataFrame):
-    """Plot histogram of raw data."""
-        
-    max_value = max_val(df)
-
-    plt.figure(figsize=(10, 5))
-    plt.hist(df["Durchfluss_m3s"], bins=np.arange(0, max_value+0.1, 0.1), 
-            density=False, 
-            color=tu_mediumblue, label="Empirische Verteilung",
-            lw=0.8, edgecolor="black", alpha=0.8)
-    plt.xticks(np.arange(0, max_value+1, 1), minor=False)
-    plt.xticks(np.arange(0, max_value+0.1, 0.1), minor=True)
-    plt.xlim(left=0, right=round(max_value, 1)+0.1)
-    plt.xlabel("Durchfluss [m³/s]")
-    plt.ylabel("empirische Häufigkeit")
-    plt.grid(which="minor", axis="y", color="grey", alpha=0.15)
-    plt.grid(which="major", axis="y", color="grey", alpha=0.75)
-    plt.grid(which="minor", axis="x", color="grey", alpha=0.15)
-    plt.grid(which="major", axis="x", color="grey", alpha=0.75)
-    plt.xlim(left=0)
-    plt.twinx()
-    plt.ylabel("Dichte")
-    
-    plt.savefig(image_path+f"{pegelname}_hist.png", dpi=300, bbox_inches="tight")
-    return None
 
 def plot_trend(df: pd.DataFrame):
     """Plot trend analysis summary."""
@@ -123,20 +94,19 @@ def plot_trend(df: pd.DataFrame):
     ax1.set_xticklabels(df["Monat"][::12], rotation=90)
     ax1.set_yticks(np.arange(0, 8.5, 0.5), minor=True)
     ax1.set_xlim(left=df["Monat"].min(), right=df["Monat"].max())
-    ax1.grid(which="major", axis="x", color="grey", alpha=0.15)
-    ax1.grid(which="major", axis="y", color="grey", alpha=0.15)
-    ax1.grid(which="minor", axis="y", color="grey", alpha=0.15)
-        
+    ax1.grid(which="major", axis="x", color="grey", alpha=0.05)
+    ax1.grid(which="major", axis="y", color="grey", alpha=0.05)
+    ax1.grid(which="minor", axis="y", color="grey", alpha=0.05)
     ax2.set_ylim([0,3])
     ax2.set_ylabel("Zeit (Jahre)")
     ax2.set_xticks(x_yearly, minor=True)
     ax2.set_yticks(np.arange(0, 3.1, 0.5), minor=True)
     ax2.set_yticks(np.arange(0, 4, 1), minor=False)
     ax2.set_xlim(left=x_yearly[0], right=x_yearly[-1])
-    ax2.grid(which="major", axis="x", color="grey", alpha=0.15)
-    ax2.grid(which="minor", axis="x", color="grey", alpha=0.15)
-    ax2.grid(which="major", axis="y", color="grey", alpha=0.15)
-    ax2.grid(which="minor", axis="y", color="grey", alpha=0.15)
+    ax2.grid(which="major", axis="x", color="grey", alpha=0.05)
+    ax2.grid(which="minor", axis="x", color="grey", alpha=0.05)
+    ax2.grid(which="major", axis="y", color="grey", alpha=0.05)
+    ax2.grid(which="minor", axis="y", color="grey", alpha=0.05)
     
     for ax in [ax1, ax2]:
         ax.set_ylabel("Durchfluss [m³/s]")
@@ -144,7 +114,6 @@ def plot_trend(df: pd.DataFrame):
         
     fig.tight_layout()
     plt.savefig(image_path+f"{pegelname}_trend.png", dpi=300, bbox_inches="tight")
-    return None
 
 def plot_spectrum(df: pd.DataFrame):
     """Plot FFT spectrum"""
@@ -164,9 +133,7 @@ def plot_spectrum(df: pd.DataFrame):
     ax2.set_xlabel("Periode [Monate]")
     ax1.set_ylabel("Spektrale Dichte")
     plt.grid()
-    
     plt.savefig(image_path+f"{pegelname}_fft.png", dpi=300, bbox_inches="tight")
-    return None
 
 def plot_sin_waves(df):
     """Plot the dominant frequencies as sin waves."""
@@ -201,15 +168,43 @@ def plot_sin_waves(df):
     ax.set_ylabel("Amplitude")
     ax.grid()
     ax.legend()
-    
     plt.savefig(image_path+f"{pegelname}_sin.png", dpi=300, bbox_inches="tight")
+
+def plot_hist(df: pd.DataFrame):
+    """Plot histogram of raw data."""
+    
+    _, ax = plt.subplots(nrows=1, ncols=3, figsize=(15, 4),
+                           sharex=True, sharey=True)
+    
+    bins = np.arange(-2, 8, 0.25)
+
+    ax[0].hist(df["Durchfluss_m3s"], bins=bins, color=tu_mediumblue, lw=0.8, edgecolor="black", alpha=0.8)
+    ax[1].hist(df["saisonber"], bins=bins, color=tu_mediumblue, lw=0.8, edgecolor="black", alpha=0.8)
+    ax[2].hist(df["zufall"], bins=bins, color=tu_mediumblue, lw=0.8, edgecolor="black", alpha=0.8)
+    
+    ax[0].set_ylabel("empirische Häufigkeit")
+    ax[0].set_xlabel("Durchfluss der Rohdaten [m³/s]")
+    ax[1].set_xlabel("Saisonbereinigter Durchfluss [m³/s]")
+    ax[2].set_xlabel("Zufallskomponente des Durchflusses [m³/s]")
+    
+    for i in range(len(ax)):
+        ax[i].set_xticks(np.arange(-2, 8, 1), minor=False)
+        ax[i].set_xticks(np.arange(-2, 8, 0.25), minor=True)
+        ax[i].set_yticks(np.arange(0, 120, 10), minor=False)
+        ax[i].set_yticks(np.arange(0, 122.5, 2.5), minor=True)
+        ax[i].grid(which="minor", axis="y", color="grey", alpha=0.05)
+        ax[i].grid(which="major", axis="y", color="grey", alpha=0.40)
+        ax[i].grid(which="minor", axis="x", color="grey", alpha=0.05)
+        ax[i].grid(which="major", axis="x", color="grey", alpha=0.40)
+    
+    plt.savefig(image_path+f"{pegelname}_hist.png", dpi=300, bbox_inches="tight")
 
 def plot_characteristics(df: pd.DataFrame):
     """Plot monthly mean and median (Saisonfigur)."""
     
     _, ax = plt.subplots(nrows=2, ncols=4, figsize=(13, 6))
     
-    labels = ["Rohdaten", "Zufallsanteil"]
+    labels = ["Rohdaten", "Zufallskomponente"]
     vars = ["Durchfluss_m3s", "zufall"]
     colors = [tu_grey, tu_red]
     titles = ["Arith. Mittel (m³/s)", "Varianz (m³/s)²", "Schiefe (-)", "Autokorrelation $r_{1}$(-)"]
@@ -272,10 +267,10 @@ def plot_acf(df: pd.DataFrame, var: str = "normiert"):
     ax.set_ylim([-0.5, 1])
     ax.set_xticks(np.arange(0, 51, 1), minor=True)
     ax.set_yticks(np.arange(-0.5, 1.1, 0.1), minor=True)
-    ax.grid(which="major", axis="x", color="grey", alpha=0.75)
-    ax.grid(which="minor", axis="x", color="grey", alpha=0.15)
-    ax.grid(which="major", axis="y", color="grey", alpha=0.15)
-    ax.grid(which="minor", axis="y", color="grey", alpha=0.15)
+    ax.grid(which="major", axis="x", color="grey", alpha=0.40)
+    ax.grid(which="minor", axis="x", color="grey", alpha=0.05)
+    ax.grid(which="major", axis="y", color="grey", alpha=0.05)
+    ax.grid(which="minor", axis="y", color="grey", alpha=0.05)
     ax.set_xlabel("Lag")
     ax.set_ylabel("Autokorrelation")
     ax.set_title("Autokorrelationsfunktion")
