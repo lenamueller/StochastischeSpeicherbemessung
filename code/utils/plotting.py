@@ -178,9 +178,9 @@ def plot_hist(df: pd.DataFrame):
     
     bins = np.arange(-2, 8, 0.25)
 
-    ax[0].hist(df["Durchfluss_m3s"], bins=bins, color=tu_mediumblue, lw=0.8, edgecolor="black", alpha=0.8)
+    ax[0].hist(df["Durchfluss_m3s"], bins=bins, color=tu_grey, lw=0.8, edgecolor="black", alpha=0.8)
     ax[1].hist(df["saisonber"], bins=bins, color=tu_mediumblue, lw=0.8, edgecolor="black", alpha=0.8)
-    ax[2].hist(df["zufall"], bins=bins, color=tu_mediumblue, lw=0.8, edgecolor="black", alpha=0.8)
+    ax[2].hist(df["zufall"], bins=bins, color=tu_red, lw=0.8, edgecolor="black", alpha=0.8)
     
     ax[0].set_ylabel("empirische Häufigkeit")
     ax[0].set_xlabel("Durchfluss der Rohdaten [m³/s]")
@@ -204,9 +204,9 @@ def plot_characteristics(df: pd.DataFrame):
     
     _, ax = plt.subplots(nrows=2, ncols=4, figsize=(13, 6))
     
-    labels = ["Rohdaten", "Zufallskomponente"]
-    vars = ["Durchfluss_m3s", "zufall"]
-    colors = [tu_grey, tu_red]
+    labels = ["Rohdaten", "Saisonbereinigte Zeitreihe", "Zufallskomponente"]
+    vars = ["Durchfluss_m3s", "saisonber", "zufall"]
+    colors = [tu_grey, tu_mediumblue, tu_red]
     titles = ["Arith. Mittel (m³/s)", "Varianz (m³/s)²", "Schiefe (-)", "Autokorrelation $r_{1}$(-)"]
 
     for i in range(len(labels)):
@@ -273,7 +273,6 @@ def plot_acf(df: pd.DataFrame, var: str = "normiert"):
     ax.grid(which="minor", axis="y", color="grey", alpha=0.05)
     ax.set_xlabel("Lag")
     ax.set_ylabel("Autokorrelation")
-    ax.set_title("Autokorrelationsfunktion")
     if var == "normiert":
         fn = image_path+f"{pegelname}_acf.png"
     elif var == "Durchfluss_m3s":
