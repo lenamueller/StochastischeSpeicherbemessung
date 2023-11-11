@@ -9,9 +9,8 @@ def check_path(path):
         os.makedirs(path)
     return None
 
-def read_data(filename: str):
+def read_data(filepath: str):
     """Read data from file."""
-    filepath = "data/" + filename
     data = pd.read_csv(filepath, skiprows=3, sep="\t", encoding="latin1")
     data.columns = ["Monat", "Durchfluss_m3s"]
     data["Monat"] = data["Monat"].astype(str)

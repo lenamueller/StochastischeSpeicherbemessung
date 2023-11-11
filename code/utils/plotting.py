@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pymannkendall as mk
+import scipy
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red
 from utils.statistics import hyd_years, max_val, max_val_month, min_val, \
@@ -42,6 +43,25 @@ def plot_raw(df: pd.DataFrame):
     plt.xlim(left=df["Monat"].min(), right=df["Monat"].max())
     plt.legend(loc="upper right")
     plt.savefig(image_path+f"{pegelname}_raw.png", dpi=300, bbox_inches="tight")
+
+def plot_dsk(test_cumsum: np.ndarray, ref_cumsum: np.ndarray):
+    """Plot double sum curve."""
+    plt.figure(figsize=(5,5))    
+    for i in range(0, len(ref_cumsum), 12):
+        plt.scatter(ref_cumsum[i], test_cumsum[i], c=tu_mediumblue, s=15,
+                    marker="x", zorder=2, label="Messdaten", alpha=0.75)
+    res = scipy.stats.linregress(ref_cumsum, test_cumsum)
+    m = res.slope
+    b = res.intercept
+    plt.plot(ref_cumsum, m*ref_cumsum+b, c=tu_red, alpha=0.8, linewidth=1,
+             label=f"lineare Regressionsgerade: y = {m:.3f}x + {b:.3f}", zorder=1)
+    plt.grid(color="grey", alpha=0.3)
+    plt.xlabel("Kumulierter Durchfluss [m³/s] der Testreihe")
+    plt.ylabel("Kumulierter Durchfluss [m³/s] der Prüfreihe")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    # plt.legend(loc="upper left", bbox_to_anchor=(-0.02, 1.15), frameon=False)
+    plt.savefig(image_path+f"{pegelname}_dsk.png", dpi=300, bbox_inches="tight")
 
 def plot_trend(df: pd.DataFrame):
     """Plot trend analysis summary."""
@@ -89,7 +109,7 @@ def plot_trend(df: pd.DataFrame):
                 label=f"Gleitender Durchschnitt (Fensterbreite: 5a)")
     
     ax1.set_ylim([0,8])
-    ax1.set_xlabel("Zeit (Monate)")
+    # ax1.set_xlabel("Zeit (Monate)")
     ax1.set_xticks(df["Monat"][::12], minor=False)
     ax1.set_xticklabels(df["Monat"][::12], rotation=90)
     ax1.set_yticks(np.arange(0, 8.5, 0.5), minor=True)
