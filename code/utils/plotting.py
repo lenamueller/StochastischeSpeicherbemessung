@@ -9,7 +9,8 @@ from utils.statistics import hyd_years, max_val, max_val_month, min_val, \
     min_val_month, hyd_years, monthly_autocorr, yearly_autocorr, \
     monthly_mean, yearly_mean, monthly_variance, yearly_variance, \
     monthly_skewness, yearly_skewness, confidence_interval, \
-        linreg, moving_average, calc_spectrum, get_dominant_frequency
+    linreg, moving_average, calc_spectrum, get_dominant_frequency, \
+    pettitt_test
 
 
 def plot_raw(df: pd.DataFrame):
@@ -20,7 +21,7 @@ def plot_raw(df: pd.DataFrame):
     min_value = min_val(df)
     min_month = min_val_month(df)
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 4))
     plt.plot(df["Monat"], df["Durchfluss_m3s"], 
                 c=tu_mediumblue, linewidth=0.8, label="Rohdaten")
     plt.axhline(y=max_value, c=tu_red, linestyle="--", linewidth=0.8, 
@@ -62,6 +63,55 @@ def plot_dsk(test_cumsum: np.ndarray, ref_cumsum: np.ndarray):
     plt.ylim(bottom=0)
     # plt.legend(loc="upper left", bbox_to_anchor=(-0.02, 1.15), frameon=False)
     plt.savefig(image_path+f"{pegelname}_dsk.png", dpi=300, bbox_inches="tight")
+
+def plot_breakpoint(df: pd.DataFrame):
+    res = pettitt_test(df)
+
+    mean_1, mean_2 = res.avg
+    
+    plt.figure(figsize=(10, 4))
+    
+    # plot raw data
+    plt.plot(df["Monat"], df["Durchfluss_m3s"], alpha=0.4,
+                c=tu_mediumblue, linewidth=0.8, label="Rohdaten")
+
+    # plot breakpoint    
+    plt.axvline(x=res.cp, c="green", linestyle="--", linewidth=0.8,
+                label=f"Breakpoint: {df['Monat'].iloc[res.cp]}")
+    plt.text(res.cp-5, 6.05, df["Monat"].iloc[res.cp], rotation=90, 
+             va="bottom", ha="center", fontsize=8, color="green")
+    
+    # plot mean before breakpoint
+    x = np.arange(0, res.cp, 1)
+    y = mean_1 * np.ones(len(x))
+    plt.plot(x, y, c=tu_red, linestyle="--", linewidth=0.8)
+    plt.scatter(0, mean_1, marker="o",
+                facecolors='none', edgecolors=tu_red, s=30)
+    plt.scatter(res.cp, mean_1, marker="o",
+                facecolors='none', edgecolors=tu_red, s=30)
+    plt.text(int(res.cp/2), mean_1+0.05, f"{mean_1:.2f}", ha="center", 
+             va="bottom", fontsize=8, color=tu_red)
+    
+    # plot mean after breakpoint
+    x = np.arange(res.cp, len(df)+1, 1)
+    y = mean_2 * np.ones(len(x))
+    plt.plot(x, y, c=tu_red, linestyle="--", linewidth=0.8)
+    plt.scatter(res.cp, mean_2, marker="o",
+                facecolors='none', edgecolors=tu_red, s=30)
+    plt.scatter(len(df), mean_2, marker="o",
+                facecolors='none', edgecolors=tu_red, s=30)
+    plt.text(int((len(df)-res.cp)/2+res.cp), mean_2+0.05, f"{mean_2:.2f}", ha="center",
+                va="bottom", fontsize=8, color=tu_red)
+    
+    plt.ylabel("Durchfluss [m³/s]")
+    plt.xticks(df["Monat"][::12], rotation=90)
+    plt.yticks(np.arange(0, 8, 1), minor=False)
+    plt.yticks(np.arange(0, 8, 0.25), minor=True)
+    plt.grid(which="major", axis="x", color="grey", alpha=0.05)
+    plt.grid(which="major", axis="y", color="grey", alpha=0.40)
+    plt.grid(which="minor", axis="y", color="grey", alpha=0.05)
+    plt.legend(loc="upper right")
+    plt.savefig(image_path+f"{pegelname}_breakpoint.png", dpi=300, bbox_inches="tight")
 
 def plot_trend(df: pd.DataFrame):
     """Plot trend analysis summary."""

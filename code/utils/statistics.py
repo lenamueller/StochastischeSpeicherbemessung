@@ -2,6 +2,7 @@ import scipy
 import numpy as np
 import pandas as pd
 import pymannkendall as mk
+import pyhomogeneity as hg
 
 
 # -----------------------------------------
@@ -13,30 +14,32 @@ def outlier_test_iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     q1 = df[var].quantile(q=0.25, interpolation="nearest")
     q3 = df[var].quantile(q=0.75, interpolation="nearest")
     iqr = q3 - q1
-    print("Schranke:", q1 - 1.5*iqr, q3 + 1.5*iqr)
-    return df.loc[(df[var] < q1 - 1.5*iqr) | (df[var] > q3 + 1.5*iqr)]
+    g_upper = q3 + 1.5*iqr
+    g_lower = q1 - 1.5*iqr
+    return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
 
 def outlier_test_zscore(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns a list of outliers using the z-score method."""
     g_upper = df[var].mean() + 3*df[var].std()
     g_lower = df[var].mean() - 3*df[var].std()
-    print("Schranke:", g_lower, g_upper)
-    # return rows below and above the threshold
-    return df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
+    return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
 
 def outlier_test_grubbs(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns a list of outliers using the Grubbs method."""
     max_diff = np.max(np.abs(df[var] - df[var].mean()))
     s = np.std(df[var])
     g = max_diff / s
-    print("Schranke:", g)
-    return df.loc[df[var] > g]
+    return g, df.loc[df[var] > g]
 
 def double_sum(test_gauge: list[float], ref_gauge: list[float]):
     """Returns a list of double sums."""
     sum_test = np.cumsum(test_gauge)
     sum_ref = np.cumsum(ref_gauge)
     return sum_test, sum_ref
+
+def pettitt_test(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    return hg.pettitt_test(x=df[var], alpha=0.05)
+    
 
 # -----------------------------------------
 #           Primary statistics

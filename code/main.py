@@ -7,7 +7,8 @@ from utils.data_structures import read_data, check_path
 import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_hist, plot_trend, plot_components, \
-    plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk
+    plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
+    plot_breakpoint
 
 
 check_path(image_path)
@@ -26,20 +27,37 @@ print("\nKonsistenzprüfung")
 print("\tFehlwerte:", missing_values(df))
 print("\tFehlende Zeitschritte:", missing_dates(df))
 print("\tDuplikate:", duplicates(df))
-print("\tAusreißertest (IQR-Kriterium): ", st.outlier_test_iqr(df), len(st.outlier_test_iqr(df)))
-print("\tAusreißertest (z-score): ", st.outlier_test_zscore(df), len(st.outlier_test_zscore(df)))
-print("\tAusreißertest (Grubbs): ", st.outlier_test_grubbs(df), len(st.outlier_test_grubbs(df)))
+print(
+    "\tAusreißertest (IQR-Kriterium): ", 
+    "obere Schranke:", st.outlier_test_iqr(df)[0],
+    "untere Schranke:", st.outlier_test_iqr(df)[1],
+    "Ausreißer:", st.outlier_test_iqr(df)[2]
+    )
+print(
+    "\tAusreißertest (z-score): ", 
+    "obere Schranke:", st.outlier_test_zscore(df)[0],
+    "untere Schranke:", st.outlier_test_zscore(df)[1],
+    "Ausreißer:", st.outlier_test_zscore(df)[2]
+    )
+print(
+    "\tAusreißertest (Grubbs): ", 
+    "Schranke:", st.outlier_test_grubbs(df)[0],
+    "Ausreißer:", st.outlier_test_grubbs(df)[1]
+    )
 
 # -----------------------------------------
 #           Homogenity check
 # -----------------------------------------
-
+print("\nHomogenitätsprüfung")
 klingenthal = read_data("data/Daten_Klingenthal_raw.txt")
 rothenthal = read_data("data/others/Daten_Rothenthal.txt")
-test_cumsum, ref_cumsum = st.double_sum(klingenthal["Durchfluss_m3s"], rothenthal["Durchfluss_m3s"])
-plot_dsk(test_cumsum, ref_cumsum)
-
-# TODO: #7 double sum analysis
+kling, roth = st.double_sum(klingenthal["Durchfluss_m3s"], rothenthal["Durchfluss_m3s"])
+plot_dsk(kling, roth)
+print(
+    "\tPettitt test:", st.pettitt_test(df),
+    "Location:", df.iloc[st.pettitt_test(df).cp]   
+    )
+plot_breakpoint(df)
 
 # -----------------------------------------
 #           Stationarity check
