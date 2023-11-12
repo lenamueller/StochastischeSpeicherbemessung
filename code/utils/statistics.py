@@ -3,42 +3,7 @@ import numpy as np
 import pandas as pd
 import pymannkendall as mk
 import pyhomogeneity as hg
-
-
-# -----------------------------------------
-#         Quality investigation
-# -----------------------------------------
-
-def outlier_test_iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of outliers using the IQR method."""
-    q1 = df[var].quantile(q=0.25, interpolation="nearest")
-    q3 = df[var].quantile(q=0.75, interpolation="nearest")
-    iqr = q3 - q1
-    g_upper = q3 + 1.5*iqr
-    g_lower = q1 - 1.5*iqr
-    return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
-
-def outlier_test_zscore(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of outliers using the z-score method."""
-    g_upper = df[var].mean() + 3*df[var].std()
-    g_lower = df[var].mean() - 3*df[var].std()
-    return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
-
-def outlier_test_grubbs(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of outliers using the Grubbs method."""
-    max_diff = np.max(np.abs(df[var] - df[var].mean()))
-    s = np.std(df[var])
-    g = max_diff / s
-    return g, df.loc[df[var] > g]
-
-def double_sum(test_gauge: list[float], ref_gauge: list[float]):
-    """Returns a list of double sums."""
-    sum_test = np.cumsum(test_gauge)
-    sum_ref = np.cumsum(ref_gauge)
-    return sum_test, sum_ref
-
-def pettitt_test(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    return hg.pettitt_test(x=df[var], alpha=0.05)
+from statsmodels.tsa.stattools import adfuller
     
 
 # -----------------------------------------
@@ -231,6 +196,47 @@ def yearly_skewness(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
     return scipy.stats.skew(arr, axis=1, bias=True)
 
+
+# -----------------------------------------
+#         Quality investigation
+# -----------------------------------------
+
+def outlier_test_iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    """Returns a list of outliers using the IQR method."""
+    q1 = df[var].quantile(q=0.25, interpolation="nearest")
+    q3 = df[var].quantile(q=0.75, interpolation="nearest")
+    iqr = q3 - q1
+    g_upper = q3 + 1.5*iqr
+    g_lower = q1 - 1.5*iqr
+    return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
+
+def outlier_test_zscore(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    """Returns a list of outliers using the z-score method."""
+    g_upper = df[var].mean() + 3*df[var].std()
+    g_lower = df[var].mean() - 3*df[var].std()
+    return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
+
+def outlier_test_grubbs(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    """Returns a list of outliers using the Grubbs method."""
+    max_diff = np.max(np.abs(df[var] - df[var].mean()))
+    s = np.std(df[var])
+    g = max_diff / s
+    return g, df.loc[df[var] > g]
+
+def double_sum(test_gauge: list[float], ref_gauge: list[float]):
+    """Returns a list of double sums."""
+    sum_test = np.cumsum(test_gauge)
+    sum_ref = np.cumsum(ref_gauge)
+    return sum_test, sum_ref
+
+def pettitt_test(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    """Test for inhomogeneity using the Pettitt test."""
+    return hg.pettitt_test(x=df[var], alpha=0.05)
+
+def adf_test(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    """Test for stationarity using the Augmented Dickey-Fuller test."""
+    return adfuller(df[var])
+
 # -----------------------------------------
 #           Trend analysis
 # -----------------------------------------
@@ -273,6 +279,7 @@ def t_test_statistic(df: pd.DataFrame, which: str):
     return linreg(df, which=which).slope / linreg(df, which=which).stderr
 
 def mk_test(df: pd.DataFrame, which: str):
+    """Trend test using the Mann-Kendall test."""
     if which == "monthly":
         return mk.seasonal_test(df["Durchfluss_m3s"].to_numpy(), alpha=0.05, period=12)
     elif which == "yearly":

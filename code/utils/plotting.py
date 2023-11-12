@@ -3,8 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pymannkendall as mk
 import scipy
+import seaborn as sns
 
-from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red
+from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, var_remapper
 from utils.statistics import hyd_years, max_val, max_val_month, min_val, \
     min_val_month, hyd_years, monthly_autocorr, yearly_autocorr, \
     monthly_mean, yearly_mean, monthly_variance, yearly_variance, \
@@ -44,6 +45,20 @@ def plot_raw(df: pd.DataFrame):
     plt.xlim(left=df["Monat"].min(), right=df["Monat"].max())
     plt.legend(loc="upper right")
     plt.savefig(image_path+f"{pegelname}_raw.png", dpi=300, bbox_inches="tight")
+
+def pairplot(df: pd.DataFrame):
+    
+    df = df.rename(columns=var_remapper)
+    df["Monat"] = df["Monat"].str[:2].astype(int)
+    df["Saison"] = df["Monat"].apply(lambda x: "Winter" if x in [12, 1, 2] else
+                                        "Frühling" if x in [3, 4, 5] else
+                                        "Sommer" if x in [6, 7, 8] else
+                                        "Herbst")
+    sns.pairplot(df, height=2, hue="Saison", palette ="bright", 
+                 vars=["Rohdaten", "Saisonale Komp. (Mittel)", \
+                      "Autokorr. Komp.", "Zufallskomp."],
+                 corner=False, plot_kws={"s":2, "alpha":0.2})
+    plt.savefig(image_path+f"{pegelname}_pairplot.png", dpi=300, bbox_inches="tight")
 
 def plot_dsk(test_cumsum: np.ndarray, ref_cumsum: np.ndarray):
     """Plot double sum curve."""

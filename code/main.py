@@ -8,7 +8,7 @@ import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_hist, plot_trend, plot_components, \
     plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
-    plot_breakpoint
+    plot_breakpoint, pairplot
 
 
 check_path(image_path)
@@ -63,7 +63,8 @@ plot_breakpoint(df)
 #           Stationarity check
 # -----------------------------------------
 
-# TODO: #8 Check for stationarity
+print("\nStationaritätsprüfung")
+print("\tADF-Test:", st.adf_test(df))
 
 # -----------------------------------------
 #           Trend analysis
@@ -110,6 +111,7 @@ plot_components(df)
 plot_raw(df)
 plot_hist(df)
 plot_characteristics(df)
+pairplot(df)
 
 # -----------------------------------------
 #               Statistics
