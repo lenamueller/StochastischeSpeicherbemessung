@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 
-from config import pegelname, report_path, image_path, fn_results
+from config import report_path, image_path, fn_results
 
 from utils.data_structures import read_data, check_path
 import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
-from utils.plotting import plot_raw, plot_hist, plot_trend, plot_components, \
+from utils.plotting import plot_raw, plot_trend, plot_components, \
     plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
     plot_breakpoint, pairplot
 
@@ -109,7 +109,6 @@ plot_components(df)
 
 # TODO: #9 Fit distribution to data
 plot_raw(df)
-plot_hist(df)
 plot_characteristics(df)
 pairplot(df)
 
