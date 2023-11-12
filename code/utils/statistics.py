@@ -359,7 +359,7 @@ def confidence_interval(df: pd.DataFrame, lags: list[float]):
     upper_conf = (1 + T_ALPHA*np.sqrt(n-k-1)) / (n-k+1)
     return lower_conf, upper_conf
 
-def monthly_autocorr(df: pd.DataFrame, which: str = "maniak"):
+def monthly_autocorr(df: pd.DataFrame, var: str = "saisonber", which: str = "maniak"):
     """Returns a list of monthly autocorrelations for lag (k) = 1."""
 
     months = df["Monat"]
@@ -370,8 +370,8 @@ def monthly_autocorr(df: pd.DataFrame, which: str = "maniak"):
     coeff = []
     for i in range(12):
         first_month, second_month = pairs[i]
-        x_i = df["saisonber"][months.str.startswith(first_month)].tolist()
-        x_ik = df["saisonber"][months.str.startswith(second_month)].tolist()
+        x_i = df[var][months.str.startswith(first_month)].tolist()
+        x_ik = df[var][months.str.startswith(second_month)].tolist()
         assert len(x_i) == len(x_ik)
         
         mean_x_i = np.mean(x_i)

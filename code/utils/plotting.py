@@ -256,7 +256,7 @@ def plot_characteristics(df: pd.DataFrame):
                     c=color, linewidth=1, label=label)
         ax[0,2].plot(x_months, st.monthly_skewness(df, var=var),
                     c=color, linewidth=1, label=label)
-        ax[0,3].plot(x_months, st.monthly_autocorr(df, which="pearson"),
+        ax[0,3].plot(x_months, st.monthly_autocorr(df, var=var, which="pearson"),
                     c=color, linewidth=1, label=label)
         
         # middle row plots
@@ -266,7 +266,7 @@ def plot_characteristics(df: pd.DataFrame):
                     c=color, linewidth=1, label=label)
         ax[1,2].plot(x_years, st.yearly_skewness(df, var=var),
                     c=color, linewidth=1, label=label)
-        ax[1,3].plot(x_years, st.yearly_autocorr(df, lag=1),
+        ax[1,3].plot(x_years, st.yearly_autocorr(df, lag=1, var=var),
                     c=color, linewidth=1, label=label)
         
         # lower row plots

@@ -110,7 +110,9 @@ plot_components(df)
 # TODO: #9 Fit distribution to data
 plot_raw(df)
 plot_characteristics(df)
+exit()
 pairplot(df)
+    
 
 # -----------------------------------------
 #               Statistics
