@@ -186,6 +186,16 @@ def yearly_variance(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
     return np.var(arr, axis=1)
 
+def monthly_std(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    """Returns a list of monthly standard deviations."""
+    arr = np.reshape(df[var].to_numpy(), (-1, 12))
+    return np.std(arr, axis=0)
+
+def yearly_std(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+    """Returns a list of yearly standard deviations."""
+    arr = np.reshape(df[var].to_numpy(), (-1, 12))
+    return np.std(arr, axis=1)
+
 def monthly_skewness(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns a list of monthly skewness."""
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
