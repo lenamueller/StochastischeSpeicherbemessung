@@ -1,23 +1,59 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
-from config import report_path, image_path, fn_results
+from config import report_path, image_path, fn_results, pegelname
 
 from utils.data_structures import read_data, check_path
 import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_trend, plot_components, \
     plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
-    plot_breakpoint, pairplot
+    plot_breakpoint, pairplot, plot_thomasfiering
+from utils.thomasfiering import parameter_xp, parameter_sp, parameter_rp, thomasfiering, fit_lognorm, _monthly_vals
 
 
 check_path(image_path)
 check_path(report_path)
 
 
-df = read_data("data/Daten_Klingenthal_raw.txt")
+df = read_data(f"data/others/Daten_{pegelname}.txt")
 
-info = pd.DataFrame(columns=["Name", "Wert", "Einheit"])
+# -----------------------------------------
+# Thomas Fiering model
+# -----------------------------------------
+
+# Parameter
+tf_pars = pd.DataFrame()
+tf_pars["Monat"] = np.arange(1, 13)
+tf_pars["Mittelwert"] = [parameter_xp(df, i) for i in range(1, 13)]
+tf_pars["Standardabweichung"] = [parameter_sp(df, i) for i in range(1, 13)]
+tf_pars["Korrelationskoeffizient"] = [parameter_rp(df, i) for i in range(1, 13)]
+
+tf_pars = tf_pars.round(4)
+tf_pars.to_latex("reports/tomasfiering_parameters.tex", index=False)
+
+print(tf_pars)
+
+# Fitten
+# import matplotlib.pyplot as plt
+# from scipy.stats import lognorm
+# x = np.arange(1, 13)
+# bins = np.arange(0, 10, 0.5)
+# for month in x:
+#     df_month = df[df["Monat"].str.startswith(str(month).zfill(2))]
+#     plt.hist(df_month["Durchfluss_m3s"].to_numpy(), bins=bins, label=month, alpha=0.3)
+#     shape, loc, scale = fit_lognorm(df, month)
+#     print("month", month, "parameters", shape, loc, scale)
+#     plt.plot(x, lognorm.pdf(x, shape, loc, scale), label=month)
+
+# plt.legend()
+# plt.show()
+
+# Zeitreihengenerierung
+plot_thomasfiering(df, n=20)
+    
+exit()
 
 # -----------------------------------------
 #           Consistency check    
@@ -107,10 +143,8 @@ plot_components(df)
 #               Distribution
 # -----------------------------------------
 
-# TODO: #9 Fit distribution to data
 plot_raw(df)
 plot_characteristics(df)
-exit()
 pairplot(df)
     
 
