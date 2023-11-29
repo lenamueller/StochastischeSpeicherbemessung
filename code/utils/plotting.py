@@ -7,6 +7,7 @@ import seaborn as sns
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, var_remapper
 import utils.statistics as st
+from utils.thomasfiering import thomasfiering
 
 
 def plot_raw(df: pd.DataFrame):
@@ -240,7 +241,7 @@ def plot_characteristics(df: pd.DataFrame):
     labels = ["Rohdaten", "Zufallskomponente"]
     vars = ["Durchfluss_m3s", "zufall"]
     colors = [tu_grey, "orange"]
-    ylabels = ["Arith. Mittel (m³/s)", "Varianz (m³/s)²", "Schiefe (-)", "Autokorrelation $r_{1}$(-)"]
+    ylabels = ["Arith. Mittel (m³/s)", "Standardabweichung m³/s", "Schiefe (-)", "Autokorrelation $r_{1}$(-)"]
     letters = ["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J.", "K.", "L."]
     
     for i in range(len(labels)):
@@ -249,10 +250,14 @@ def plot_characteristics(df: pd.DataFrame):
         x_months = np.arange(1, 13)
         x_years = st.hyd_years(df)
         
+        print(i, "var", var)
+        print("PEARSON", st.monthly_autocorr(df, var=var, which="pearson"))
+        print("MANIAK", st.monthly_autocorr(df, var=var, which="maniak"))
+        
         # upper row plots
         ax[0,0].plot(x_months, st.monthly_mean(df, var=var),
                     c=color, linewidth=1, label=label)
-        ax[0,1].plot(x_months, st.monthly_variance(df, var=var),
+        ax[0,1].plot(x_months, st.monthly_std(df, var=var),
                     c=color, linewidth=1, label=label)
         ax[0,2].plot(x_months, st.monthly_skewness(df, var=var),
                     c=color, linewidth=1, label=label)
@@ -262,7 +267,7 @@ def plot_characteristics(df: pd.DataFrame):
         # middle row plots
         ax[1,0].plot(x_years, st.yearly_mean(df, var=var),
                     c=color, linewidth=1, label=label)
-        ax[1,1].plot(x_years, st.yearly_variance(df, var=var),
+        ax[1,1].plot(x_years, st.yearly_std(df, var=var),
                     c=color, linewidth=1, label=label)
         ax[1,2].plot(x_years, st.yearly_skewness(df, var=var),
                     c=color, linewidth=1, label=label)
@@ -376,4 +381,20 @@ def plot_components(
     
     plt.tight_layout()
     plt.savefig(image_path+f"{pegelname}_components.png", dpi=300, bbox_inches="tight")
+
+def plot_thomasfiering(df: pd.DataFrame, n: int = 10) -> None:
     
+    plt.figure(figsize=(10,5))
+    
+    x = np.arange(1, 13)
+
+    y_true = st.monthly_mean(df, var="Durchfluss_m3s")
+    plt.plot(x, y_true, label="Rohdaten", color="k")
+    
+    for _ in range(n):
+        plt.plot(x, thomasfiering(df), color="grey", alpha=0.1)
+
+    x_labels = ["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"]
+    plt.xticks(x, x_labels)
+    plt.legend()
+    plt.savefig(image_path+f"{pegelname}_thomasfiering.png", dpi=300, bbox_inches="tight")

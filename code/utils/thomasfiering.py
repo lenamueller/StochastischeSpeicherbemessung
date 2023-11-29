@@ -59,3 +59,40 @@ def fit_lognorm(df: pd.DataFrame, i: int) -> tuple[float, float, float]:
     shape, loc, scale = lognorm.fit(x)
     return shape, loc, scale
 
+def thomasfiering(
+        df: pd.DataFrame
+        ) -> float:
+    """
+    Returns a time series with monthly discharge values 
+    generated with the Thomas Fiering model.
+    """
+
+    new_time_series = []
+    for i in [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+        if i == 11:
+            value_month_before = parameter_xp(df, 10)
+        else:
+            value_month_before = new_time_series[-1]
+
+        # model parameters
+        xp = parameter_xp(df, i)
+        sp = parameter_sp(df, i)
+        rp = parameter_rp(df, i)
+        xp_before = parameter_xp(df, index_month_before(i))
+        sp_before = parameter_sp(df, index_month_before(i))
+
+        # TODO: random number from log-normal distribution        
+        # shape, loc, scale = fit_lognorm(df, i)
+        # ti = lognorm.rvs(s=shape, loc=loc, scale=scale, size=1, random_state=None)[0]
+        
+        # TODO: get random value of normal distribution
+        ti = np.random.normal(0, 1, 1)[0]
+        
+        term1 = xp
+        term2 = (rp * sp/sp_before) * (value_month_before - xp_before)
+        term3 = ti*sp*np.sqrt(1-rp**2)
+        x_new = term1 + term2 + term3
+        
+        new_time_series.append(x_new)
+
+    return new_time_series
