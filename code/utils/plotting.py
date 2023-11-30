@@ -8,7 +8,8 @@ from scipy.stats import lognorm, gamma
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, var_remapper
 import utils.statistics as st
-from utils.thomasfiering import thomasfiering
+from utils.data_structures import _monthly_vals
+
 
 
 def plot_raw(df: pd.DataFrame) -> None:
@@ -405,11 +406,6 @@ def plot_monthly_fitting(df: pd.DataFrame) -> None:
             label="LogNorm",
             color="red", ls="-", lw=1.2
             )
-        print("\tLogNorm", m, 
-              "\tshape", np.round(shape, 3), 
-              "\tloc", np.round(loc, 3), 
-              "\tscale", np.round(scale, 3))
-        
         # LogNorm all months
         shape_all_months, loc_all_months, scale_all_months = lognorm.fit(df["Durchfluss_m3s"])
         axs[row_i, col_i].plot(
@@ -474,3 +470,60 @@ def plot_thomasfiering(df: pd.DataFrame, gen_data: np.array, n: int = 10) -> Non
     plt.xticks(x, x_labels)
     plt.legend()
     plt.savefig(image_path+f"{pegelname}_thomasfiering.png", dpi=300, bbox_inches="tight")
+
+def plot_thomasfierung_eval(df: pd.DataFrame, gen_data: np.ndarray):
+    x = np.arange(0, 12)
+    
+    mean = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean)
+    var = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.var)
+    skew = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=scipy.stats.skew)
+    
+    mean_gen = np.mean(gen_data, axis=0)
+    var_gen = np.var(gen_data, axis=0)
+    skew_gen = scipy.stats.skew(gen_data, axis=0)
+    
+    _, axs = plt.subplots(1, 4, figsize=(15, 3))
+    plt.subplots_adjust(wspace=0.3)
+    
+    # mean
+    axs[0].set_title("Arith. Mittel", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[0].plot(x, mean, color=tu_mediumblue, alpha=1, lw=1,
+                label="original")
+    axs[0].plot(x, mean_gen, color=tu_red, alpha=1, lw=1,
+                label="generiert")
+    
+    # variance
+    axs[1].set_title("Varianz", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[1].plot(x, var, color=tu_mediumblue, alpha=1, lw=1,
+                label="original")
+    axs[1].plot(x, var_gen, color=tu_red, alpha=1, lw=1,
+                label="generiert")
+    
+    # skewness
+    axs[2].set_title("Schiefe", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[2].plot(x, skew, color=tu_mediumblue, alpha=1, lw=1,
+                label="original")
+    axs[2].plot(x, skew_gen, color=tu_red, alpha=1, lw=1,
+                label="generiert")
+    
+    # histogram
+    axs[3].set_title("Emp. Verteilung", loc="left", color="grey", 
+                     fontsize=10, fontweight="bold")
+    axs[3].hist(df["Durchfluss_m3s"].to_numpy(), bins=np.arange(0, 10, 0.25), 
+                density=False, label="original", alpha=0.3, color=tu_mediumblue)
+    axs[3].hist(gen_data.ravel()[:len(df)], bins=np.arange(0, 10, 0.25), 
+                density=False, label="generiert", alpha=0.3, color=tu_red)
+    
+    for i in range(4):
+        axs[i].grid(color="grey", alpha=0.3)
+        axs[i].legend(fontsize=9)
+    for i in range(3):
+        axs[i].set_xticks(x)
+        axs[i].set_xticklabels(["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"])
+        axs[i].set_ylabel("Durchfluss [m³/s]")
+        axs[i].set_xlabel("Monat")
+    axs[3].set_xlabel("Durchfluss [m³/s]")
+    axs[3].set_ylabel("Absolute Häufigkeit [-]")
+
+    plt.savefig(image_path+f"{pegelname}_thomasfiering_eval.png", dpi=300, bbox_inches="tight")                    
+    
