@@ -44,43 +44,34 @@ def max_val(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     month = df["Monat"].iloc[max_index]
     return val, month
 
-def first_central_moment(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the first central moment (mean)."""
-    return df[var].mean()
-
-def second_central_moment(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the second central moment (variance)."""
-    n = sample_number(df)
-    mean = first_central_moment(df)
-    diff = [(i-mean)**2 for i in df[var]]
-    return np.sum(diff) / n
-
-def third_central_moment(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the third central moment."""
-    n = sample_number(df)
-    mean = first_central_moment(df)
-    diff = [(i-mean)**3 for i in df[var]]
-    return np.sum(diff) / n
-
-def fourth_central_moment(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the fourth central moment."""
-    n = sample_number(df)
-    mean = first_central_moment(df)
-    diff = [(i-mean)**4 for i in df[var]]
-    return np.sum(diff) / n
+def central_moment(df: pd.DataFrame, nth: int, var: str = "Durchfluss_m3s"):
+    """Returns the n-th central moment. nth must be 1, 2, 3 or 4."""
+    mean = df[var].mean()
+    diff = [(i-mean)**nth for i in df[var]]
+    
+    if nth == 1:
+        return mean
+    elif nth == 2:
+        return np.sum(diff) / sample_number(df)
+    elif nth == 3:
+        return np.sum(diff) / sample_number(df)
+    elif nth == 4:
+        return np.sum(diff) / sample_number(df)
+    else:
+        raise ValueError("n must be 1, 2, 3 or 4")
 
 def standard_deviation_biased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns the biased standard deviation."""
-    return np.sqrt(second_central_moment(df, var))
+    return np.sqrt(central_moment(df, nth=2, var=var))
 
 def standard_deviation_unbiased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns the unbiased standard deviation."""
-    return np.sqrt(second_central_moment(df, var) * \
+    return np.sqrt(central_moment(df, nth=2, var=var) * \
         (sample_number(df) / (sample_number(df) - 1)))
 
 def skewness_biased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns the biased skewness."""
-    mean = first_central_moment(df)
+    mean = central_moment(df, nth=1, var=var)
     std = standard_deviation_biased(df)
     n = sample_number(df)
     return np.sum(((df[var] - mean)/std)**3) / n
@@ -92,7 +83,7 @@ def skewness_unbiased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
 
 def kurtosis_biased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns the biased kurtosis."""
-    mean = first_central_moment(df)
+    mean = central_moment(df, nth=1, var=var)
     std = standard_deviation_biased(df)
     res = np.sum(((df[var] - mean)/std)**4) - 3
     return res

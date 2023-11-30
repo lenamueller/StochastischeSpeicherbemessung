@@ -60,10 +60,10 @@ def test_primary_stats(first_4_rows: pd.DataFrame):
     assert (st.hyd_years(first_4_rows) == np.array([1960])).all()
     assert st.min_val(first_4_rows) == (0, "11/1959")
     assert st.max_val(first_4_rows) == (2, "02/1960")
-    assert st.first_central_moment(first_4_rows) == 1.0
-    assert st.second_central_moment(first_4_rows) == 0.5
-    assert st.third_central_moment(first_4_rows) == 0.0
-    assert st.fourth_central_moment(first_4_rows) == 0.5
+    assert st.central_moment(df=first_4_rows, nth=1) == 1.0
+    assert st.central_moment(df=first_4_rows, nth=2) == 0.5
+    assert st.central_moment(df=first_4_rows, nth=3) == 0.0
+    assert st.central_moment(df=first_4_rows, nth=4) == 0.5
     assert round(st.standard_deviation_biased(first_4_rows), 4) == 0.7071
     assert round(st.standard_deviation_unbiased(first_4_rows), 4) == 0.8165
     assert round(st.skewness_biased(first_4_rows), 3) == 0.0
