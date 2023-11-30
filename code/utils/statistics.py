@@ -4,7 +4,7 @@ import pandas as pd
 import pymannkendall as mk
 import pyhomogeneity as hg
 from statsmodels.tsa.stattools import adfuller
-    
+from types import FunctionType    
 
 # -----------------------------------------
 #           Primary statistics
@@ -166,45 +166,26 @@ def hydro_values(df: pd.DataFrame):
 #    binned statistics (monthly, yearly)
 # -----------------------------------------
 
-def monthly_mean(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of monthly means."""
+def binned_stats(
+        df: pd.DataFrame, 
+        var: str, 
+        bin: str, 
+        func: FunctionType
+        ):
+    """
+    Returns monthly or yearly (biased) mean/ variance/ std/ skewness.
+    
+    Possible functions are:
+    - np.mean
+    - np.var
+    - np.std
+    - scipy.stats.skew
+    """
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return np.mean(arr, axis=0)
+    d = {"monthly": 0, "yearly": 1}
+    return func(arr, axis=d[bin])
 
-def yearly_mean(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of yearly means."""
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return np.mean(arr, axis=1)
 
-def monthly_variance(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of monthly variances."""
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return np.var(arr, axis=0)
-
-def yearly_variance(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of yearly variances."""
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return np.var(arr, axis=1)
-
-def monthly_std(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of monthly standard deviations."""
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return np.std(arr, axis=0)
-
-def yearly_std(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of yearly standard deviations."""
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return np.std(arr, axis=1)
-
-def monthly_skewness(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of monthly skewness."""
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return scipy.stats.skew(arr, axis=0, bias=True)
-
-def yearly_skewness(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns a list of yearly skewness."""
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    return scipy.stats.skew(arr, axis=1, bias=True)
 
 
 # -----------------------------------------
@@ -257,7 +238,7 @@ def __preprocess(df: pd.DataFrame, which: str):
         t = np.arange(hyd_years(df)[0], hyd_years(df)[-1]+1, 1/12)
         n = len(t)
     elif which == "yearly":
-        x = yearly_mean(df)
+        x = binned_stats(df, var="Durchfluss_m3s", bin="yearly", func=np.mean).tolist()
         t = np.arange(hyd_years(df)[0], hyd_years(df)[-1]+1, 1)
         n = len(t)
     else:
@@ -293,7 +274,7 @@ def mk_test(df: pd.DataFrame, which: str):
     if which == "monthly":
         return mk.seasonal_test(df["Durchfluss_m3s"].to_numpy(), alpha=0.05, period=12)
     elif which == "yearly":
-        return mk.original_test(yearly_mean(df), alpha=0.05)
+        return mk.original_test(binned_stats(df, var="Durchfluss_m3s", bin="yearly", func=np.mean), alpha=0.05)
     else:
         raise ValueError("which must be 'monthly' or 'yearly'")
 
@@ -422,8 +403,8 @@ def calc_components(df: pd.DataFrame, detrend: bool = False):
     df["trend"] = df["Durchfluss_m3s"].to_numpy() - df["trendber"].to_numpy()
     
     # Saisonale Komponente
-    df["saisonfigur_mean"] = np.tile(monthly_mean(df), 40)
-    df["saisonfigur_std"] = np.sqrt(np.tile(monthly_variance(df), 40))
+    df["saisonfigur_mean"] = np.tile(binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean), 40)
+    df["saisonfigur_std"] = np.tile(binned_stats(df, var="Durchfluss", bin="monthly", func=np.std), 40)
     if detrend:
         df["saisonber"] = df["trendber"] - df["saisonfigur_mean"]
         df["normiert"] = (df["trendber"] - df["saisonfigur_mean"]) / df["saisonfigur_std"]

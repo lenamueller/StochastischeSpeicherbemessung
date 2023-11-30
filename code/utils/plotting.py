@@ -119,7 +119,7 @@ def plot_trend(df: pd.DataFrame):
     # raw data
     ax1.plot(df["Monat"], df["Durchfluss_m3s"], c=tu_grey, linewidth=0.8, 
              alpha=0.3, marker="o", markersize=2, label="Monatswerte (Rohdaten)")
-    ax2.plot(x_yearly, st.yearly_mean(df), c=tu_grey, linewidth=0.8, 
+    ax2.plot(x_yearly, st.binned_stats(df, var="Durchflus_m3s", bin="yearly", func=np.mean), c=tu_grey, linewidth=0.8, 
              alpha=0.3, marker="o", markersize=3, label="Jahreswerte (arith. Mittel)")
     
     # linear regression
@@ -255,21 +255,21 @@ def plot_characteristics(df: pd.DataFrame):
         print("MANIAK", st.monthly_autocorr(df, var=var, which="maniak"))
         
         # upper row plots
-        ax[0,0].plot(x_months, st.monthly_mean(df, var=var),
+        ax[0,0].plot(x_months, st.binned_stats(df, var=var, bin="monthly", func=np.mean),
                     c=color, linewidth=1, label=label)
-        ax[0,1].plot(x_months, st.monthly_std(df, var=var),
+        ax[0,1].plot(x_months, st.binned_stats(df, var=var, bin="monthly", func=np.std),
                     c=color, linewidth=1, label=label)
-        ax[0,2].plot(x_months, st.monthly_skewness(df, var=var),
+        ax[0,2].plot(x_months, st.binned_stats(df, var=var, bin="monthly", func=scipy.stats.skew),
                     c=color, linewidth=1, label=label)
         ax[0,3].plot(x_months, st.monthly_autocorr(df, var=var, which="pearson"),
                     c=color, linewidth=1, label=label)
         
         # middle row plots
-        ax[1,0].plot(x_years, st.yearly_mean(df, var=var),
+        ax[1,0].plot(x_years, st.binned_stats(df, var=var, bin="yearly", func=np.mean),
                     c=color, linewidth=1, label=label)
-        ax[1,1].plot(x_years, st.yearly_std(df, var=var),
+        ax[1,1].plot(x_years, st.binned_stats(df, var=var, bin="yearly", func=np.std),
                     c=color, linewidth=1, label=label)
-        ax[1,2].plot(x_years, st.yearly_skewness(df, var=var),
+        ax[1,2].plot(x_years, st.binned_stats(df, var=var, bin="yearly", func=scipy.stats.skew),
                     c=color, linewidth=1, label=label)
         ax[1,3].plot(x_years, st.yearly_autocorr(df, lag=1, var=var),
                     c=color, linewidth=1, label=label)
@@ -388,7 +388,7 @@ def plot_thomasfiering(df: pd.DataFrame, n: int = 10) -> None:
     
     x = np.arange(1, 13)
 
-    y_true = st.monthly_mean(df, var="Durchfluss_m3s")
+    y_true = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean)
     plt.plot(x, y_true, label="Rohdaten", color="k")
     
     for _ in range(n):
