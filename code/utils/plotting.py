@@ -435,12 +435,41 @@ def plot_monthly_fitting(df: pd.DataFrame) -> None:
     axs[0, 0].legend()
     plt.savefig(f"{image_path}/{pegelname}_fit.png", dpi=300, bbox_inches="tight")
 
-    y_true = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean)
-    plt.plot(x, y_true, label="Rohdaten", color="k")
-    
-    for _ in range(n):
-        plt.plot(x, thomasfiering(df), color="grey", alpha=0.1)
+def plot_thomasfiering(df: pd.DataFrame, gen_data: np.array, n: int = 10) -> None:
+    """Plot the generated data from the Thomas Fiering model."""
 
+    x = np.arange(0, 12)
+    arr = np.reshape(df["Durchfluss_m3s"].to_numpy(), (-1, 12))
+    
+    plt.figure(figsize=(12, 5))
+    
+    # raw data
+    plt.plot(x, np.mean(arr, axis=0), color=tu_red, alpha=1, lw=1, 
+             label=f"Mittel der Rohdaten (40 Zeitreihen)")
+    # for row_i in range(len(arr)):
+    #     plt.plot(x, arr[row_i], color=tu_red, alpha=0.3, lw=0.5)
+    plt.boxplot(arr, positions=x-0.1, widths=0.1, patch_artist=True,
+                boxprops=dict(facecolor=tu_red, color=tu_red, alpha=0.2),
+                capprops=dict(color=tu_red, alpha=0.3),
+                whiskerprops=dict(color=tu_red, alpha=0.3),
+                flierprops=dict(color=tu_red, alpha=0.3, markeredgecolor=tu_red),
+                medianprops=dict(color=tu_red, alpha=0.3))
+    
+    # generated data
+    plt.plot(x, np.mean(gen_data, axis=0), color="k", alpha=1, lw=1, 
+             label=f"Mittel der generierten Zeitreihen ({len(gen_data)} Zeitreihen)")
+    for i in range(min(len(gen_data), n)):
+        plt.plot(x, gen_data[i], color="grey", alpha=0.1, lw=0.5)
+    plt.fill_between(x, np.min(gen_data, axis=0), np.max(gen_data, axis=0), 
+            color="grey", alpha=0.1, label="Spannweite der generierten Zeitreihen")
+    plt.boxplot(gen_data, positions=x+0.1, widths=0.1, patch_artist=True,
+                boxprops=dict(facecolor="grey", color="grey", alpha=0.2),
+                capprops=dict(color="grey", alpha=0.3),
+                whiskerprops=dict(color="grey", alpha=0.3),
+                flierprops=dict(color="grey", alpha=0.3, markeredgecolor="grey"),
+                medianprops=dict(color="grey", alpha=0.3))
+    
+    plt.grid(color="grey", alpha=0.3)
     x_labels = ["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"]
     plt.xticks(x, x_labels)
     plt.legend()

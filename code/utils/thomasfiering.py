@@ -1,14 +1,10 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import lognorm
+from scipy.stats import skew
 
-from config import T
 from utils.statistics import hyd_years
+from utils.data_structures import _monthly_vals
 
-
-def _monthly_vals(df: pd.DataFrame, i: int)-> np.ndarray:
-    df = df[df["Monat"].str.startswith(str(i).zfill(2))]
-    return df["Durchfluss_m3s"].to_numpy()
 
 def index_month_before(i: int) -> int:
     """Return the index of the month before."""
@@ -54,14 +50,7 @@ def parameter_rp(df: pd.DataFrame, i:int) -> float:
     else:
         raise ValueError("r_p is not in [-1,1] for month", i)
 
-def fit_lognorm(df: pd.DataFrame, i: int) -> tuple[float, float, float]:
-    x = _monthly_vals(df, i)
-    shape, loc, scale = lognorm.fit(x)
-    return shape, loc, scale
-
-def thomasfiering(
-        df: pd.DataFrame
-        ) -> float:
+def thomasfiering(df: pd.DataFrame) -> float:
     """
     Returns a time series with monthly discharge values 
     generated with the Thomas Fiering model.
@@ -80,18 +69,22 @@ def thomasfiering(
         rp = parameter_rp(df, i)
         xp_before = parameter_xp(df, index_month_before(i))
         sp_before = parameter_sp(df, index_month_before(i))
+        rp_before = parameter_rp(df, index_month_before(i))
+        
+        x_new = -1
+        while x_new <= 0.1:
+            ti = np.random.normal(loc=0, scale=1, size=1)[0] # random value from normal distr.
+            csi = skew(_monthly_vals(df, i), bias=False) # sample skewness
+            cti = (csi - rp_before**3*csi - 1) / ((1 - rp**2))**(3/2)
+            tg = 2/cti * (1 + (cti*ti)/6 - cti**2/36) - 2/cti # random value from gamma distr.
 
-        # TODO: random number from log-normal distribution        
-        # shape, loc, scale = fit_lognorm(df, i)
-        # ti = lognorm.rvs(s=shape, loc=loc, scale=scale, size=1, random_state=None)[0]
+            term1 = xp # mean term
+            term2 = (rp * sp/sp_before) * (value_month_before - xp_before) # middle term
+            term3 = tg*sp*np.sqrt(1-rp**2) # random term
+            x_new = term1 + term2 + term3
         
-        # TODO: get random value of normal distribution
-        ti = np.random.normal(0, 1, 1)[0]
-        
-        term1 = xp
-        term2 = (rp * sp/sp_before) * (value_month_before - xp_before)
-        term3 = ti*sp*np.sqrt(1-rp**2)
-        x_new = term1 + term2 + term3
+        if x_new <= 0:
+            raise ValueError("Negative value generated!")
         
         new_time_series.append(x_new)
 
