@@ -70,10 +70,9 @@ def standard_deviation(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s"
 
 def skewness(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s") -> float:
     """Returns the biased skewness."""
-    mean = central_moment(df, nth=1, var=var)
     std = standard_deviation(df, bias=True)
     n = sample_number(df)
-    biased = np.sum(((df[var] - mean)/std)**3) / n
+    biased = np.sum(((df[var] - central_moment(df, nth=1, var=var))/std)**3) / n
     if bias:
         return biased
     else: 
@@ -81,10 +80,9 @@ def skewness(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s") -> float
 
 def kurtosis(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s") -> float:
     """Returns the biased kurtosis."""
-    mean = central_moment(df, nth=1, var=var)
     std = standard_deviation(df, bias=True)
     n = sample_number(df)
-    biased = np.sum(((df[var] - mean)/std)**4) - 3
+    biased = np.sum(((df[var] - central_moment(df, nth=1, var=var))/std)**4) - 3
     if bias: 
         return biased
     else:

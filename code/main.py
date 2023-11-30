@@ -9,8 +9,9 @@ import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_trend, plot_components, \
     plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
-    plot_breakpoint, pairplot, plot_thomasfiering
-from utils.thomasfiering import parameter_xp, parameter_sp, parameter_rp, thomasfiering, fit_lognorm, _monthly_vals
+    plot_breakpoint, pairplot, plot_thomasfiering, plot_monthly_fitting,  \
+    plot_thomasfierung_eval
+from utils.thomasfiering import parameter_xp, parameter_sp, parameter_rp, thomasfiering
 
 
 check_path(image_path)
@@ -18,41 +19,6 @@ check_path(report_path)
 
 
 df = read_data(f"data/others/Daten_{pegelname}.txt")
-
-# -----------------------------------------
-# Thomas Fiering model
-# -----------------------------------------
-
-# Parameter
-tf_pars = pd.DataFrame()
-tf_pars["Monat"] = np.arange(1, 13)
-tf_pars["Mittelwert"] = [parameter_xp(df, i) for i in range(1, 13)]
-tf_pars["Standardabweichung"] = [parameter_sp(df, i) for i in range(1, 13)]
-tf_pars["Korrelationskoeffizient"] = [parameter_rp(df, i) for i in range(1, 13)]
-
-tf_pars = tf_pars.round(4)
-tf_pars.to_latex("reports/tomasfiering_parameters.tex", index=False)
-
-print(tf_pars)
-
-# Fitten
-# import matplotlib.pyplot as plt
-# from scipy.stats import lognorm
-# x = np.arange(1, 13)
-# bins = np.arange(0, 10, 0.5)
-# for month in x:
-#     df_month = df[df["Monat"].str.startswith(str(month).zfill(2))]
-#     plt.hist(df_month["Durchfluss_m3s"].to_numpy(), bins=bins, label=month, alpha=0.3)
-#     shape, loc, scale = fit_lognorm(df, month)
-#     print("month", month, "parameters", shape, loc, scale)
-#     plt.plot(x, lognorm.pdf(x, shape, loc, scale), label=month)
-
-# plt.legend()
-# plt.show()
-
-# Zeitreihengenerierung
-plot_thomasfiering(df, n=20)
-    
 
 # -----------------------------------------
 #           Consistency check    
@@ -145,7 +111,37 @@ plot_components(df)
 plot_raw(df)
 plot_characteristics(df)
 pairplot(df)
-    
+
+# -----------------------------------------
+# Thomas Fiering model
+# -----------------------------------------
+
+# fit model
+tf_pars = pd.DataFrame()
+tf_pars["Monat"] = np.arange(1, 13)
+tf_pars["Mittelwert"] = [parameter_xp(df, i) for i in range(1, 13)]
+tf_pars["Standardabweichung"] = [parameter_sp(df, i) for i in range(1, 13)]
+tf_pars["Korrelationskoeffizient"] = [parameter_rp(df, i) for i in range(1, 13)]
+
+tf_pars = tf_pars.round(4)
+tf_pars.to_csv(f"data/{pegelname}_tomasfiering_parameters.csv", index=False)
+tf_pars.to_latex(f"data/{pegelname}_tomasfiering_parameters.tex", index=False)
+
+# check distribution
+plot_monthly_fitting(df)
+
+# generate time series
+n = 100
+gen_data = pd.DataFrame(
+    data=[thomasfiering(df) for _ in range(n)],
+    index=np.arange(1, n+1), 
+    columns=[11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    )
+
+gen_data.to_csv(f"data/{pegelname}_thomasfiering_timeseries.csv", index=True)
+gen_data.iloc[:10].round(3).to_latex(f"data/{pegelname}_thomasfiering_timeseries_first10.tex", index=True)
+plot_thomasfiering(df, gen_data.to_numpy(), n=100)
+plot_thomasfierung_eval(df, gen_data.to_numpy())
 
 # -----------------------------------------
 #               Statistics
@@ -160,10 +156,11 @@ names = ["Minimum", "Maximum", "1. zentrales Moment", "2. zentrales Moment",
 
 titles = ["Rohdaten", "Saisonbereinigte Zeitreihe", "Zufallskomponente der Zeitreihe"]
 vars = ["Durchfluss_m3s", "saisonber", "zufall"]
-data = {"Name": names, "Rohdaten": [], "Saisonbereinigt": [], "Zufall": []}
+data = {"Name": names, "Rohdaten": [], "Saisonbereinigte Zeitreihe": [], "Zufallskomponente der Zeitreihe": []}
 
 for i in range(len(vars)):
     t = titles[i]
+    vars[i]
     data[titles[i]].append(st.min_val(df, vars[i])[0])
     data[titles[i]].append(st.max_val(df, vars[i])[0])
     data[titles[i]].append(st.central_moment(df, nth=1, var=vars[i]))
@@ -198,7 +195,7 @@ for i in range(len(vars)):
     
     
 df_statistics = pd.DataFrame.from_dict(data)
-df_statistics.round({"Rohdaten":3, "Saisonbereinigt":3, "Zufall":3})
+df_statistics.round({"Rohdaten":3, "Saisonbereinigte Zeitreihe":3, "Zufallskomponente der Zeitreihe":3})
 df_statistics.to_latex("reports/statistics.tex", index=False)
 df_statistics.to_csv("reports/statistics.csv", index=False)
 
