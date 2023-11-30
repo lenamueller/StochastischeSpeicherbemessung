@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 
 def check_path(path) -> None:
@@ -16,3 +17,7 @@ def read_data(filepath: str) -> pd.DataFrame:
     data["Durchfluss_m3s"] = data["Durchfluss_m3s"].astype(float)
     data["Datum"] = pd.to_datetime(data["Monat"], format="%m/%Y")
     return data
+
+def _monthly_vals(df: pd.DataFrame, i: int)-> np.ndarray:
+    df = df[df["Monat"].str.startswith(str(i).zfill(2))]
+    return df["Durchfluss_m3s"].to_numpy()

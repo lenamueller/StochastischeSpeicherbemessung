@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from config import report_path, image_path, fn_results, pegelname
 
-from utils.data_structures import read_data, check_path
+from utils.data_structures import read_data, check_path, _monthly_vals
 import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_trend, plot_components, \
