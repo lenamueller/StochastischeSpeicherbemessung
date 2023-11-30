@@ -76,7 +76,7 @@ def thomasfiering(df: pd.DataFrame) -> float:
             ti = np.random.normal(loc=0, scale=1, size=1)[0] # random value from normal distr.
             csi = skew(_monthly_vals(df, i), bias=False) # sample skewness
             cti = (csi - rp_before**3*csi - 1) / ((1 - rp**2))**(3/2)
-            tg = 2/cti * (1 + (cti*ti)/6 - cti**2/36) - 2/cti # random value from gamma distr.
+            tg = 2/cti * (1 + (cti*ti)/6 - (cti**2)/36)**3 - 2/cti # random value from gamma distr.
 
             term1 = xp # mean term
             term2 = (rp * sp/sp_before) * (value_month_before - xp_before) # middle term

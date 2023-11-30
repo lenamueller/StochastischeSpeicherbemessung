@@ -441,7 +441,7 @@ def plot_thomasfiering(df: pd.DataFrame, gen_data: np.array, n: int = 10) -> Non
     
     # raw data
     plt.plot(x, np.mean(arr, axis=0), color=tu_red, alpha=1, lw=1, 
-             label=f"Mittel der Rohdaten (40 Zeitreihen)")
+             label=f"original (Mittel aus 40 Zeitreihen)")
     # for row_i in range(len(arr)):
     #     plt.plot(x, arr[row_i], color=tu_red, alpha=0.3, lw=0.5)
     plt.boxplot(arr, positions=x-0.1, widths=0.1, patch_artist=True,
@@ -453,11 +453,11 @@ def plot_thomasfiering(df: pd.DataFrame, gen_data: np.array, n: int = 10) -> Non
     
     # generated data
     plt.plot(x, np.mean(gen_data, axis=0), color="k", alpha=1, lw=1, 
-             label=f"Mittel der generierten Zeitreihen ({len(gen_data)} Zeitreihen)")
+             label=f"generiert (Mittel aus ({len(gen_data)} Zeitreihen)")
     for i in range(min(len(gen_data), n)):
         plt.plot(x, gen_data[i], color="grey", alpha=0.1, lw=0.5)
     plt.fill_between(x, np.min(gen_data, axis=0), np.max(gen_data, axis=0), 
-            color="grey", alpha=0.1, label="Spannweite der generierten Zeitreihen")
+            color="grey", alpha=0.1, label="generiert (Spannweite")
     plt.boxplot(gen_data, positions=x+0.1, widths=0.1, patch_artist=True,
                 boxprops=dict(facecolor="grey", color="grey", alpha=0.2),
                 capprops=dict(color="grey", alpha=0.3),
@@ -486,28 +486,28 @@ def plot_thomasfierung_eval(df: pd.DataFrame, gen_data: np.ndarray):
     plt.subplots_adjust(wspace=0.3)
     
     # mean
-    axs[0].set_title("Arith. Mittel", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[0].set_title("A. Arith. Mittel", loc="left", color="grey", fontsize=10, fontweight="bold")
     axs[0].plot(x, mean, color=tu_mediumblue, alpha=1, lw=1,
                 label="original")
     axs[0].plot(x, mean_gen, color=tu_red, alpha=1, lw=1,
                 label="generiert")
     
     # variance
-    axs[1].set_title("Varianz", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[1].set_title("B. Varianz", loc="left", color="grey", fontsize=10, fontweight="bold")
     axs[1].plot(x, var, color=tu_mediumblue, alpha=1, lw=1,
                 label="original")
     axs[1].plot(x, var_gen, color=tu_red, alpha=1, lw=1,
                 label="generiert")
     
     # skewness
-    axs[2].set_title("Schiefe", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[2].set_title("C. Schiefe", loc="left", color="grey", fontsize=10, fontweight="bold")
     axs[2].plot(x, skew, color=tu_mediumblue, alpha=1, lw=1,
                 label="original")
     axs[2].plot(x, skew_gen, color=tu_red, alpha=1, lw=1,
                 label="generiert")
     
     # histogram
-    axs[3].set_title("Emp. Verteilung", loc="left", color="grey", 
+    axs[3].set_title("D. Emp. Verteilung", loc="left", color="grey", 
                      fontsize=10, fontweight="bold")
     axs[3].hist(df["Durchfluss_m3s"].to_numpy(), bins=np.arange(0, 10, 0.25), 
                 density=False, label="original", alpha=0.3, color=tu_mediumblue)
