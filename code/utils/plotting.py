@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pymannkendall as mk
 import scipy
 import seaborn as sns
+from scipy.stats import lognorm, gamma
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, var_remapper
 import utils.statistics as st
@@ -380,11 +381,59 @@ def plot_components(df: pd.DataFrame) -> None:
     plt.tight_layout()
     plt.savefig(image_path+f"{pegelname}_components.png", dpi=300, bbox_inches="tight")
 
-def plot_thomasfiering(df: pd.DataFrame, n: int = 10) -> None:
-    
-    plt.figure(figsize=(10,5))
-    
-    x = np.arange(1, 13)
+def plot_monthly_fitting(df: pd.DataFrame) -> None:
+    """Plot the fitting of the distribution for each month.""" 
+
+    months = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    months_text = ["November", "Dezember", "Januar", "Februar", "März", "April",
+                    "Mai", "Juni", "Juli", "August", "September", "Oktober"]
+    bins = np.arange(0, 10, 0.25)
+
+    _, axs = plt.subplots(3, 4, figsize=(15, 10), sharex=True, sharey=True)
+    for i in range(12):
+        m = months[i]
+        row_i = i // 4
+        col_i = i % 4
+        
+        axs[row_i, col_i].set_title(f"{months_text[i]}", loc="left", color="grey", fontsize=10, fontweight="bold")
+        axs[row_i, col_i].hist(_monthly_vals(df, m), bins=bins, density=True, label="Messdaten", alpha=0.3)
+        
+        # LogNorm single months
+        shape, loc, scale = lognorm.fit(_monthly_vals(df, m))
+        axs[row_i, col_i].plot(
+            bins, lognorm.pdf(bins, s=shape, loc=loc, scale=scale),
+            label="LogNorm",
+            color="red", ls="-", lw=1.2
+            )
+        print("\tLogNorm", m, 
+              "\tshape", np.round(shape, 3), 
+              "\tloc", np.round(loc, 3), 
+              "\tscale", np.round(scale, 3))
+        
+        # LogNorm all months
+        shape_all_months, loc_all_months, scale_all_months = lognorm.fit(df["Durchfluss_m3s"])
+        axs[row_i, col_i].plot(
+            bins, lognorm.pdf(bins, s=shape_all_months, loc=loc_all_months, scale=scale_all_months),
+            label="LogNorm (Alle Monate)",
+            color="red", ls="--", lw=1.2
+            )
+        # Gamma single months
+        a, floc, scale = gamma.fit(_monthly_vals(df, m))
+        axs[row_i, col_i].plot(
+            bins, gamma.pdf(bins, a, floc, scale), 
+            label="Gamma",
+            color="green", ls="-", lw=1.2
+            )
+        # Gamma all months
+        a_all_months, floc_all_months, scale_all_months = gamma.fit(df["Durchfluss_m3s"])
+        axs[row_i, col_i].plot(
+            bins, gamma.pdf(bins, a_all_months, floc_all_months, scale_all_months), 
+            label="Gamma (Alle Monate)",
+            color="green", ls="--", lw=1.2
+            )
+        
+    axs[0, 0].legend()
+    plt.savefig(f"{image_path}/{pegelname}_fit.png", dpi=300, bbox_inches="tight")
 
     y_true = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean)
     plt.plot(x, y_true, label="Rohdaten", color="k")
