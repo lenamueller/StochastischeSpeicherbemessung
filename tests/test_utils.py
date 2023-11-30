@@ -58,10 +58,8 @@ def test_primary_stats(first_4_rows: pd.DataFrame):
     assert st.latest_date(first_4_rows) == pd.Timestamp("1960-02-01")
     assert (st.years(first_4_rows) == np.array([1959, 1960])).all()
     assert (st.hyd_years(first_4_rows) == np.array([1960])).all()
-    assert st.min_val(first_4_rows) == 0
-    assert st.max_val(first_4_rows) == 2
-    assert st.min_val_month(first_4_rows) == "11/1959"
-    assert st.max_val_month(first_4_rows) == "02/1960"
+    assert st.min_val(first_4_rows) == (0, "11/1959")
+    assert st.max_val(first_4_rows) == (2, "02/1960")
     assert st.first_central_moment(first_4_rows) == 1.0
     assert st.second_central_moment(first_4_rows) == 0.5
     assert st.third_central_moment(first_4_rows) == 0.0

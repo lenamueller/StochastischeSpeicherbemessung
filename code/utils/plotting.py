@@ -13,16 +13,16 @@ from utils.thomasfiering import thomasfiering
 def plot_raw(df: pd.DataFrame):
     """Plot raw data."""
         
-    st.max_value = st.max_val(df)
-    max_month = st.max_val_month(df)
-    min_value = st.min_val(df)
-    min_month = st.min_val_month(df)
+    max_value = st.max_val(df)[0]
+    max_month = st.max_val(df)[1]
+    min_value = st.min_val(df)[0]
+    min_month = st.min_val(df)[1]
 
     plt.figure(figsize=(10, 4))
     plt.plot(df["Monat"], df["Durchfluss_m3s"], 
                 c=tu_mediumblue, linewidth=0.8, label="Rohdaten")
-    plt.axhline(y=st.max_value, c=tu_red, linestyle="--", linewidth=0.8, 
-                label=f"Max: {max_month}: {st.max_value} m³/s")
+    plt.axhline(y=max_value, c=tu_red, linestyle="--", linewidth=0.8, 
+                label=f"Max: {max_month}: {max_value} m³/s")
     plt.axhline(y=min_value, c=tu_grey, linestyle="--", linewidth=0.8, 
                 label=f"Min: {min_month}: {min_value} m³/s")
     plt.scatter(max_month, st.max_value, marker="o", 

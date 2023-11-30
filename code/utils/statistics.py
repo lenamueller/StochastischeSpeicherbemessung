@@ -31,22 +31,18 @@ def hyd_years(df: pd.DataFrame):
     return years[1:]
 
 def min_val(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the minimum value."""
-    return df[var].min()
-
-def min_val_month(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the month of the minimum value."""
+    """Returns the minimum value and the month of it."""
+    val = df[var].min()
     min_index = df[var].idxmin()
-    return df["Monat"].iloc[min_index]
-
-def max_val_month(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the month of the maximum value."""
-    max_index = df[var].idxmax()
-    return df["Monat"].iloc[max_index]
+    month =  df["Monat"].iloc[min_index]
+    return val, month
 
 def max_val(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the maximum value."""
-    return df[var].max()
+    """Returns the maximum value and the month of it."""
+    val = df[var].max()
+    max_index = df[var].idxmax()    
+    month = df["Monat"].iloc[max_index]
+    return val, month
 
 def first_central_moment(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     """Returns the first central moment (mean)."""
@@ -130,9 +126,7 @@ def hydro_values(df: pd.DataFrame):
     }
     
     # NNQ
-    min_value = min(df["Durchfluss_m3s"])
-    min_index = df["Durchfluss_m3s"].idxmin()
-    min_Monat = df["Monat"].iloc[min_index]
+    min_value, min_Monat = min_val(df, var="Durchfluss_m3s")
     hydro_parameters["NNQ"] = (min_value, min_Monat)
     
     # HHQ
@@ -184,9 +178,6 @@ def binned_stats(
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
     d = {"monthly": 0, "yearly": 1}
     return func(arr, axis=d[bin])
-
-
-
 
 # -----------------------------------------
 #         Quality investigation

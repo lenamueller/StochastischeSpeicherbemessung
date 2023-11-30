@@ -165,8 +165,8 @@ data = {"Name": names, "Rohdaten": [], "Saisonbereinigt": [], "Zufall": []}
 
 for i in range(len(vars)):
     t = titles[i]
-    data[titles[i]].append(st.min_val(df, vars[i]))
-    data[titles[i]].append(st.max_val(df, vars[i]))
+    data[titles[i]].append(st.min_val(df, vars[i])[0])
+    data[titles[i]].append(st.max_val(df, vars[i])[0])
     data[titles[i]].append(st.first_central_moment(df, vars[i]))
     data[titles[i]].append(st.second_central_moment(df, vars[i]))
     data[titles[i]].append(st.third_central_moment(df, vars[i]))
