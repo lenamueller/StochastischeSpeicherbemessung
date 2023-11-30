@@ -139,6 +139,7 @@ gen_data = pd.DataFrame(
     )
 
 gen_data.to_csv(f"data/{pegelname}_thomasfiering_timeseries.csv", index=True)
+gen_data.iloc[:].round(3).to_latex(f"data/{pegelname}_thomasfiering_timeseries.tex", index=True)
 gen_data.iloc[:10].round(3).to_latex(f"data/{pegelname}_thomasfiering_timeseries_first10.tex", index=True)
 plot_thomasfiering(df, gen_data.to_numpy(), n=100)
 plot_thomasfierung_eval(df, gen_data.to_numpy())

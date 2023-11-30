@@ -441,7 +441,7 @@ def plot_thomasfiering(df: pd.DataFrame, gen_data: np.array, n: int = 10) -> Non
     
     # raw data
     plt.plot(x, np.mean(arr, axis=0), color=tu_red, alpha=1, lw=1, 
-             label=f"original (Mittel aus 40 Zeitreihen)")
+             label=f"Mittel aus 40 Zeitreihen (original)")
     # for row_i in range(len(arr)):
     #     plt.plot(x, arr[row_i], color=tu_red, alpha=0.3, lw=0.5)
     plt.boxplot(arr, positions=x-0.1, widths=0.1, patch_artist=True,
@@ -453,11 +453,12 @@ def plot_thomasfiering(df: pd.DataFrame, gen_data: np.array, n: int = 10) -> Non
     
     # generated data
     plt.plot(x, np.mean(gen_data, axis=0), color="k", alpha=1, lw=1, 
-             label=f"generiert (Mittel aus ({len(gen_data)} Zeitreihen)")
+             label=f"Mittel aus {len(gen_data)} Zeitreihen (generiert)")
     for i in range(min(len(gen_data), n)):
         plt.plot(x, gen_data[i], color="grey", alpha=0.1, lw=0.5)
-    plt.fill_between(x, np.min(gen_data, axis=0), np.max(gen_data, axis=0), 
-            color="grey", alpha=0.1, label="generiert (Spannweite")
+    plt.fill_between(x, np.mean(gen_data, axis=0)-np.std(gen_data, axis=0),
+            np.mean(gen_data, axis=0)+np.std(gen_data, axis=0),
+            color="grey", alpha=0.1, label="Intervall einfacher Std. (generiert)")
     plt.boxplot(gen_data, positions=x+0.1, widths=0.1, patch_artist=True,
                 boxprops=dict(facecolor="grey", color="grey", alpha=0.2),
                 capprops=dict(color="grey", alpha=0.3),
