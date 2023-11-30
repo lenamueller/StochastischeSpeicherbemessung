@@ -64,12 +64,12 @@ def test_primary_stats(first_4_rows: pd.DataFrame):
     assert st.central_moment(df=first_4_rows, nth=2) == 0.5
     assert st.central_moment(df=first_4_rows, nth=3) == 0.0
     assert st.central_moment(df=first_4_rows, nth=4) == 0.5
-    assert round(st.standard_deviation_biased(first_4_rows), 4) == 0.7071
-    assert round(st.standard_deviation_unbiased(first_4_rows), 4) == 0.8165
-    assert round(st.skewness_biased(first_4_rows), 3) == 0.0
-    assert round(st.skewness_unbiased(first_4_rows), 3) == 0.0
-    assert round(st.kurtosis_biased(first_4_rows), 1) == 5.0
-    assert round(st.kurtosis_unbiased(first_4_rows), 1) == 20.0
+    assert round(st.standard_deviation(first_4_rows, bias=True), 4) == 0.7071
+    assert round(st.standard_deviation(first_4_rows, bias=False), 4) == 0.8165
+    assert round(st.skewness(first_4_rows, bias=True), 3) == 0.0
+    assert round(st.skewness(first_4_rows, bias=False), 3) == 0.0
+    assert round(st.kurtosis(first_4_rows, bias=True), 1) == 5.0
+    assert round(st.kurtosis(first_4_rows, bias=False), 1) == 20.0
     assert st.quantiles(first_4_rows, q=0.25) == 1.0
     assert st.quantiles(first_4_rows, q=0.50) == 1.0
     assert st.quantiles(first_4_rows, q=0.75) == 1.0
