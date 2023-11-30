@@ -60,38 +60,35 @@ def central_moment(df: pd.DataFrame, nth: int, var: str = "Durchfluss_m3s"):
     else:
         raise ValueError("n must be 1, 2, 3 or 4")
 
-def standard_deviation_biased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the biased standard deviation."""
-    return np.sqrt(central_moment(df, nth=2, var=var))
-
-def standard_deviation_unbiased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the unbiased standard deviation."""
-    return np.sqrt(central_moment(df, nth=2, var=var) * \
+def standard_deviation(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s") -> float:
+    """Returns the standard deviation."""
+    if bias:
+        return np.sqrt(central_moment(df, nth=2, var=var))
+    else:
+        return np.sqrt(central_moment(df, nth=2, var=var) * \
         (sample_number(df) / (sample_number(df) - 1)))
 
-def skewness_biased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def skewness(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s") -> float:
     """Returns the biased skewness."""
     mean = central_moment(df, nth=1, var=var)
-    std = standard_deviation_biased(df)
+    std = standard_deviation(df, bias=True)
     n = sample_number(df)
-    return np.sum(((df[var] - mean)/std)**3) / n
+    biased = np.sum(((df[var] - mean)/std)**3) / n
+    if bias:
+        return biased
+    else: 
+        return biased * n/(n-1) * (n-1)/(n-2)
 
-def skewness_unbiased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the unbiased skewness."""
-    n = sample_number(df)
-    return skewness_biased(df, var) * n/(n-1) * (n-1)/(n-2)
-
-def kurtosis_biased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def kurtosis(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s") -> float:
     """Returns the biased kurtosis."""
     mean = central_moment(df, nth=1, var=var)
-    std = standard_deviation_biased(df)
-    res = np.sum(((df[var] - mean)/std)**4) - 3
-    return res
-
-def kurtosis_unbiased(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
-    """Returns the unbiased kurtosis."""
+    std = standard_deviation(df, bias=True)
     n = sample_number(df)
-    return kurtosis_biased(df, var) * n/(n-1) * (n-1)/(n-2) * (n-2)/(n-3)        
+    biased = np.sum(((df[var] - mean)/std)**4) - 3
+    if bias: 
+        return biased
+    else:
+        return biased * n/(n-1) * (n-1)/(n-2) * (n-2)/(n-3)        
 
 def quantiles(df: pd.DataFrame, q: float, var: str = "Durchfluss_m3s"):
     return df[var].quantile(q=q, interpolation="nearest")
