@@ -10,7 +10,7 @@ import utils.statistics as st
 from utils.thomasfiering import thomasfiering
 
 
-def plot_raw(df: pd.DataFrame):
+def plot_raw(df: pd.DataFrame) -> None:
     """Plot raw data."""
         
     max_value = st.max_val(df)[0]
@@ -25,15 +25,15 @@ def plot_raw(df: pd.DataFrame):
                 label=f"Max: {max_month}: {max_value} m³/s")
     plt.axhline(y=min_value, c=tu_grey, linestyle="--", linewidth=0.8, 
                 label=f"Min: {min_month}: {min_value} m³/s")
-    plt.scatter(max_month, st.max_value, marker="o", 
+    plt.scatter(max_month, max_value, marker="o", 
                 facecolors='none', edgecolors=tu_red, s=30)
     plt.scatter(min_month, min_value, marker="o", 
                 facecolors='none', edgecolors=tu_grey, s=30)
     plt.xlabel("Monat")
     plt.ylabel("Durchfluss [m³/s]")
     plt.xticks(df["Monat"][::12], rotation=90)
-    plt.yticks(np.arange(0, st.max_value, 1), minor=False)
-    plt.yticks(np.arange(0, st.max_value, 0.25), minor=True)
+    plt.yticks(np.arange(0, max_value, 1), minor=False)
+    plt.yticks(np.arange(0, max_value, 0.25), minor=True)
     plt.grid(which="major", axis="x", color="grey", alpha=0.05)
     plt.grid(which="major", axis="y", color="grey", alpha=0.40)
     plt.grid(which="minor", axis="y", color="grey", alpha=0.05)
@@ -42,7 +42,7 @@ def plot_raw(df: pd.DataFrame):
     plt.legend(loc="upper right")
     plt.savefig(image_path+f"{pegelname}_raw.png", dpi=300, bbox_inches="tight")
 
-def plot_dsk(test_cumsum: np.ndarray, ref_cumsum: np.ndarray):
+def plot_dsk(test_cumsum: np.ndarray, ref_cumsum: np.ndarray) -> None:
     """Plot double sum curve."""
     
     plt.figure(figsize=(5,5))    
@@ -61,7 +61,7 @@ def plot_dsk(test_cumsum: np.ndarray, ref_cumsum: np.ndarray):
     plt.ylim(bottom=0)
     plt.savefig(image_path+f"{pegelname}_dsk.png", dpi=300, bbox_inches="tight")
 
-def plot_breakpoint(df: pd.DataFrame):
+def plot_breakpoint(df: pd.DataFrame) -> None:
     """Plot breakpoint analysis."""
     
     res = st.pettitt_test(df)
@@ -107,7 +107,7 @@ def plot_breakpoint(df: pd.DataFrame):
     plt.legend(loc="upper right")
     plt.savefig(image_path+f"{pegelname}_breakpoint.png", dpi=300, bbox_inches="tight")
 
-def plot_trend(df: pd.DataFrame):
+def plot_trend(df: pd.DataFrame) -> None:
     """Plot trend analysis summary."""
     
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
@@ -119,7 +119,7 @@ def plot_trend(df: pd.DataFrame):
     # raw data
     ax1.plot(df["Monat"], df["Durchfluss_m3s"], c=tu_grey, linewidth=0.8, 
              alpha=0.3, marker="o", markersize=2, label="Monatswerte (Rohdaten)")
-    ax2.plot(x_yearly, st.binned_stats(df, var="Durchflus_m3s", bin="yearly", func=np.mean), c=tu_grey, linewidth=0.8, 
+    ax2.plot(x_yearly, st.binned_stats(df, var="Durchfluss_m3s", bin="yearly", func=np.mean), c=tu_grey, linewidth=0.8, 
              alpha=0.3, marker="o", markersize=3, label="Jahreswerte (arith. Mittel)")
     
     # linear regression
@@ -179,7 +179,7 @@ def plot_trend(df: pd.DataFrame):
     fig.tight_layout()
     plt.savefig(image_path+f"{pegelname}_trend.png", dpi=300, bbox_inches="tight")
 
-def plot_spectrum(df: pd.DataFrame):
+def plot_spectrum(df: pd.DataFrame) -> None:
     """Plot FFT spectrum"""
     
     freqs, spectrum = st.calc_spectrum(df)
@@ -199,7 +199,7 @@ def plot_spectrum(df: pd.DataFrame):
     plt.grid()
     plt.savefig(image_path+f"{pegelname}_fft.png", dpi=300, bbox_inches="tight")
 
-def plot_sin_waves(df):
+def plot_sin_waves(df) -> None:
     """Plot the dominant frequencies as sin waves."""
 
     freqs, period = st.get_dominant_frequency(*st.calc_spectrum(df), n=5)
@@ -234,7 +234,7 @@ def plot_sin_waves(df):
     ax.legend()
     plt.savefig(image_path+f"{pegelname}_sin.png", dpi=300, bbox_inches="tight")
 
-def plot_characteristics(df: pd.DataFrame):
+def plot_characteristics(df: pd.DataFrame) -> None:
     """Plot statistics and histograms for different components."""
     
     _, ax = plt.subplots(nrows=3, ncols=4, figsize=(13, 10))
@@ -300,7 +300,7 @@ def plot_characteristics(df: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(image_path+f"{pegelname}_characteristics.png", dpi=300, bbox_inches="tight")    
 
-def pairplot(df: pd.DataFrame):
+def pairplot(df: pd.DataFrame) -> None:
     """Plot pairplot."""
     
     df = df.rename(columns=var_remapper)
@@ -314,7 +314,7 @@ def pairplot(df: pd.DataFrame):
                  corner=False, plot_kws={"s":2, "alpha":0.2})
     plt.savefig(image_path+f"{pegelname}_pairplot.png", dpi=300, bbox_inches="tight")
     
-def plot_acf(df: pd.DataFrame, var: str = "normiert"):
+def plot_acf(df: pd.DataFrame, var: str = "normiert") -> None:
     """Plots the autocorrelation function."""
     
     lags = np.arange(0,51,1)
@@ -348,9 +348,7 @@ def plot_acf(df: pd.DataFrame, var: str = "normiert"):
         raise ValueError("var must be 'normiert' or 'Durchfluss_m3s'")
     plt.savefig(fn, dpi=300, bbox_inches="tight")
     
-def plot_components(
-        df: pd.DataFrame
-    ):
+def plot_components(df: pd.DataFrame) -> None:
     """Plot time series components."""
 
     _, ax = plt.subplots(nrows=9, ncols=1, figsize=(10,15), 

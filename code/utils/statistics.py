@@ -10,41 +10,41 @@ from types import FunctionType
 #           Primary statistics
 # -----------------------------------------
 
-def sample_number(df: pd.DataFrame):
+def sample_number(df: pd.DataFrame) -> int:
     """Returns the sample number."""
     return len(df)
 
-def earliest_date(df: pd.DataFrame):
+def earliest_date(df: pd.DataFrame) -> str:
     """Returns the earliest date."""
     return df["Datum"].min()
 
-def latest_date(df: pd.DataFrame):
+def latest_date(df: pd.DataFrame) -> str:
     """Returns the latest date."""
     return df["Datum"].max()
 
-def years(df: pd.DataFrame):
+def years(df: pd.DataFrame) -> list[int]:
     """Returns a list of the years."""
     return df["Datum"].dt.year.unique()
 
-def hyd_years(df: pd.DataFrame):
+def hyd_years(df: pd.DataFrame) -> list[int]:
     years = df["Datum"].dt.year.unique()
     return years[1:]
 
-def min_val(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def min_val(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> tuple[float, str]:
     """Returns the minimum value and the month of it."""
     val = df[var].min()
     min_index = df[var].idxmin()
     month =  df["Monat"].iloc[min_index]
     return val, month
 
-def max_val(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def max_val(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> tuple[float, str]:
     """Returns the maximum value and the month of it."""
     val = df[var].max()
     max_index = df[var].idxmax()    
     month = df["Monat"].iloc[max_index]
     return val, month
 
-def central_moment(df: pd.DataFrame, nth: int, var: str = "Durchfluss_m3s"):
+def central_moment(df: pd.DataFrame, nth: int, var: str = "Durchfluss_m3s") -> float | ValueError:
     """Returns the n-th central moment. nth must be 1, 2, 3 or 4."""
     mean = df[var].mean()
     diff = [(i-mean)**nth for i in df[var]]
@@ -90,19 +90,42 @@ def kurtosis(df: pd.DataFrame, bias: bool, var: str = "Durchfluss_m3s") -> float
     else:
         return biased * n/(n-1) * (n-1)/(n-2) * (n-2)/(n-3)        
 
-def quantiles(df: pd.DataFrame, q: float, var: str = "Durchfluss_m3s"):
+def quantiles(df: pd.DataFrame, q: float, var: str = "Durchfluss_m3s") -> float:
     return df[var].quantile(q=q, interpolation="nearest")
     
-def iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> float:
     """"Returns the interquartile range using nearest rank method."""
     return df[var].quantile(q=0.75, interpolation="nearest") - \
             df[var].quantile(q=0.25, interpolation="nearest")
 
 # -----------------------------------------
+#    binned statistics (monthly, yearly)
+# -----------------------------------------
+
+def binned_stats(
+        df: pd.DataFrame, 
+        var: str, 
+        bin: str, 
+        func: FunctionType
+        ) -> list[float]:
+    """
+    Returns monthly or yearly (biased) mean/ variance/ std/ skewness.
+    
+    Possible functions are:
+    - np.mean
+    - np.var
+    - np.std
+    - scipy.stats.skew
+    """
+    arr = np.reshape(df[var].to_numpy(), (-1, 12))
+    d = {"monthly": 0, "yearly": 1}
+    return func(arr, axis=d[bin])
+
+# -----------------------------------------
 #           Hydrological values
 # -----------------------------------------
 
-def hydro_values(df: pd.DataFrame):
+def hydro_values(df: pd.DataFrame) -> dict[str, tuple[float, str] | float]:
     """Returns a dictionary with the hydrological values."""
     
     hydro_parameters = {
@@ -145,33 +168,10 @@ def hydro_values(df: pd.DataFrame):
     return hydro_parameters
 
 # -----------------------------------------
-#    binned statistics (monthly, yearly)
-# -----------------------------------------
-
-def binned_stats(
-        df: pd.DataFrame, 
-        var: str, 
-        bin: str, 
-        func: FunctionType
-        ):
-    """
-    Returns monthly or yearly (biased) mean/ variance/ std/ skewness.
-    
-    Possible functions are:
-    - np.mean
-    - np.var
-    - np.std
-    - scipy.stats.skew
-    """
-    arr = np.reshape(df[var].to_numpy(), (-1, 12))
-    d = {"monthly": 0, "yearly": 1}
-    return func(arr, axis=d[bin])
-
-# -----------------------------------------
 #         Quality investigation
 # -----------------------------------------
 
-def outlier_test_iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def outlier_test_iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> tuple[float, float, pd.DataFrame]:
     """Returns a list of outliers using the IQR method."""
     q1 = df[var].quantile(q=0.25, interpolation="nearest")
     q3 = df[var].quantile(q=0.75, interpolation="nearest")
@@ -180,30 +180,30 @@ def outlier_test_iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
     g_lower = q1 - 1.5*iqr
     return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
 
-def outlier_test_zscore(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def outlier_test_zscore(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> tuple[float, float, pd.DataFrame]:
     """Returns a list of outliers using the z-score method."""
     g_upper = df[var].mean() + 3*df[var].std()
     g_lower = df[var].mean() - 3*df[var].std()
     return g_upper, g_lower, df.loc[(df[var] < g_lower) | (df[var] > g_upper)]
 
-def outlier_test_grubbs(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def outlier_test_grubbs(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> tuple[float, pd.DataFrame]:
     """Returns a list of outliers using the Grubbs method."""
     max_diff = np.max(np.abs(df[var] - df[var].mean()))
     s = np.std(df[var])
     g = max_diff / s
     return g, df.loc[df[var] > g]
 
-def double_sum(test_gauge: list[float], ref_gauge: list[float]):
+def double_sum(test_gauge: list[float], ref_gauge: list[float]) -> tuple[np.ndarray, np.ndarray]:
     """Returns a list of double sums."""
     sum_test = np.cumsum(test_gauge)
     sum_ref = np.cumsum(ref_gauge)
     return sum_test, sum_ref
 
-def pettitt_test(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def pettitt_test(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> FunctionType:
     """Test for inhomogeneity using the Pettitt test."""
     return hg.pettitt_test(x=df[var], alpha=0.05)
 
-def adf_test(df: pd.DataFrame, var: str = "Durchfluss_m3s"):
+def adf_test(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> adfuller:
     """Test for stationarity using the Augmented Dickey-Fuller test."""
     return adfuller(df[var])
 
@@ -225,7 +225,7 @@ def __preprocess(df: pd.DataFrame, which: str):
     
     return x, t, n
 
-def linreg(df: pd.DataFrame, which: str):
+def linreg(df: pd.DataFrame, which: str) -> scipy.stats.linregress:
     """Returns slope, intercept, r, p, std_err of the linear 
     regression model using scipy.stats.linregress.
     
@@ -248,7 +248,7 @@ def t_test_statistic(df: pd.DataFrame, which: str):
     """Returns test statistic for the t-test."""
     return linreg(df, which=which).slope / linreg(df, which=which).stderr
 
-def mk_test(df: pd.DataFrame, which: str):
+def mk_test(df: pd.DataFrame, which: str) -> FunctionType:
     """Trend test using the Mann-Kendall test."""
     if which == "monthly":
         return mk.seasonal_test(df["Durchfluss_m3s"].to_numpy(), alpha=0.05, period=12)
@@ -257,7 +257,7 @@ def mk_test(df: pd.DataFrame, which: str):
     else:
         raise ValueError("which must be 'monthly' or 'yearly'")
 
-def moving_average(df: pd.DataFrame, which: str, window: int):
+def moving_average(df: pd.DataFrame, which: str, window: int) -> np.ndarray[float]:
     """Returns the moving average of the time series."""
     x, _, _ = __preprocess(df, which)
     return np.convolve(x, np.ones(window), "valid") / window
@@ -266,7 +266,7 @@ def moving_average(df: pd.DataFrame, which: str, window: int):
 #            Seasonal analysis
 # -----------------------------------------
 
-def calc_spectrum(df: pd.DataFrame, sample_rate: int = 1) -> None:
+def calc_spectrum(df: pd.DataFrame, sample_rate: int = 1) -> tuple[list, list]:
     """Calculate the FFT of the time series."""
 
     data = df["Durchfluss_m3s"].to_numpy()
@@ -304,7 +304,7 @@ def get_dominant_frequency(
         freqs: np.ndarray, 
         spectrum: np.ndarray, 
         n: int
-        ):
+        ) -> tuple[np.ndarray, np.ndarray]:
     """Returns the n-th most dominant frequencies in ascending order."""
     idx = np.argpartition(spectrum, -n)[-n:]
     freqs = freqs[idx] # unit: 1/month
@@ -316,11 +316,11 @@ def get_dominant_frequency(
 #           autocorrelation
 # -----------------------------------------
 
-def autocorrelation(df: pd.DataFrame, var: str, lag: int = 1):
+def autocorrelation(df: pd.DataFrame, var: str, lag: int = 1) -> float:
     """Returns the autocorrelation function."""
     return pd.Series(df[var]).autocorr(lag=lag)
 
-def confidence_interval(df: pd.DataFrame, lags: list[float]):
+def confidence_interval(df: pd.DataFrame, lags: list[float]) -> tuple[list[float], list[float]]:
     """Returns the confidence interval."""
     k = lags
     n = len(df)
@@ -329,7 +329,7 @@ def confidence_interval(df: pd.DataFrame, lags: list[float]):
     upper_conf = (1 + T_ALPHA*np.sqrt(n-k-1)) / (n-k+1)
     return lower_conf, upper_conf
 
-def monthly_autocorr(df: pd.DataFrame, var: str = "saisonber", which: str = "maniak"):
+def monthly_autocorr(df: pd.DataFrame, var: str = "saisonber", which: str = "maniak") -> list[float]:
     """Returns a list of monthly autocorrelations for lag (k) = 1."""
 
     months = df["Monat"]
@@ -364,7 +364,7 @@ def monthly_autocorr(df: pd.DataFrame, var: str = "saisonber", which: str = "man
 def yearly_autocorr(
     df: pd.DataFrame,
     lag: int,
-    var: str = "Durchfluss_m3s"):
+    var: str = "Durchfluss_m3s") -> list[float]:
     """Returns a list of yearly autocorrelations."""
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
     return [pd.Series(i).autocorr(lag=lag) for i in arr]
@@ -373,7 +373,7 @@ def yearly_autocorr(
 #           calculate components
 # -----------------------------------------
 
-def calc_components(df: pd.DataFrame, detrend: bool = False):
+def calc_components(df: pd.DataFrame, detrend: bool = False) -> None:
     """Calculates the components of the additive time series model."""
     
     # Trendkomponente
@@ -383,7 +383,7 @@ def calc_components(df: pd.DataFrame, detrend: bool = False):
     
     # Saisonale Komponente
     df["saisonfigur_mean"] = np.tile(binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean), 40)
-    df["saisonfigur_std"] = np.tile(binned_stats(df, var="Durchfluss", bin="monthly", func=np.std), 40)
+    df["saisonfigur_std"] = np.tile(binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.std), 40)
     if detrend:
         df["saisonber"] = df["trendber"] - df["saisonfigur_mean"]
         df["normiert"] = (df["trendber"] - df["saisonfigur_mean"]) / df["saisonfigur_std"]

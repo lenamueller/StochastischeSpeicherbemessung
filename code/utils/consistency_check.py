@@ -1,13 +1,12 @@
 import pandas as pd
-import numpy as np
 from collections import Counter
 
 
-def missing_values(df: pd.DataFrame):
+def missing_values(df: pd.DataFrame) -> dict:
     """Returns a dictionary with the number of missing values per column."""
     return df.isnull().sum().to_dict()
 
-def missing_dates(df: pd.DataFrame):
+def missing_dates(df: pd.DataFrame) -> list[str]:
     """Returns a list of missing dates."""
     min_date = df["Datum"].min()
     max_date = df["Datum"].max()

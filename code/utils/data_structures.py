@@ -1,15 +1,14 @@
 import os
-import numpy as np
 import pandas as pd
 
 
-def check_path(path):
+def check_path(path) -> None:
     """Check if path exists, otherwise create it."""
     if not os.path.exists(path):
         os.makedirs(path)
     return None
 
-def read_data(filepath: str):
+def read_data(filepath: str) -> pd.DataFrame:
     """Read data from file."""
     data = pd.read_csv(filepath, skiprows=3, sep="\t", encoding="latin1")
     data.columns = ["Monat", "Durchfluss_m3s"]

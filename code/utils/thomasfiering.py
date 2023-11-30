@@ -3,7 +3,7 @@ import numpy as np
 from scipy.stats import lognorm
 
 from config import T
-from utils.statistics import hyd_years, standard_deviation_unbiased
+from utils.statistics import hyd_years
 
 
 def _monthly_vals(df: pd.DataFrame, i: int)-> np.ndarray:

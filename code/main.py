@@ -53,7 +53,6 @@ print(tf_pars)
 # Zeitreihengenerierung
 plot_thomasfiering(df, n=20)
     
-exit()
 
 # -----------------------------------------
 #           Consistency check    
@@ -159,7 +158,7 @@ names = ["Minimum", "Maximum", "1. zentrales Moment", "2. zentrales Moment",
          "75%-Quantil", "Interquartilsabstand", "Autokorrelation",
          "HHQ", "MHQ", "MQ", "MNQ", "NNQ"]
 
-titles = ["Rohdaten", "Saisonbereinigt", "Zufall"]
+titles = ["Rohdaten", "Saisonbereinigte Zeitreihe", "Zufallskomponente der Zeitreihe"]
 vars = ["Durchfluss_m3s", "saisonber", "zufall"]
 data = {"Name": names, "Rohdaten": [], "Saisonbereinigt": [], "Zufall": []}
 
@@ -171,12 +170,12 @@ for i in range(len(vars)):
     data[titles[i]].append(st.central_moment(df, nth=2, var=vars[i]))
     data[titles[i]].append(st.central_moment(df, nth=3, var=vars[i]))
     data[titles[i]].append(st.central_moment(df, nth=4, var=vars[i]))
-    data[titles[i]].append(st.standard_deviation_biased(df, vars[i]))
-    data[titles[i]].append(st.standard_deviation_unbiased(df, vars[i]))
-    data[titles[i]].append(st.skewness_biased(df, vars[i]))
-    data[titles[i]].append(st.skewness_unbiased(df, vars[i]))
-    data[titles[i]].append(st.kurtosis_biased(df, vars[i]))
-    data[titles[i]].append(st.kurtosis_unbiased(df, vars[i]))
+    data[titles[i]].append(st.standard_deviation(df, bias=True, var=vars[i]))
+    data[titles[i]].append(st.standard_deviation(df, bias=False, var=vars[i]))
+    data[titles[i]].append(st.skewness(df, bias=True, var=vars[i]))
+    data[titles[i]].append(st.skewness(df, bias=False, var=vars[i]))
+    data[titles[i]].append(st.kurtosis(df, bias=True, var=vars[i]))
+    data[titles[i]].append(st.kurtosis(df, bias=False, var=vars[i]))
     data[titles[i]].append(st.quantiles(df, 0.25, vars[i]))
     data[titles[i]].append(st.quantiles(df, 0.50, vars[i]))
     data[titles[i]].append(st.quantiles(df, 0.75, vars[i]))
