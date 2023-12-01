@@ -131,6 +131,7 @@ def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
     cap = max(diff)
     cap_min = min_vals[diff.index(cap)]
     cap_max = max_vals[diff.index(cap)]
-    cap_index = min_indices[diff.index(cap)]
+    cap_min_index = min_indices[diff.index(cap)]
+    cap_max_index = max_indices[diff.index(cap)]
     
-    return cap, cap_index, cap_min, cap_max
+    return cap, cap_min_index, cap_min, cap_max_index, cap_max

@@ -82,11 +82,10 @@ plot_storage(q_in, q_out, q_out_real, storage, deficit, overflow,
              fn_ending="unlimited")
 
 # Calculate capacity and plot FSA
-cap, cap_index, cap_min, cap_max = calc_capacity(storage)
+cap, cap_min_index, cap_min, cap_max_index, cap_max = calc_capacity(storage)
 print("Kapazität:", cap, "hm3")
-print("Kapazität (Index):", df["Monat"][cap_index], "(", cap_index, ")", "Monate")
-print("Kapazität (min):", cap_min, "hm3")
-print("Kapazität (max):", cap_max, "hm3")
+print(f"Min: {cap_min} hm³ ({df['Monat'][cap_min_index]} {cap_min_index})")
+print(f"Max: {cap_max} hm³ ({df['Monat'][cap_max_index]} {cap_max_index})")
 
 plot_fsa(storage)
 

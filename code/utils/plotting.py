@@ -596,7 +596,7 @@ def plot_fsa(storage: np.ndarray):
     
     max_vals, max_indices = calc_maxima(storage)
     min_vals, min_indices = calc_minima(storage, max_indices)
-    cap, cap_index, cap_min, cap_max = calc_capacity(storage)
+    cap, cap_min_index, cap_min, cap_max_index, cap_max = calc_capacity(storage)
     
     plt.figure(figsize=(15,8))
     plt.title(f"Maximalkapazität des Speichers: {round(cap, 3)} hm³",
@@ -607,7 +607,7 @@ def plot_fsa(storage: np.ndarray):
     plt.scatter(max_indices, max_vals, s=25, marker="o", color="red", label="Maxima der SDL", zorder=2)
     plt.scatter(min_indices, min_vals, s=25, marker="o", color="green", label="Minima der SDL", zorder=2)
     
-    plt.axvline(x=cap_index, color="k", linestyle="--", linewidth=0.8)
+    plt.axvline(x=cap_min_index, color="k", linestyle="--", linewidth=0.8)
     plt.axhline(y=cap_min, color="k", linestyle="--", linewidth=0.8)
     plt.axhline(y=cap_max, color="grey", linestyle="--", linewidth=0.8)
     
