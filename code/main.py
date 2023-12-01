@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
 
 from config import report_path, image_path, fn_results, pegelname, SEC_PER_MONTH
 
@@ -10,9 +12,9 @@ from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_trend, plot_components, \
     plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
     plot_breakpoint, pairplot, plot_thomasfiering, plot_monthly_fitting,  \
-    plot_thomasfierung_eval, plot_monthly_discharge, plot_sdl
+    plot_thomasfierung_eval, plot_monthly_discharge, plot_storage, plot_fsa
 from utils.thomasfiering import parameter_xp, parameter_sp, parameter_rp, thomasfiering
-from utils.fsa import monthly_discharge, calc_sdl
+from utils.fsa import monthly_discharge, calc_storage, calc_capacity
 
 check_path(image_path)
 check_path(report_path)
@@ -69,13 +71,30 @@ df_dis.round(3).to_latex(f"data/{pegelname}_monthly_discharge.tex", index=True)
 
 plot_monthly_discharge(df_dis)
 
-# calculate capacities
+# Get inflow and outflow
 q_in = df["Durchfluss_hm3"].to_numpy()
 q_out = np.tile(df_dis.iloc[0, :].to_numpy(), 40)
 
-storage, deficit, overflow, q_out_real = calc_sdl(q_in, q_out, initial_storage=0, 
-                                      max_cap=175.5)
-plot_sdl(q_in, q_out, q_out_real, storage, deficit, overflow)
+# Calc storage of unlimited reservoir
+storage, deficit, overflow, q_out_real = calc_storage(
+    q_in, q_out, initial_storage=0, max_cap=np.inf)
+plot_storage(q_in, q_out, q_out_real, storage, deficit, overflow, 
+             fn_ending="unlimited")
+
+# Calculate capacity and plot FSA
+cap, cap_index, cap_min, cap_max = calc_capacity(storage)
+print("Kapazität:", cap, "hm3")
+print("Kapazität (Index):", df["Monat"][cap_index], "(", cap_index, ")", "Monate")
+print("Kapazität (min):", cap_min, "hm3")
+print("Kapazität (max):", cap_max, "hm3")
+
+plot_fsa(storage)
+
+# Calc storage of limited reservoir
+storage, deficit, overflow, q_out_real = calc_storage(
+    q_in, q_out, initial_storage=0, max_cap=cap)
+plot_storage(q_in, q_out, q_out_real, storage, deficit, overflow, 
+             fn_ending=str(round(cap, 3)))
 
 exit()
 

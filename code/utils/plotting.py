@@ -10,6 +10,7 @@ from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
     var_remapper
 import utils.statistics as st
 from utils.data_structures import _monthly_vals
+from utils.fsa import calc_maxima, calc_minima, calc_capacity
 
 
 
@@ -555,13 +556,14 @@ def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
     plt.ylabel("Durchfluss [hm³]")
     plt.savefig(image_path+f"{pegelname}_monthly_discharge.png", dpi=300, bbox_inches="tight")
 
-def plot_sdl(
+def plot_storage(
         q_in: np.ndarray,
         q_out: np.ndarray,
         q_out_real: np.ndarray,
         storage: np.ndarray, 
         deficit: np.ndarray,
-        overflow: np.ndarray
+        overflow: np.ndarray,
+        fn_ending: str
         ):
     
     _, ax = plt.subplots(nrows=6, ncols=1, figsize=(10, 11), sharex=False)
@@ -580,7 +582,7 @@ def plot_sdl(
 
     for i in [0,1,2,3,5]:
         ax[i].set_ylabel("Volumen [hm³]")
-    ax[4].set_ylabel("kum. Volumen [hm³]")
+    ax[4].set_ylabel("Volumen [hm³]")
 
     for i in range(6):
         ax[i].set_title(titles[i], loc="left", color="grey", fontsize=10, fontweight="bold")
@@ -588,6 +590,7 @@ def plot_sdl(
         ax[i].grid()
     
     plt.tight_layout()
+    plt.savefig(image_path+f"{pegelname}_storage_{fn_ending}.png", dpi=300, bbox_inches="tight")
 
 def plot_fsa(storage: np.ndarray):
     
