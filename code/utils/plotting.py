@@ -588,4 +588,35 @@ def plot_sdl(
         ax[i].grid()
     
     plt.tight_layout()
-    plt.savefig(image_path+f"{pegelname}_sdl.png", dpi=300, bbox_inches="tight")
+
+def plot_fsa(storage: np.ndarray):
+    
+    max_vals, max_indices = calc_maxima(storage)
+    min_vals, min_indices = calc_minima(storage, max_indices)
+    cap, cap_index, cap_min, cap_max = calc_capacity(storage)
+    
+    plt.figure(figsize=(15,8))
+    plt.title(f"Maximalkapazität des Speichers: {round(cap, 3)} hm³",
+              loc="left", color="grey", fontsize=10, fontweight="bold")
+    
+    plt.plot(storage, label="Speicherinhalt [hm³]", color=tu_mediumblue, zorder=1)
+    
+    plt.scatter(max_indices, max_vals, s=25, marker="o", color="red", label="Maxima der SDL", zorder=2)
+    plt.scatter(min_indices, min_vals, s=25, marker="o", color="green", label="Minima der SDL", zorder=2)
+    
+    plt.axvline(x=cap_index, color="k", linestyle="--", linewidth=0.8)
+    plt.axhline(y=cap_min, color="k", linestyle="--", linewidth=0.8)
+    plt.axhline(y=cap_max, color="grey", linestyle="--", linewidth=0.8)
+    
+    plt.text(100, cap_min, f"{round(cap_min, 3)} hm³", ha="left", 
+             va="bottom", fontsize=10, color="k")
+    plt.text(100, cap_max, f"{round(cap_max, 3)} hm³", ha="left", 
+             va="bottom", fontsize=10, color="k")
+    
+    
+    plt.legend(loc="upper center", fontsize=10)
+    plt.grid(color="grey", alpha=0.3)
+    plt.xlabel("Zeit [Monate]")
+    plt.ylabel("Speicherinhalt [hm³]")
+    plt.savefig(image_path+f"{pegelname}_fsa.png", dpi=300, bbox_inches="tight")
+    
