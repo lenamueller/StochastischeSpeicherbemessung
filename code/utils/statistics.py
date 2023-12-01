@@ -107,13 +107,14 @@ def binned_stats(
         func: FunctionType
         ) -> list[float]:
     """
-    Returns monthly or yearly (biased) mean/ variance/ std/ skewness.
+    Returns monthly or yearly statistical values.
     
     Possible functions are:
     - np.mean
     - np.var
     - np.std
     - scipy.stats.skew
+    - np.sum
     """
     arr = np.reshape(df[var].to_numpy(), (-1, 12))
     d = {"monthly": 0, "yearly": 1}

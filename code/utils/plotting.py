@@ -6,7 +6,8 @@ import scipy
 import seaborn as sns
 from scipy.stats import lognorm, gamma
 
-from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, var_remapper
+from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
+    var_remapper
 import utils.statistics as st
 from utils.data_structures import _monthly_vals
 
@@ -527,4 +528,29 @@ def plot_thomasfierung_eval(df: pd.DataFrame, gen_data: np.ndarray):
     axs[3].set_ylabel("Absolute Häufigkeit [-]")
 
     plt.savefig(image_path+f"{pegelname}_thomasfiering_eval.png", dpi=300, bbox_inches="tight")                    
+
+
+def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
+    """Plot monthly discharge values."""
     
+    plt.figure(figsize=(15, 5))
+
+    # original time series    
+    plt.scatter(np.arange(1,13), df_dis.iloc[0].to_numpy(), 
+                marker="x", color="green", alpha=0.5, label="original")
+
+    # generated time series
+    plt.boxplot(df_dis, patch_artist=True,
+                boxprops=dict(facecolor=tu_mediumblue, color=tu_mediumblue, alpha=0.3),
+                capprops=dict(color=tu_mediumblue, alpha=0.6),
+                whiskerprops=dict(color=tu_mediumblue, alpha=0.6),
+                flierprops=dict(color=tu_mediumblue, alpha=0.6, markeredgecolor=tu_mediumblue),
+                medianprops=dict(color=tu_mediumblue, alpha=1)
+                )
+    plt.legend()
+    plt.grid(color="grey", alpha=0.3)
+    x_labels = ["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"]
+    plt.xticks(np.arange(1, 13), x_labels)
+    plt.xlabel("Monat")
+    plt.ylabel("Durchfluss [hm³]")
+    plt.savefig(image_path+f"{pegelname}_monthly_discharge.png", dpi=300, bbox_inches="tight")

@@ -25,3 +25,21 @@ tu_red = (181/255, 28/255, 28/255)
 
 # Thomas Fiering model
 T = 12
+
+# Folgescheitelalgorithmus
+SEC_PER_MONTH = (365/12)*24*60*60
+ALPHA = 0.7
+ABGABEN = {
+    11: 7,
+    12: 7,
+    1: 5,
+    2: 4,
+    3: 3,
+    4: 7,
+    5: 7,
+    6: 10,
+    7: 12,
+    8: 14,
+    9: 14,
+    10:10
+}
