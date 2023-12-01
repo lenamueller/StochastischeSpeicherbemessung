@@ -554,3 +554,38 @@ def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
     plt.xlabel("Monat")
     plt.ylabel("Durchfluss [hm³]")
     plt.savefig(image_path+f"{pegelname}_monthly_discharge.png", dpi=300, bbox_inches="tight")
+
+def plot_sdl(
+        q_in: np.ndarray,
+        q_out: np.ndarray,
+        q_out_real: np.ndarray,
+        storage: np.ndarray, 
+        deficit: np.ndarray,
+        overflow: np.ndarray
+        ):
+    
+    _, ax = plt.subplots(nrows=6, ncols=1, figsize=(10, 11), sharex=False)
+    
+    x = np.arange(len(q_in))
+    titles = ["A. Zufluss", "B. Sollabgabe", "C. Istabgabe", "D. Zufluss-Abgabe", 
+              "E. Speicherinhalt", "F. Defizit/ Überlauf"]
+    
+    ax[0].plot(x, q_in, c=tu_mediumblue)
+    ax[1].plot(x, q_out, c=tu_grey)
+    ax[2].plot(x, q_out_real, c=tu_grey)
+    ax[3].plot(x, q_in-q_out, c=tu_red)
+    ax[4].plot(x, storage, c="green")
+    ax[5].bar(x, deficit, label="Defizit [hm³]")
+    ax[5].bar(x, overflow, label="Überlauf [hm³]")
+
+    for i in [0,1,2,3,5]:
+        ax[i].set_ylabel("Volumen [hm³]")
+    ax[4].set_ylabel("kum. Volumen [hm³]")
+
+    for i in range(6):
+        ax[i].set_title(titles[i], loc="left", color="grey", fontsize=10, fontweight="bold")
+        ax[i].set_xlabel("Zeit [Monate]")    
+        ax[i].grid()
+    
+    plt.tight_layout()
+    plt.savefig(image_path+f"{pegelname}_sdl.png", dpi=300, bbox_inches="tight")

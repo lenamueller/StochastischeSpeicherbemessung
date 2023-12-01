@@ -26,3 +26,54 @@ def monthly_discharge(df: pd.DataFrame) -> dict:
         9: mean_discharge * ABGABEN[9]/100 * ALPHA,
         10: mean_discharge * ABGABEN[10]/100 * ALPHA
     }
+
+def calc_sdl(
+        q_in: np.ndarray, 
+        q_out: np.ndarray, 
+        initial_storage: float = 0,
+        max_cap: float = np.inf
+        ):
+    
+    storage = []
+    deficit = []
+    overflow = []    
+    q_out_real = [] # Ist-Abgabe
+
+    # Initial storage    
+    current_storage = initial_storage
+    
+    for i in range(len(q_in)):
+        
+        # Add netto inflow to current storage
+        current_storage += q_in[i] - q_out[i]
+        
+        # Empty storage
+        if current_storage < 0:
+            storage.append(0)
+            deficit.append(current_storage)
+            overflow.append(0)
+            q_out_real.append(q_out[i]-current_storage)
+            
+            current_storage = 0
+
+        # Full storage
+        elif current_storage > max_cap:
+            
+            storage.append(max_cap)
+            deficit.append(0)
+            overflow.append(current_storage-max_cap)
+            q_out_real.append(q_out[i]+current_storage-max_cap)
+            
+            current_storage = max_cap
+
+        # Normal storage
+        else:
+            if current_storage < 0:
+                raise ValueError("Negative storage!")
+            else:
+                storage.append(current_storage)
+                deficit.append(0)
+                overflow.append(0)
+                q_out_real.append(q_out[i])
+    
+    return storage, deficit, overflow, q_out_real
