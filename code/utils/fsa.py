@@ -14,18 +14,18 @@ def monthly_discharge(df: pd.DataFrame) -> dict:
     mean_discharge = np.mean(yearly_sums)
     
     return {
-        11: mean_discharge * ABGABEN[11]/100 * ALPHA,
-        12: mean_discharge * ABGABEN[12]/100 * ALPHA,
-        1: mean_discharge * ABGABEN[1]/100 * ALPHA,
-        2: mean_discharge * ABGABEN[2]/100 * ALPHA,
-        3: mean_discharge * ABGABEN[3]/100 * ALPHA,
-        4: mean_discharge * ABGABEN[4]/100 * ALPHA,
-        5: mean_discharge * ABGABEN[5]/100 * ALPHA,
-        6: mean_discharge * ABGABEN[6]/100 * ALPHA,
-        7: mean_discharge * ABGABEN[7]/100 * ALPHA,
-        8: mean_discharge * ABGABEN[8]/100 * ALPHA,
-        9: mean_discharge * ABGABEN[9]/100 * ALPHA,
-        10: mean_discharge * ABGABEN[10]/100 * ALPHA
+        11:     mean_discharge * ABGABEN[11]/100 * ALPHA,
+        12:     mean_discharge * ABGABEN[12]/100 * ALPHA,
+        1:      mean_discharge * ABGABEN[1]/100 * ALPHA,
+        2:      mean_discharge * ABGABEN[2]/100 * ALPHA,
+        3:      mean_discharge * ABGABEN[3]/100 * ALPHA,
+        4:      mean_discharge * ABGABEN[4]/100 * ALPHA,
+        5:      mean_discharge * ABGABEN[5]/100 * ALPHA,
+        6:      mean_discharge * ABGABEN[6]/100 * ALPHA,
+        7:      mean_discharge * ABGABEN[7]/100 * ALPHA,
+        8:      mean_discharge * ABGABEN[8]/100 * ALPHA,
+        9:      mean_discharge * ABGABEN[9]/100 * ALPHA,
+        10:     mean_discharge * ABGABEN[10]/100 * ALPHA
     }
 
 def calc_storage(

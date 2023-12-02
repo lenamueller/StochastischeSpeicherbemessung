@@ -7,7 +7,7 @@ from config import report_path, image_path, pegelname, \
     N_TIMESERIES, N_YEARS, MONTH, MONTH_HYD_YEAR
 
 from utils.data_structures import read_data, check_path
-from utils.plotting import plot_thomasfiering, plot_monthly_fitting, plot_thomasfierung_eval
+from utils.plotting import plot_monthly_fitting, plot_thomasfierung_eval
 from utils.thomasfiering import parameter_xp, parameter_sp, parameter_rp, thomasfiering
 
 

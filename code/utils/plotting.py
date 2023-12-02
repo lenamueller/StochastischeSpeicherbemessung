@@ -7,11 +7,10 @@ import seaborn as sns
 from scipy.stats import lognorm, gamma
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
-    var_remapper, N_TIMESERIES
+    var_remapper, N_TIMESERIES, MONTH_ABB
 import utils.statistics as st
 from utils.data_structures import _monthly_vals
 from utils.fsa import calc_maxima, calc_minima, calc_capacity
-
 
 
 def plot_raw(df: pd.DataFrame) -> None:
@@ -293,7 +292,7 @@ def plot_characteristics(df: pd.DataFrame) -> None:
             ax[0, col_i].set_ylabel(ylabels[col_i])
             ax[1, col_i].set_ylabel(ylabels[col_i])
             ax[0, col_i].set_xticks(x_months)
-            ax[0, col_i].set_xticklabels(["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"])
+            ax[0, col_i].set_xticklabels(MONTH_ABB)
             ax[1, col_i].set_xticks([1960, 1970, 1980, 1990, 2000])
             ax[1, col_i].set_xticklabels([1960, 1970, 1980, 1990, 2000])
             ax[2, col_i].set_ylim([0, 130])
@@ -527,7 +526,7 @@ def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
                 )
     plt.legend()
     plt.grid(color="grey", alpha=0.3)
-    x_labels = ["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"]
+    x_labels = [MONTH_ABB]
     plt.xticks(np.arange(1, 13), x_labels)
     plt.xlabel("Monat")
     plt.ylabel("Durchfluss [hm³]")
