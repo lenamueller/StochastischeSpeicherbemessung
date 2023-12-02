@@ -3,63 +3,20 @@ import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
 
-from config import report_path, image_path, fn_results, pegelname, SEC_PER_MONTH
+from config import report_path, image_path, fn_results, pegelname
 
-from utils.data_structures import read_data, check_path, _monthly_vals
+from utils.data_structures import read_data, check_path
 import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_trend, plot_components, \
     plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
-    plot_breakpoint, pairplot,  plot_monthly_discharge, plot_storage, plot_fsa
-from utils.fsa import monthly_discharge, calc_storage, calc_capacity
+    plot_breakpoint, pairplot
+
 
 check_path(image_path)
 check_path(report_path)
 
-
 df = read_data(f"data/others/Daten_{pegelname}.txt")
-
-# -----------------------------------------
-# FSA
-# -----------------------------------------
-
-# calculate monthly discharge for historical and generated data
-monthly_dis = {"hist": monthly_discharge(df)}
-for i in range(1, n+1, 1):
-    monthly_dis[f"gen_{str(i).zfill(3)}"] = monthly_discharge(
-        df=pd.DataFrame(data={"Durchfluss_m3s": gen_data.iloc[i-1, :]}))
-    
-df_dis = pd.DataFrame.from_dict(monthly_dis).transpose()
-df_dis.round(3).to_csv(f"data/{pegelname}_monthly_discharge.csv", index=True)
-df_dis.round(3).to_latex(f"data/{pegelname}_monthly_discharge.tex", index=True)
-
-plot_monthly_discharge(df_dis)
-
-# Get inflow and outflow
-q_in = df["Durchfluss_hm3"].to_numpy()
-q_out = np.tile(df_dis.iloc[0, :].to_numpy(), 40)
-
-# Calc storage of unlimited reservoir
-storage, deficit, overflow, q_out_real = calc_storage(
-    q_in, q_out, initial_storage=0, max_cap=np.inf)
-plot_storage(q_in, q_out, q_out_real, storage, deficit, overflow, 
-             fn_ending="unlimited")
-
-# Calculate capacity and plot FSA
-cap, cap_min_index, cap_min, cap_max_index, cap_max = calc_capacity(storage)
-print("Kapazität:", cap, "hm3")
-print(f"Min: {cap_min} hm³ ({df['Monat'][cap_min_index]} {cap_min_index})")
-print(f"Max: {cap_max} hm³ ({df['Monat'][cap_max_index]} {cap_max_index})")
-
-plot_fsa(storage)
-
-# Calc storage of limited reservoir
-storage, deficit, overflow, q_out_real = calc_storage(
-    q_in, q_out, initial_storage=0, max_cap=cap)
-plot_storage(q_in, q_out, q_out_real, storage, deficit, overflow, 
-             fn_ending=str(round(cap, 3)))
-
-exit()
 
 
 # -----------------------------------------
@@ -91,6 +48,7 @@ print(
 # -----------------------------------------
 #           Homogenity check
 # -----------------------------------------
+
 print("\nHomogenitätsprüfung")
 klingenthal = read_data("data/Daten_Klingenthal_raw.txt")
 rothenthal = read_data("data/others/Daten_Rothenthal.txt")
