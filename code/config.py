@@ -41,6 +41,7 @@ MONTH = {
 
 MONTH_ABB = ["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"]
 MONTH_HYD_YEAR = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 ,10]
+MONTH_HYD_YEAR_TXT = ["Nov", "Dez", "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep" ,"Okt"]
 
 # --------------------------------------
 # TU CD colors
@@ -64,21 +65,7 @@ N_YEARS = 40            # Anzahl Jahre pro generierte Zeitreihe
 # --------------------------------------
 
 # Sekunden pro Monat
-# SEC_PER_MONTH = (365/12)*24*60*60   
-SEC_PER_MONTH = {
-    11:     30*24*60*60,
-    12:     31*24*60*60,
-    1:      31*24*60*60,
-    2:      28*24*60*60,
-    3:      31*24*60*60,
-    4:      30*24*60*60,
-    5:      31*24*60*60,
-    6:      30*24*60*60,
-    7:      31*24*60*60,
-    8:      31*24*60*60,
-    9:      30*24*60*60,
-    10:     31*24*60*60
-}
+SEC_PER_MONTH = (365/12)*24*60*60   
 
 # Speicherausgleichsgrad
 ALPHA = 0.7

@@ -514,20 +514,19 @@ def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
 
     # original time series    
     plt.scatter(np.arange(1,13), df_dis.iloc[0].to_numpy(), 
-                marker="x", color="green", alpha=0.5, label="original")
+                marker="x", color=tu_mediumblue, alpha=0.5, label="original")
 
     # generated time series
     plt.boxplot(df_dis, patch_artist=True,
-                boxprops=dict(facecolor=tu_mediumblue, color=tu_mediumblue, alpha=0.3),
-                capprops=dict(color=tu_mediumblue, alpha=0.6),
-                whiskerprops=dict(color=tu_mediumblue, alpha=0.6),
-                flierprops=dict(color=tu_mediumblue, alpha=0.6, markeredgecolor=tu_mediumblue),
-                medianprops=dict(color=tu_mediumblue, alpha=1)
+                boxprops=dict(facecolor=tu_red, color=tu_red, alpha=0.3),
+                capprops=dict(color=tu_red, alpha=0.6),
+                whiskerprops=dict(color=tu_red, alpha=0.6),
+                flierprops=dict(color=tu_red, alpha=0.6, markeredgecolor=tu_red),
+                medianprops=dict(color=tu_red, alpha=1)
                 )
     plt.legend()
     plt.grid(color="grey", alpha=0.3)
-    x_labels = [MONTH_ABB]
-    plt.xticks(np.arange(1, 13), x_labels)
+    plt.xticks(np.arange(1, 13), MONTH_ABB)
     plt.xlabel("Monat")
     plt.ylabel("Durchfluss [hm³]")
     plt.savefig(image_path+f"{pegelname}_monthly_discharge.png", dpi=300, bbox_inches="tight")

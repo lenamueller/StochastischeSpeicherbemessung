@@ -3,16 +3,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from utils.statistics import binned_stats
-from config import ALPHA, ABGABEN, SEC_PER_MONTH
+from config import ALPHA, ABGABEN, SEC_PER_MONTH, N_TIMESERIES
 
 
-def monthly_discharge(df: pd.DataFrame) -> dict:
+def monthly_discharge(arr: np.ndarray) -> dict:
     """Calculate monthly discharge for a given time series."""
+
+    # Transform discharge to volume in hm³
+    arr_hm3 = np.array([i* SEC_PER_MONTH/1000000 for i in arr])
+
+    # Calculate yearly sums
+    arr_hm3 = np.reshape(arr_hm3, (40, 12))
+    yearly_sums = np.sum(arr_hm3, axis=1)
+
+    # Calculate mean yearly sum    
+    mean_discharge = np.mean(yearly_sums, axis=0)
     
-    df["Durchfluss_hm3"] = df["Durchfluss_m3s"] * SEC_PER_MONTH / 1000000
-    yearly_sums = binned_stats(df, var="Durchfluss_hm3", bin="yearly", func=np.sum)
-    mean_discharge = np.mean(yearly_sums)
-    
+    # Calculate monthly discharge
     return {
         11:     mean_discharge * ABGABEN[11]/100 * ALPHA,
         12:     mean_discharge * ABGABEN[12]/100 * ALPHA,
@@ -128,10 +135,12 @@ def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
     diff = [i-j for i, j in zip(max_vals, min_vals)]
 
     # get maximum difference and its location
-    cap = max(diff)
-    cap_min = min_vals[diff.index(cap)]
-    cap_max = max_vals[diff.index(cap)]
-    cap_min_index = min_indices[diff.index(cap)]
-    cap_max_index = max_indices[diff.index(cap)]
-    
-    return cap, cap_min_index, cap_min, cap_max_index, cap_max
+    if diff != []:
+        cap = max(diff)
+        cap_min = min_vals[diff.index(cap)]
+        cap_max = max_vals[diff.index(cap)]
+        cap_min_index = min_indices[diff.index(cap)]
+        cap_max_index = max_indices[diff.index(cap)]
+        return cap, cap_min_index, cap_min, cap_max_index, cap_max
+    else: 
+        return 0, 0, 0, 0, 0
