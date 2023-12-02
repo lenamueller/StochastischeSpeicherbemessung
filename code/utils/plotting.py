@@ -7,7 +7,7 @@ import seaborn as sns
 from scipy.stats import lognorm, gamma
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
-    var_remapper
+    var_remapper, N_TIMESERIES
 import utils.statistics as st
 from utils.data_structures import _monthly_vals
 from utils.fsa import calc_maxima, calc_minima, calc_capacity

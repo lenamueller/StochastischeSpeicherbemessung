@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -11,9 +10,7 @@ import utils.statistics as st
 from utils.consistency_check import missing_values, missing_dates, duplicates
 from utils.plotting import plot_raw, plot_trend, plot_components, \
     plot_spectrum, plot_sin_waves, plot_characteristics, plot_acf, plot_dsk, \
-    plot_breakpoint, pairplot, plot_thomasfiering, plot_monthly_fitting,  \
-    plot_thomasfierung_eval, plot_monthly_discharge, plot_storage, plot_fsa
-from utils.thomasfiering import parameter_xp, parameter_sp, parameter_rp, thomasfiering
+    plot_breakpoint, pairplot,  plot_monthly_discharge, plot_storage, plot_fsa
 from utils.fsa import monthly_discharge, calc_storage, calc_capacity
 
 check_path(image_path)
@@ -21,39 +18,6 @@ check_path(report_path)
 
 
 df = read_data(f"data/others/Daten_{pegelname}.txt")
-
-
-# -----------------------------------------
-# Thomas Fiering model
-# -----------------------------------------
-
-# fit model
-tf_pars = pd.DataFrame()
-tf_pars["Monat"] = np.arange(1, 13)
-tf_pars["Mittelwert"] = [parameter_xp(df, i) for i in range(1, 13)]
-tf_pars["Standardabweichung"] = [parameter_sp(df, i) for i in range(1, 13)]
-tf_pars["Korrelationskoeffizient"] = [parameter_rp(df, i) for i in range(1, 13)]
-
-tf_pars = tf_pars.round(4)
-tf_pars.to_csv(f"data/{pegelname}_tomasfiering_parameters.csv", index=False)
-tf_pars.to_latex(f"data/{pegelname}_tomasfiering_parameters.tex", index=False)
-
-# check distribution
-plot_monthly_fitting(df)
-
-# generate time series
-n = 100
-gen_data = pd.DataFrame(
-    data=[thomasfiering(df) for _ in range(n)],
-    index=np.arange(1, n+1), 
-    columns=[11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    )
-
-gen_data.to_csv(f"data/{pegelname}_thomasfiering_timeseries.csv", index=True)
-gen_data.iloc[:].round(3).to_latex(f"data/{pegelname}_thomasfiering_timeseries.tex", index=True)
-gen_data.iloc[:10].round(3).to_latex(f"data/{pegelname}_thomasfiering_timeseries_first10.tex", index=True)
-plot_thomasfiering(df, gen_data.to_numpy(), n=100)
-plot_thomasfierung_eval(df, gen_data.to_numpy())
 
 # -----------------------------------------
 # FSA
