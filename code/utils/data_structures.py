@@ -18,6 +18,12 @@ def read_data(filepath: str) -> pd.DataFrame:
     data["Datum"] = pd.to_datetime(data["Monat"], format="%m/%Y")
     return data
 
+def read_gen_data() -> pd.DataFrame:
+    """Read generated data from file."""
+    data = pd.read_csv("data/Klingenthal_thomasfiering_timeseries.csv",
+                       index_col=0)
+    return data
+
 def _monthly_vals(df: pd.DataFrame, i: int)-> np.ndarray:
     df = df[df["Monat"].str.startswith(str(i).zfill(2))]
     return df["Durchfluss_m3s"].to_numpy()
