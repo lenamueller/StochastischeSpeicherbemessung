@@ -5,6 +5,7 @@ code/utils/__pycache__/*
 tests/__pycache__/*
 
 data/others/*
+data/*.tex
 
 other.py
 Aufgabenstellung_Beleg_FGB23_annotated.pdf
