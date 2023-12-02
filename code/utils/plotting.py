@@ -433,103 +433,80 @@ def plot_monthly_fitting(df: pd.DataFrame) -> None:
     axs[0, 0].legend()
     plt.savefig(f"{image_path}/{pegelname}_fit.png", dpi=300, bbox_inches="tight")
 
-def plot_thomasfiering(df: pd.DataFrame, gen_data: np.array, n: int = 10) -> None:
-    """Plot the generated data from the Thomas Fiering model."""
-
-    x = np.arange(0, 12)
-    arr = np.reshape(df["Durchfluss_m3s"].to_numpy(), (-1, 12))
+def plot_thomasfierung_eval(raw_data: pd.DataFrame, gen_data: pd.DataFrame):
+    """Plot evaluation of generated data compared to original data."""
     
-    plt.figure(figsize=(12, 5))
-    
-    # raw data
-    plt.plot(x, np.mean(arr, axis=0), color=tu_red, alpha=1, lw=1, 
-             label=f"Mittel aus 40 Zeitreihen (original)")
-    # for row_i in range(len(arr)):
-    #     plt.plot(x, arr[row_i], color=tu_red, alpha=0.3, lw=0.5)
-    plt.boxplot(arr, positions=x-0.1, widths=0.1, patch_artist=True,
-                boxprops=dict(facecolor=tu_red, color=tu_red, alpha=0.2),
-                capprops=dict(color=tu_red, alpha=0.3),
-                whiskerprops=dict(color=tu_red, alpha=0.3),
-                flierprops=dict(color=tu_red, alpha=0.3, markeredgecolor=tu_red),
-                medianprops=dict(color=tu_red, alpha=0.3))
-    
-    # generated data
-    plt.plot(x, np.mean(gen_data, axis=0), color="k", alpha=1, lw=1, 
-             label=f"Mittel aus {len(gen_data)} Zeitreihen (generiert)")
-    for i in range(min(len(gen_data), n)):
-        plt.plot(x, gen_data[i], color="grey", alpha=0.1, lw=0.5)
-    plt.fill_between(x, np.mean(gen_data, axis=0)-np.std(gen_data, axis=0),
-            np.mean(gen_data, axis=0)+np.std(gen_data, axis=0),
-            color="grey", alpha=0.1, label="Intervall einfacher Std. (generiert)")
-    plt.boxplot(gen_data, positions=x+0.1, widths=0.1, patch_artist=True,
-                boxprops=dict(facecolor="grey", color="grey", alpha=0.2),
-                capprops=dict(color="grey", alpha=0.3),
-                whiskerprops=dict(color="grey", alpha=0.3),
-                flierprops=dict(color="grey", alpha=0.3, markeredgecolor="grey"),
-                medianprops=dict(color="grey", alpha=0.3))
-    
-    plt.grid(color="grey", alpha=0.3)
-    x_labels = ["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"]
-    plt.xticks(x, x_labels)
-    plt.legend()
-    plt.savefig(image_path+f"{pegelname}_thomasfiering.png", dpi=300, bbox_inches="tight")
-
-def plot_thomasfierung_eval(df: pd.DataFrame, gen_data: np.ndarray):
-    x = np.arange(0, 12)
-    
-    mean = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean)
-    var = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.var)
-    skew = st.binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=scipy.stats.skew)
-    
-    mean_gen = np.mean(gen_data, axis=0)
-    var_gen = np.var(gen_data, axis=0)
-    skew_gen = scipy.stats.skew(gen_data, axis=0)
-    
-    _, axs = plt.subplots(1, 4, figsize=(15, 3))
+    _, axs = plt.subplots(2, 2, figsize=(12, 8), gridspec_kw={'hspace': 0.3})
     plt.subplots_adjust(wspace=0.3)
     
-    # mean
-    axs[0].set_title("A. Arith. Mittel", loc="left", color="grey", fontsize=10, fontweight="bold")
-    axs[0].plot(x, mean, color=tu_mediumblue, alpha=1, lw=1,
-                label="original")
-    axs[0].plot(x, mean_gen, color=tu_red, alpha=1, lw=1,
-                label="generiert")
+    x = np.arange(0, 12)
+    titles = ["A. Arith. Mittel", "B. Varianz", "C. Schiefe", "D. Emp. Verteilung"]
+    title_kwargs = {"loc": "left", "color": "grey", "fontsize": 10, "fontweight": "bold"}
+    bins=np.arange(0, 10, 0.25)
     
-    # variance
-    axs[1].set_title("B. Varianz", loc="left", color="grey", fontsize=10, fontweight="bold")
-    axs[1].plot(x, var, color=tu_mediumblue, alpha=1, lw=1,
-                label="original")
-    axs[1].plot(x, var_gen, color=tu_red, alpha=1, lw=1,
-                label="generiert")
+    # raw data
+    axs[0,0].plot(x, st.binned_stats(raw_data, var="Durchfluss_m3s", bin="monthly", func=np.mean),
+                color=tu_mediumblue, alpha=1, lw=1)
+    axs[0,1].plot(x, st.binned_stats(raw_data, var="Durchfluss_m3s", bin="monthly", func=np.var),
+                color=tu_mediumblue, alpha=1, lw=1)
+    axs[1,0].plot(x, st.binned_stats(raw_data, var="Durchfluss_m3s", bin="monthly", func=scipy.stats.skew),
+                color=tu_mediumblue, alpha=1, lw=1)
+    axs[1,1].hist(raw_data["Durchfluss_m3s"].to_numpy(), bins=bins, 
+                density=False, alpha=0.1, color=tu_mediumblue)
     
-    # skewness
-    axs[2].set_title("C. Schiefe", loc="left", color="grey", fontsize=10, fontweight="bold")
-    axs[2].plot(x, skew, color=tu_mediumblue, alpha=1, lw=1,
-                label="original")
-    axs[2].plot(x, skew_gen, color=tu_red, alpha=1, lw=1,
-                label="generiert")
+    # gen data
+    means = []
+    vars = []
+    skews = []
+    hists = []
     
-    # histogram
-    axs[3].set_title("D. Emp. Verteilung", loc="left", color="grey", 
-                     fontsize=10, fontweight="bold")
-    axs[3].hist(df["Durchfluss_m3s"].to_numpy(), bins=np.arange(0, 10, 0.25), 
-                density=False, label="original", alpha=0.3, color=tu_mediumblue)
-    axs[3].hist(gen_data.ravel()[:len(df)], bins=np.arange(0, 10, 0.25), 
-                density=False, label="generiert", alpha=0.3, color=tu_red)
+    for i in range(N_TIMESERIES):
+        gen_i = gen_data[f"G{str(i+1).zfill(3)}"].to_numpy().reshape(-1, 12)
     
+        m = np.mean(gen_i, axis=0)
+        v = np.var(gen_i, axis=0)
+        s = scipy.stats.skew(gen_i, axis=0)
+        h = np.histogram(gen_i, bins=bins, density=False)
+    
+        means.append(m)
+        vars.append(v)
+        skews.append(s)
+        hists.append(h)
+        
+        axs[0,0].plot(x, m, color=tu_red, alpha=0.15, lw=1)
+        axs[0,1].plot(x, v, color=tu_red, alpha=0.15, lw=1)
+        axs[1,0].plot(x, s, color=tu_red, alpha=0.15, lw=1)
+        axs[1,1].hist(gen_i.ravel()[:len(raw_data)], bins=bins, 
+                      histtype="step", density=False, alpha=0.15, color=tu_red)
+
+    # gen data means    
+    axs[0,0].plot(x, np.mean(means, axis=0), color=tu_red, alpha=1, lw=1)
+    axs[0,1].plot(x, np.mean(vars, axis=0), color=tu_red, alpha=1, lw=1)
+    axs[1,0].plot(x, np.mean(skews, axis=0), color=tu_red, alpha=1, lw=1)
+    axs[1,1].step(bins[:-1], np.mean([h[0] for h in hists], axis=0), 
+                  color=tu_red, alpha=1, lw=1) 
+
+    # plotting config
     for i in range(4):
-        axs[i].grid(color="grey", alpha=0.3)
-        axs[i].legend(fontsize=9)
-    for i in range(3):
-        axs[i].set_xticks(x)
-        axs[i].set_xticklabels(["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"])
-        axs[i].set_ylabel("Durchfluss [m³/s]")
-        axs[i].set_xlabel("Monat")
-    axs[3].set_xlabel("Durchfluss [m³/s]")
-    axs[3].set_ylabel("Absolute Häufigkeit [-]")
+        row_i = i // 2
+        col_i = i % 2
+        
+        axs[row_i, col_i].grid(color="grey", alpha=0.3)
+        axs[row_i, col_i].set_title(titles[i], **title_kwargs)
+        axs[row_i, col_i].plot([], [], color=tu_mediumblue, label="original")
+        axs[row_i, col_i].plot([], [], color=tu_red, label="generiert")
+        axs[row_i, col_i].legend(fontsize=9, loc="upper right")
+
+        if i != 3:
+            axs[row_i, col_i].set_xticks(x)
+            axs[row_i, col_i].set_xticklabels(MONTH_ABB)
+            axs[row_i, col_i].set_ylabel("Durchfluss [m³/s]")
+            axs[row_i, col_i].set_xlabel("Monat")
+        else:
+            axs[row_i, col_i].set_xlabel("Durchfluss [m³/s]")
+            axs[row_i, col_i].set_ylabel("Absolute Häufigkeit [-]")
 
     plt.savefig(image_path+f"{pegelname}_thomasfiering_eval.png", dpi=300, bbox_inches="tight")                    
-
 
 def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
     """Plot monthly discharge values."""
