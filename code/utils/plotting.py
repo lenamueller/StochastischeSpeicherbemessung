@@ -601,7 +601,7 @@ def plot_capacity(
         ):
     """Pu plot of theoretical and empirical Pu."""
     
-    plt.figure(figsize=(7,7))
+    plt.figure(figsize=(5,5))
     plt.plot(capacities_sort, pu_emp, color=tu_red, label="Emp. $P_u$ [-]", 
              marker="x", markersize=5, alpha=0.5)
     plt.plot(capacities_sort, pu_theo, color=tu_mediumblue, alpha=0.5,
@@ -618,7 +618,7 @@ def plot_capacity(
 def qq_plot(emp: list[float], theo: list[float]):
     """Quantile-Quantile plot of theoretical and empirical quantiles."""
     
-    plt.figure(figsize=(7,7))
+    plt.figure(figsize=(5,5))
     plt.plot(theo, emp, color=tu_red, marker="x", markersize=5)
     plt.plot([0,30], [0, 30], color="k", alpha=0.4)
     plt.xlabel("Theoretische Quantile [hm³]")
