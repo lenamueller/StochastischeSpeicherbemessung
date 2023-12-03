@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 
 from types import FunctionType    
+from utils.components.autocorr_comp import autocorrelation
+
 
 # -----------------------------------------
 #           Primary statistics
@@ -118,6 +120,47 @@ def binned_stats(
     d = {"monthly": 0, "yearly": 1}
     return func(arr, axis=d[bin])
 
+
+def monthly_autocorr(df: pd.DataFrame, var: str = "saisonber", which: str = "maniak") -> list[float]:
+    """Returns a list of monthly autocorrelations for lag (k) = 1."""
+
+    months = df["Monat"]
+    pairs = [("11", "12"), ("12", "01"), ("01", "02"), ("02", "03"),
+             ("03", "04"), ("04", "05"), ("05", "06"), ("06", "07"),
+             ("07", "08"), ("08", "09"), ("09", "10"), ("10", "11")]
+    
+    coeff = []
+    for i in range(12):
+        first_month, second_month = pairs[i]
+        x_i = df[var][months.str.startswith(first_month)].tolist()
+        x_ik = df[var][months.str.startswith(second_month)].tolist()
+        assert len(x_i) == len(x_ik)
+        
+        mean_x_i = np.mean(x_i)
+        mean_x_ik = np.mean(x_ik)
+        std_x_i = np.std(x_i)
+        std_x_ik = np.std(x_ik)
+        k = 1
+        n = len(x_i)
+        
+        if which == "pearson":
+            coeff.append(scipy.stats.stats.pearsonr(x_i, x_ik).statistic)
+        elif which == "maniak":
+            prod = [(i - mean_x_i) * (ik - mean_x_ik) for i, ik in zip(x_i, x_ik)]
+            r_k_maniak = (sum(prod[:-k])) / (std_x_i*std_x_ik) / (n-k)
+            coeff.append(r_k_maniak)
+        else:
+            raise ValueError("which must be 'pearson' or 'maniak'")
+    return coeff
+
+def yearly_autocorr(
+    df: pd.DataFrame,
+    lag: int,
+    var: str = "Durchfluss_m3s") -> list[float]:
+    """Returns a list of yearly autocorrelations."""
+    arr = np.reshape(df[var].to_numpy(), (-1, 12))
+    return [pd.Series(i).autocorr(lag=lag) for i in arr]
+
 # -----------------------------------------
 #           Hydrological values
 # -----------------------------------------
@@ -163,3 +206,59 @@ def hydro_values(df: pd.DataFrame) -> dict[str, tuple[float, str] | float]:
     hydro_parameters["MQ"] = np.mean(mean_q)
 
     return hydro_parameters
+
+def statistics(df: pd.DataFrame):
+    print("\n--------------------------------------")
+    print("\nStatistische Berechnung\n")
+    
+    names = ["Minimum", "Maximum", "1. zentrales Moment", "2. zentrales Moment", 
+            "3. zentrales Moment", "4. zentrales Moment", "Standardabweichung (biased)",
+            "Standardabweichung (unbiased)", "Skewness (biased)", "Skewness (unbiased)",
+            "Kurtosis (biased)", "Kurtosis (unbiased)", "25%-Quantil", "50%-Quantil", 
+            "75%-Quantil", "Interquartilsabstand", "Autokorrelation",
+            "HHQ", "MHQ", "MQ", "MNQ", "NNQ"]
+
+    titles = ["Rohdaten", "Saisonbereinigte Zeitreihe", "Zufallskomponente der Zeitreihe"]
+    vars = ["Durchfluss_m3s", "saisonber", "zufall"]
+    data = {"Name": names, "Rohdaten": [], "Saisonbereinigte Zeitreihe": [], "Zufallskomponente der Zeitreihe": []}
+
+    for i in range(len(vars)):
+        t = titles[i]
+        vars[i]
+        data[titles[i]].append(min_val(df, vars[i])[0])
+        data[titles[i]].append(max_val(df, vars[i])[0])
+        data[titles[i]].append(central_moment(df, nth=1, var=vars[i]))
+        data[titles[i]].append(central_moment(df, nth=2, var=vars[i]))
+        data[titles[i]].append(central_moment(df, nth=3, var=vars[i]))
+        data[titles[i]].append(central_moment(df, nth=4, var=vars[i]))
+        data[titles[i]].append(standard_deviation(df, bias=True, var=vars[i]))
+        data[titles[i]].append(standard_deviation(df, bias=False, var=vars[i]))
+        data[titles[i]].append(skewness(df, bias=True, var=vars[i]))
+        data[titles[i]].append(skewness(df, bias=False, var=vars[i]))
+        data[titles[i]].append(kurtosis(df, bias=True, var=vars[i]))
+        data[titles[i]].append(kurtosis(df, bias=False, var=vars[i]))
+        data[titles[i]].append(quantiles(df, 0.25, vars[i]))
+        data[titles[i]].append(quantiles(df, 0.50, vars[i]))
+        data[titles[i]].append(quantiles(df, 0.75, vars[i]))
+        data[titles[i]].append(iqr(df, vars[i]))
+        data[titles[i]].append(autocorrelation(df, vars[i]))
+        hydro_vals = hydro_values(df)
+        if i == 0:
+            data[titles[i]].append(hydro_vals["HHQ"][0])
+            data[titles[i]].append(hydro_vals["MHQ"])
+            data[titles[i]].append(hydro_vals["MQ"])
+            data[titles[i]].append(hydro_vals["MNQ"])
+            data[titles[i]].append(hydro_vals["NNQ"][0])
+        else:
+            data[titles[i]].append("-")
+            data[titles[i]].append("-")
+            data[titles[i]].append("-")
+            data[titles[i]].append("-")
+            data[titles[i]].append("-")
+                
+    df_statistics = pd.DataFrame.from_dict(data)
+    df_statistics.round({"Rohdaten":3, "Saisonbereinigte Zeitreihe":3, "Zufallskomponente der Zeitreihe":3})
+    
+    df_statistics.to_latex("data/Klingenthal_statistics.tex", index=False)
+    df_statistics.to_csv("data/Klingenthal_statistics.csv", index=False)
+    print("Saved data to data/Klingenthal_statistics.csv")

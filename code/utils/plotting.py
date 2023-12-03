@@ -253,10 +253,6 @@ def plot_characteristics(df: pd.DataFrame) -> None:
         x_months = np.arange(1, 13)
         x_years = st.hyd_years(df)
         
-        print(i, "var", var)
-        print("PEARSON", st.monthly_autocorr(df, var=var, which="pearson"))
-        print("MANIAK", st.monthly_autocorr(df, var=var, which="maniak"))
-        
         # upper row plots
         ax[0,0].plot(x_months, st.binned_stats(df, var=var, bin="monthly", func=np.mean),
                     c=color, linewidth=1, label=label)
