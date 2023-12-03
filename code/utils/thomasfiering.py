@@ -1,7 +1,10 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import skew
+import time
 
+from config import pegelname, N_TIMESERIES, N_YEARS, MONTH_HYD_YEAR, MONTH
+from utils.plotting import plot_monthly_fitting, plot_thomasfierung_eval
 from utils.statistics import hyd_years
 from utils.data_structures import _monthly_vals
 
@@ -61,7 +64,7 @@ def parameter_rp(df: pd.DataFrame, i:int) -> float:
     else:
         raise ValueError("r_p is not in [-1,1] for month", i)
 
-def thomasfiering(df: pd.DataFrame, n_years: int = 1) -> float:
+def gen_timeseries(df: pd.DataFrame, n_years: int = 1) -> float:
     """
     Returns a time series with monthly discharge values starting
     in November ending in October, generated with the Thomas-Fiering 
@@ -116,3 +119,44 @@ def thomasfiering(df: pd.DataFrame, n_years: int = 1) -> float:
                 new_time_series.append(x_new)
 
     return new_time_series
+
+def thomasfiering(raw_data: pd.DataFrame):
+    print("\n--------------------------------------")
+    print("\nZeitreihengenerierung\n")
+    
+    start_time = time.time()
+    
+    # calculate parameters
+    tf_pars = pd.DataFrame(
+        data={
+            "Mittelwert": [parameter_xp(raw_data, i) for i in MONTH_HYD_YEAR],
+            "Standardabweichung": [parameter_sp(raw_data, i) for i in MONTH_HYD_YEAR],
+            "Korrelationskoeffizient": [parameter_rp(raw_data, i) for i in MONTH_HYD_YEAR]
+        },
+        index=[MONTH[i] for i in MONTH_HYD_YEAR]
+    )
+
+    tf_pars.round(4).to_csv(f"data/{pegelname}_tomasfiering_parameters.csv", index=True)
+    tf_pars.round(4).to_latex(f"data/{pegelname}_tomasfiering_parameters.tex", index=True)
+    print(f"-> Modellparameter: data/{pegelname}_tomasfiering_parameters.csv")
+    
+    # generate data
+    gen_data = pd.DataFrame()
+    gen_data["Monat"] = raw_data["Monat"]
+    for i in range(N_TIMESERIES):
+        gen_data[f"G{str(i+1).zfill(3)}_m3s"] = gen_timeseries(raw_data, n_years=N_YEARS)
+        
+    gen_data.to_csv(
+        f"data/{pegelname}_thomasfiering_timeseries.csv", index=False)
+    gen_data.iloc[:].round(3).to_latex(
+        f"data/{pegelname}_thomasfiering_timeseries.tex", index=False)
+    gen_data.iloc[:, :10].round(3).to_latex(
+        f"data/{pegelname}_thomasfiering_timeseries_first10.tex", index=False)
+
+    print("-> generierte Zeitreihen: data/{pegelname}_thomasfiering_timeseries.csv")
+    print("Dauer der Generierung:", round(time.time()-start_time, 1), "Sekunden")
+    
+    plot_thomasfierung_eval(raw_data=raw_data, gen_data=gen_data)
+    plot_monthly_fitting(raw_data)
+    
+    return gen_data

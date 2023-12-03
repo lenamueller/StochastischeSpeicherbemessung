@@ -1,15 +1,10 @@
 import numpy as np
 import pandas as pd
-import scipy
 
 from config import ALPHA, pegelname
 from utils.plotting import plot_acf
 from utils.statistics import monthly_autocorr
 
-
-def autocorrelation(df: pd.DataFrame, var: str, lag: int = 1) -> float:
-    """Returns the autocorrelation function."""
-    return pd.Series(df[var]).autocorr(lag=lag)
 
 def confidence_interval(df: pd.DataFrame, lags: list[float]) -> tuple[list[float], list[float]]:
     """Returns the confidence interval."""
@@ -37,7 +32,7 @@ def autocorr_comp(df: pd.DataFrame):
         "ObereKonfGrenze": upper_conf
         }).to_csv(f"data/{pegelname}_autokorr.csv", index=False)
     
-    print(f"Saved data to data/{pegelname}_autokorr.csv")    
+    print(f"-> data/{pegelname}_autokorr.csv")    
     
     plot_acf(lags, ac_raw, lower_conf=lower_conf, upper_conf=upper_conf, fn_extension="raw")
     plot_acf(lags, ac_normiert,lower_conf=lower_conf, upper_conf=upper_conf, fn_extension="normiert")

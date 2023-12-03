@@ -2,6 +2,8 @@ env/*
 
 code/__pycache__/*
 code/utils/__pycache__/*
+code/utils/checks/__pycache__/*
+code/utils/components/__pycache__/*
 tests/__pycache__/*
 
 data/others/*

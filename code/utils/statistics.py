@@ -1,9 +1,7 @@
 import scipy
 import numpy as np
 import pandas as pd
-
 from types import FunctionType    
-from utils.components.autocorr_comp import autocorrelation
 
 
 # -----------------------------------------
@@ -95,6 +93,10 @@ def iqr(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> float:
     """"Returns the interquartile range using nearest rank method."""
     return df[var].quantile(q=0.75, interpolation="nearest") - \
             df[var].quantile(q=0.25, interpolation="nearest")
+
+def autocorrelation(df: pd.DataFrame, var: str, lag: int = 1) -> float:
+    """Returns the autocorrelation function."""
+    return pd.Series(df[var]).autocorr(lag=lag)
 
 # -----------------------------------------
 #    binned statistics (monthly, yearly)
@@ -261,4 +263,4 @@ def statistics(df: pd.DataFrame):
     
     df_statistics.to_latex("data/Klingenthal_statistics.tex", index=False)
     df_statistics.to_csv("data/Klingenthal_statistics.csv", index=False)
-    print("Saved data to data/Klingenthal_statistics.csv")
+    print("-> data/Klingenthal_statistics.csv")

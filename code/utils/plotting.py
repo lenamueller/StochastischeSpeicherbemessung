@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import pymannkendall as mk
 import scipy
 import seaborn as sns
 from scipy.stats import lognorm, gamma
@@ -10,7 +9,6 @@ from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
     var_remapper, N_TIMESERIES, MONTH_ABB
 import utils.statistics as st
 from utils.data_structures import _monthly_vals
-from utils.fsa import calc_maxima, calc_minima, calc_capacity
 
 
 def plot_raw(df: pd.DataFrame) -> None:
@@ -453,7 +451,7 @@ def plot_thomasfierung_eval(raw_data: pd.DataFrame, gen_data: pd.DataFrame):
     hists = []
     
     for i in range(N_TIMESERIES):
-        gen_i = gen_data[f"G{str(i+1).zfill(3)}"].to_numpy().reshape(-1, 12)
+        gen_i = gen_data[f"G{str(i+1).zfill(3)}_m3s"].to_numpy().reshape(-1, 12)
     
         m = np.mean(gen_i, axis=0)
         v = np.var(gen_i, axis=0)
@@ -560,11 +558,17 @@ def plot_storage(
     plt.tight_layout()
     plt.savefig(image_path+f"{pegelname}_storage_{fn_ending}.png", dpi=300, bbox_inches="tight")
 
-def plot_fsa(storage: np.ndarray):
-    
-    max_vals, max_indices = calc_maxima(storage)
-    min_vals, min_indices = calc_minima(storage, max_indices)
-    cap, cap_min_index, cap_min, cap_max_index, cap_max = calc_capacity(storage)
+def plot_fsa(
+        storage: np.ndarray,
+        max_vals: list[float],
+        max_indices: list[float],
+        min_vals: list[float],
+        min_indices: list[float],
+        cap: float,
+        cap_min_index: float, 
+        cap_min: float,
+        cap_max: float
+        ):
     
     plt.figure(figsize=(15,8))
     plt.title(f"Maximalkapazität des Speichers: {round(cap, 3)} hm³",
@@ -583,7 +587,6 @@ def plot_fsa(storage: np.ndarray):
              va="bottom", fontsize=10, color="k")
     plt.text(100, cap_max, f"{round(cap_max, 3)} hm³", ha="left", 
              va="bottom", fontsize=10, color="k")
-    
     
     plt.legend(loc="upper center", fontsize=10)
     plt.grid(color="grey", alpha=0.3)
