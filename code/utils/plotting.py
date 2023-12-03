@@ -64,10 +64,9 @@ def plot_dsk(test_cumsum: np.ndarray, ref_cumsum: np.ndarray) -> None:
     plt.ylim(bottom=0)
     plt.savefig(image_path+f"{pegelname}_dsk.png", dpi=300, bbox_inches="tight")
 
-def plot_breakpoint(df: pd.DataFrame) -> None:
+def plot_breakpoint(df: pd.DataFrame, res) -> None:
     """Plot breakpoint analysis."""
     
-    res = st.pettitt_test(df)
     mean_1, mean_2 = res.avg
     
     plt.figure(figsize=(10, 4))
@@ -110,14 +109,19 @@ def plot_breakpoint(df: pd.DataFrame) -> None:
     plt.legend(loc="upper right")
     plt.savefig(image_path+f"{pegelname}_breakpoint.png", dpi=300, bbox_inches="tight")
 
-def plot_trend(df: pd.DataFrame) -> None:
+def plot_trend(
+        df: pd.DataFrame,
+        linreg_m, linreg_y,
+        mk_m, mk_y,
+        ma_m, ma_y
+        ) -> None:
     """Plot trend analysis summary."""
     
     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
     
     years = st.hyd_years(df)
     x_yearly = years
-    x_monthly = np. arange(years[0], years[-1]+1, 1/12)
+    x_monthly = np.arange(years[0], years[-1]+1, 1/12)
     
     # raw data
     ax1.plot(df["Monat"], df["Durchfluss_m3s"], c=tu_grey, linewidth=0.8, 
@@ -126,8 +130,6 @@ def plot_trend(df: pd.DataFrame) -> None:
              alpha=0.3, marker="o", markersize=3, label="Jahreswerte (arith. Mittel)")
     
     # linear regression
-    linreg_m = st.linreg(df, which="monthly")
-    linreg_y = st.linreg(df, which="yearly")
     linreg_m_func = f"y = {linreg_m.slope:.5f}x + {linreg_m.intercept:.5f}"
     linreg_y_func = f"y = {linreg_y.slope:.5f}x + {linreg_y.intercept:.5f}"
 
@@ -137,8 +139,6 @@ def plot_trend(df: pd.DataFrame) -> None:
                 label=f"Lineare Regression {linreg_y_func}")
     
     # theil sen regression
-    mk_m = mk.original_test(df["Durchfluss_m3s"], alpha=0.05)
-    mk_y = mk.seasonal_test(df["Durchfluss_m3s"], alpha=0.05, period=12)
     mk_m_func = f"y = {mk_m.slope:.5f}x + {mk_m.intercept:.5f}"
     mk_y_func = f"y = {mk_y.slope:.5f}x + {mk_y.intercept:.5f}"
     
@@ -148,9 +148,6 @@ def plot_trend(df: pd.DataFrame) -> None:
                 label=f"Theil-Sen-Regression {mk_y_func}")
     
     # moving average
-    ma_m = st.moving_average(df, which="monthly", window=12)
-    ma_y = st.moving_average(df, which="yearly", window=5)
-    
     ax1.plot(df["Monat"][5:-6], ma_m, c=tu_mediumblue, lw=0.8,
                 label=f"Gleitender Durchschnitt (Fensterbreite: 1a)")
     ax2.plot(x_yearly[2:-2], ma_y, c=tu_mediumblue, lw=0.8,
@@ -182,10 +179,11 @@ def plot_trend(df: pd.DataFrame) -> None:
     fig.tight_layout()
     plt.savefig(image_path+f"{pegelname}_trend.png", dpi=300, bbox_inches="tight")
 
-def plot_spectrum(df: pd.DataFrame) -> None:
+def plot_spectrum(
+        freqs: np.ndarray,
+        spectrum: np.ndarray
+        ) -> None:
     """Plot FFT spectrum"""
-    
-    freqs, spectrum = st.calc_spectrum(df)
     
     _, ax1 = plt.subplots(figsize=(10, 5))
     ax1.plot(freqs[1:], spectrum[1:], c=tu_mediumblue)
@@ -202,10 +200,12 @@ def plot_spectrum(df: pd.DataFrame) -> None:
     plt.grid()
     plt.savefig(image_path+f"{pegelname}_fft.png", dpi=300, bbox_inches="tight")
 
-def plot_sin_waves(df) -> None:
+def plot_sin_waves(
+        freqs: np.ndarray, 
+        period: np.ndarray
+        ) -> None:
     """Plot the dominant frequencies as sin waves."""
 
-    freqs, period = st.get_dominant_frequency(*st.calc_spectrum(df), n=5)
     freqs = freqs[:-1] # del mean
     period = period[:-1] # del mean
     x = np.linspace(0, 12*2*np.pi, 1000)
@@ -317,12 +317,14 @@ def pairplot(df: pd.DataFrame) -> None:
                  corner=False, plot_kws={"s":2, "alpha":0.2})
     plt.savefig(image_path+f"{pegelname}_pairplot.png", dpi=300, bbox_inches="tight")
     
-def plot_acf(df: pd.DataFrame, var: str = "normiert") -> None:
+def plot_acf(
+        lags: list[float],
+        ac: list[float],
+        lower_conf: list[float], 
+        upper_conf: list[float],
+        fn_extension: str
+        ) -> None:
     """Plots the autocorrelation function."""
-    
-    lags = np.arange(0,51,1)
-    ac = [df[var].autocorr(lag=i) for i in lags]
-    lower_conf, upper_conf = st.confidence_interval(df, lags)
     
     _, ax = plt.subplots(figsize=(10, 5))
     ax.plot(lags, ac, marker="o", markersize=3, color=tu_mediumblue, lw=1, zorder=1)
@@ -343,12 +345,7 @@ def plot_acf(df: pd.DataFrame, var: str = "normiert") -> None:
     ax.grid(which="minor", axis="y", color="grey", alpha=0.05)
     ax.set_xlabel("Lag")
     ax.set_ylabel("Autokorrelation")
-    if var == "normiert":
-        fn = image_path+f"{pegelname}_acf.png"
-    elif var == "Durchfluss_m3s":
-        fn = image_path+f"{pegelname}_acf_raw.png"
-    else:
-        raise ValueError("var must be 'normiert' or 'Durchfluss_m3s'")
+    fn = image_path+f"{pegelname}_acf_{fn_extension}.png"
     plt.savefig(fn, dpi=300, bbox_inches="tight")
     
 def plot_components(df: pd.DataFrame) -> None:
