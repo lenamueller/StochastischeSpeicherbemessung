@@ -150,7 +150,7 @@ def thomasfiering(raw_data: pd.DataFrame):
         f"data/{pegelname}_thomasfiering_timeseries.csv", index=False)
     gen_data.iloc[:].round(3).to_latex(
         f"data/{pegelname}_thomasfiering_timeseries.tex", index=False)
-    gen_data.iloc[:, :10].round(3).to_latex(
+    gen_data.iloc[:, :11].round(3).to_latex(
         f"data/{pegelname}_thomasfiering_timeseries_first10.tex", index=False)
 
     print("-> generierte Zeitreihen: data/{pegelname}_thomasfiering_timeseries.csv")

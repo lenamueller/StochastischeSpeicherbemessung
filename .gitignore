@@ -1,10 +1,13 @@
 env/*
 
+tests/__pycache__/*
 code/__pycache__/*
 code/utils/__pycache__/*
 code/utils/checks/__pycache__/*
 code/utils/components/__pycache__/*
-tests/__pycache__/*
+code/utils/dimensioning/__pycache__/*
+
+
 
 data/others/*
 data/*.tex

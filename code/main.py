@@ -19,15 +19,18 @@ from utils.components.irregular_comp import irregular_comp
 
 from utils.statistics import statistics
 from utils.thomasfiering import thomasfiering
-from utils.fsa import fsa
+
+from utils.dimensioning.fsa import fsa
+from utils.dimensioning.fit_capacity import fit_capacity
 
 
 # Agenda
-CHECK_DATA = True
-CALC_COMPONENTS = True
-CALC_STATS = True
-GEN_TIMESERIES = True
-CALC_CAPACITIES = True
+CHECK_DATA = False
+CALC_COMPONENTS = False
+CALC_STATS = False
+GEN_TIMESERIES = False
+CALC_CAPACITIES = False
+FIT_CAPACITIES = True
 
 # -----------------------------------------
 #               read data
@@ -77,6 +80,21 @@ if GEN_TIMESERIES:
 
 if CALC_CAPACITIES:
     fsa(raw_data=df, gen_data=gen_data)
+
+# -----------------------------------------
+#      fit distribution to capactities
+# -----------------------------------------
+
+if FIT_CAPACITIES:
+    fit_capacity()
+
+# -----------------------------------------
+#           calc. capacity (FSA)
+# -----------------------------------------
+
+# -----------------------------------------
+#           calc. capacity (FSA)
+# -----------------------------------------
 
 
 print("\n--------------------------------------")

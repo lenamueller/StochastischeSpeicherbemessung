@@ -593,4 +593,40 @@ def plot_fsa(
     plt.xlabel("Zeit [Monate]")
     plt.ylabel("Speicherinhalt [hm³]")
     plt.savefig(image_path+f"{pegelname}_fsa.png", dpi=300, bbox_inches="tight")
+
+def plot_capacity(
+        capacities_sort: list[float],
+        pu_emp: list[float],
+        pu_theo: list[float]
+        ):
+    """Pu plot of theoretical and empirical Pu."""
+    
+    plt.figure(figsize=(7,7))
+    plt.plot(capacities_sort, pu_emp, color=tu_red, label="Emp. $P_u$ [-]", 
+             marker="x", markersize=5, alpha=0.5)
+    plt.plot(capacities_sort, pu_theo, color=tu_mediumblue, alpha=0.5,
+             label="Theoretische $P_u$ der LogNV [-]")
+    
+    plt.xlabel("Maximalkapazität des Speichers [h³]")
+    plt.ylabel("$P_u$ [-]")
+    plt.yticks(np.arange(0,1.1,0.1))
+    plt.ylim([0, 1])
+    plt.grid(color="grey", alpha=0.3)
+    plt.legend(loc="lower right")
+    plt.savefig(image_path+f"{pegelname}_fit_lognv_pu.png", dpi=300, bbox_inches="tight")
+
+def qq_plot(emp: list[float], theo: list[float]):
+    """Quantile-Quantile plot of theoretical and empirical quantiles."""
+    
+    plt.figure(figsize=(7,7))
+    plt.plot(theo, emp, color=tu_red, marker="x", markersize=5)
+    plt.plot([0,30], [0, 30], color="k", alpha=0.4)
+    plt.xlabel("Theoretische Quantile [hm³]")
+    plt.ylabel("Empirische Quantile [hm³]")
+    plt.xticks(np.arange(0,30.5,2.5))
+    plt.yticks(np.arange(0,30.5,2.5))
+    plt.xlim([7.5, 25])
+    plt.ylim([7.5, 25])
+    plt.grid(color="grey", alpha=0.3)
+    plt.savefig(image_path+f"{pegelname}_fit_lognv_qq.png", dpi=300, bbox_inches="tight")
     

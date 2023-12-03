@@ -52,7 +52,7 @@ Duplikate: []
 	Homogenitätsprüfung
 
 
-Pettitt test: Pettitt_Test(h=True, cp=64, p=0.0466, U=8218.0, avg=mean(mu1=0.8495937499999999, mu2=1.2389086538461538)) 
+Pettitt test: Pettitt_Test(h=True, cp=64, p=0.0449, U=8218.0, avg=mean(mu1=0.8495937499999999, mu2=1.2389086538461538)) 
 Bruchpunkt: 03/1965
 
 --------------------------------------
@@ -103,7 +103,7 @@ Zeitreihengenerierung
 
 -> Modellparameter: data/Klingenthal_tomasfiering_parameters.csv
 -> generierte Zeitreihen: data/{pegelname}_thomasfiering_timeseries.csv
-Dauer der Generierung: 582.2 Sekunden
+Dauer der Generierung: 98.6 Sekunden
 
 --------------------------------------
 
@@ -115,20 +115,6 @@ Berechnung monatlicher Soll-Abgaben
 
 Berechnung Speicherkapazität
 
-[480 rows x 201 columns]
-    Zeitreihe  Kapazität
-0    original  22.896093
-1        G001  11.283350
-2        G002  11.814910
-3        G003  12.494966
-4        G004  11.604689
-..        ...        ...
-96       G096  11.800272
-97       G097  19.125215
-98       G098  10.963236
-99       G099  13.505187
-100      G100  11.944663
-
-[101 rows x 2 columns]
+-> data/Klingenthal_capacities.csv
 
 --------------------------------------

@@ -146,7 +146,7 @@ def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
     else: 
         return 0, 0, 0, 0, 0
 
-def fsa(raw_data: pd.DataFrame, gen_data: pd.DataFrame):
+def fsa(raw_data: pd.DataFrame, gen_data: pd.DataFrame) -> dict:
     
     print("\n--------------------------------------")
     print("\nBerechnung monatlicher Soll-Abgaben\n")
@@ -176,15 +176,10 @@ def fsa(raw_data: pd.DataFrame, gen_data: pd.DataFrame):
     # -----------------------------------------
     
     raw_data["Durchfluss_hm3"] = raw_data["Durchfluss_m3s"] * SEC_PER_MONTH/1000000
-    print(raw_data)
-    print(gen_data)
-    # gen_data = gen_data.transpose()
-    # print(gen_data)
     
     for i in range(N_TIMESERIES):
         gen_data[f"G{str(i+1).zfill(3)}_hm3"] = \
             gen_data[f"G{str(i+1).zfill(3)}_m3s"] * SEC_PER_MONTH/1000000
-    print(gen_data)
     
     # -----------------------------------------
     #               original data
@@ -233,6 +228,6 @@ def fsa(raw_data: pd.DataFrame, gen_data: pd.DataFrame):
     df_capacities["Kapazität"] = capacities.values()
 
     df_capacities.to_csv(f"data/{pegelname}_capacities.csv", index=False)
-    df_capacities.to_latex(f"data/{pegelname}_capacities.tex", index=False)
+    df_capacities.round(3).transpose().to_latex(f"data/{pegelname}_capacities.tex", index=False)
     
-    print(df_capacities)
+    print(f"-> data/{pegelname}_capacities.csv")
