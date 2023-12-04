@@ -55,6 +55,10 @@ def fit_capacity():
     # KS test
     print(kstest(pu_emp, pu_theo))
     
+    # rqq test
+    # calculate the pearson coreelation between q_emp and q_theo#
+    print(f"r_qq = {np.corrcoef(q_emp, q_theo)[0][1]}")
+    
     
     
     

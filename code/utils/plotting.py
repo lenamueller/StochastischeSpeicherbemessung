@@ -626,9 +626,13 @@ def plot_capacity(
 def qq_plot(emp: list[float], theo: list[float]):
     """Quantile-Quantile plot of theoretical and empirical quantiles."""
     
+    r_qq = np.corrcoef(emp, theo)[0][1]
+    
     plt.figure(figsize=(5,5))
     plt.plot(theo, emp, color=tu_red, marker="x", markersize=5)
     plt.plot([0,30], [0, 30], color="k", alpha=0.4)
+    plt.text(8, 24, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
+             va="center", fontsize=10, color=tu_red)
     plt.xlabel("Theoretische Quantile [hm³]")
     plt.ylabel("Empirische Quantile [hm³]")
     plt.xticks(np.arange(0,30.5,2.5))
