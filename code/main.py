@@ -28,8 +28,6 @@ from utils.dimensioning.fit_capacity import fit_capacity
 CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
-GEN_TIMESERIES = False
-CALC_CAPACITIES = False
 FIT_CAPACITIES = True
 
 # -----------------------------------------
@@ -70,6 +68,7 @@ if CALC_STATS:
 #   generate time series (Thomas Fiering)
 # -----------------------------------------
 
+GEN_TIMESERIES = False      # ! Don't generate new data
 if GEN_TIMESERIES:
     gen_data = thomasfiering(df)
     
@@ -78,6 +77,7 @@ if GEN_TIMESERIES:
 #           calc. capacity (FSA)
 # -----------------------------------------
 
+CALC_CAPACITIES = False     # ! Don't generate new data
 if CALC_CAPACITIES:
     fsa(raw_data=df, gen_data=gen_data)
 
