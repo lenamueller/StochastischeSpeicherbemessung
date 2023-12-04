@@ -43,8 +43,12 @@ def fit_capacity():
     pd.DataFrame(data={"Quantile":q, "theoQuantile":q_theo_fixed}).round(3).to_latex(
         f"data/{pegelname}_quantile_fixed.tex", index=False)
     
+    # 90 % quantile
+    cap_90 = lognorm.ppf(0.9, shape, loc=loc, scale=scale)
+    print(f"90 % Quantile: {cap_90}")
     
-    plot_capacity(capacities_sort=cap_sort, pu_emp=pu_emp, pu_theo=pu_theo)
+    plot_capacity(capacities_sort=cap_sort, pu_emp=pu_emp, pu_theo=pu_theo, 
+                  cap_90=cap_90)
     qq_plot(emp=q_emp, theo=q_theo)
     
     # KS test

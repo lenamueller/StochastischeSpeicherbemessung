@@ -597,7 +597,8 @@ def plot_fsa(
 def plot_capacity(
         capacities_sort: list[float],
         pu_emp: list[float],
-        pu_theo: list[float]
+        pu_theo: list[float],
+        cap_90: float
         ):
     """Pu plot of theoretical and empirical Pu."""
     
@@ -607,10 +608,17 @@ def plot_capacity(
     plt.plot(capacities_sort, pu_theo, color=tu_mediumblue, alpha=0.5,
              label="Theoretische $P_u$ der LogNV [-]")
     
+    plt.plot([cap_90, cap_90], [0, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
+    plt.plot([0, cap_90], [0.9, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
+    plt.text(cap_90+0.1, 0.4, f"K = {round(cap_90, 2)} hm³", ha="left", 
+             va="center", fontsize=10, color=tu_mediumblue, rotation=270)
+    plt.text(12, 0.91, f"$P_u$ = 0.9", fontsize=10, color=tu_mediumblue)
+    
     plt.xlabel("Maximalkapazität des Speichers [h³]")
     plt.ylabel("$P_u$ [-]")
     plt.yticks(np.arange(0,1.1,0.1))
     plt.ylim([0, 1])
+    plt.xlim([10,25])
     plt.grid(color="grey", alpha=0.3)
     plt.legend(loc="lower right")
     plt.savefig(image_path+f"{pegelname}_fit_lognv_pu.png", dpi=300, bbox_inches="tight")
