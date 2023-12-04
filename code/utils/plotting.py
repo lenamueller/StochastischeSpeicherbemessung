@@ -617,7 +617,7 @@ def plot_capacity(
     plt.ylabel("$P_u$ [-]")
     plt.yticks(np.arange(0,1.1,0.1))
     plt.ylim([0, 1])
-    plt.xlim([10,25])
+    plt.xlim([10,30])
     plt.grid(color="grey", alpha=0.3)
     plt.legend(loc="lower right")
     plt.savefig(image_path+f"{pegelname}_fit_lognv_pu.png", dpi=300, bbox_inches="tight")
