@@ -16,6 +16,7 @@ def fit_capacity():
     
     # read capacities
     cap = pd.read_csv(f"data/{pegelname}_capacities_100.csv")
+    cap = cap[cap["Zeitreihe"] != "original"]
     cap_sort = sorted(cap["Kapazität"])
     
     pu_emp = pu_weibull(n=len(cap))
