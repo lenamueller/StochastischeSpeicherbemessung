@@ -609,15 +609,15 @@ def plot_capacity(
     
     plt.plot([cap_90, cap_90], [0, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
     plt.plot([0, cap_90], [0.9, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
-    plt.text(cap_90+0.1, 0.4, f"K = {round(cap_90, 2)} hm³", ha="left", 
+    plt.text(cap_90+0.1, 0.5, f"K = {round(cap_90, 2)} hm³", ha="left", 
              va="center", fontsize=10, color=tu_mediumblue, rotation=270)
-    plt.text(12, 0.91, f"$P_u$ = 0.9", fontsize=10, color=tu_mediumblue)
+    plt.text(15, 0.91, f"$P_u$ = 0.9", fontsize=10, color=tu_mediumblue)
     
     plt.xlabel("Maximalkapazität des Speichers [h³]")
     plt.ylabel("$P_u$ [-]")
     plt.yticks(np.arange(0,1.1,0.1))
     plt.ylim([0, 1])
-    plt.xlim([10,30])
+    plt.xlim([10,40])
     plt.grid(color="grey", alpha=0.3)
     plt.legend(loc="lower right")
     plt.savefig(image_path+f"{pegelname}_fit_lognv_pu.png", dpi=300, bbox_inches="tight")
@@ -629,15 +629,15 @@ def qq_plot(emp: list[float], theo: list[float]):
     
     plt.figure(figsize=(5,5))
     plt.plot(theo, emp, color=tu_red, marker="x", markersize=5)
-    plt.plot([0,30], [0, 30], color="k", alpha=0.4)
-    plt.text(8, 24, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
+    plt.plot([0,40], [0, 40], color="k", alpha=0.4)
+    plt.text(10.5, 38.5, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
              va="center", fontsize=10, color=tu_red)
     plt.xlabel("Theoretische Quantile [hm³]")
     plt.ylabel("Empirische Quantile [hm³]")
-    plt.xticks(np.arange(0,30.5,2.5))
-    plt.yticks(np.arange(0,30.5,2.5))
-    plt.xlim([7.5, 25])
-    plt.ylim([7.5, 25])
+    plt.xticks(np.arange(0,40.5,2.5))
+    plt.yticks(np.arange(0,40.5,2.5))
+    plt.xlim([10, 40])
+    plt.ylim([10, 40])
     plt.grid(color="grey", alpha=0.3)
     plt.savefig(image_path+f"{pegelname}_fit_lognv_qq.png", dpi=300, bbox_inches="tight")
     

@@ -28,8 +28,8 @@ from utils.dimensioning.fit_capacity import fit_capacity
 CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
-GEN_TIMESERIES = True
-CALC_CAPACITIES = True
+GEN_TIMESERIES = False
+CALC_CAPACITIES = False
 FIT_CAPACITIES = True
 
 # -----------------------------------------

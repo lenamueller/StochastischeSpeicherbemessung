@@ -15,7 +15,7 @@ def fit_capacity():
     print("\nKapazität für 90 % Zuverlässigkeit\n")
     
     # read capacities
-    cap = pd.read_csv(f"data/{pegelname}_capacities_100.csv")
+    cap = pd.read_csv(f"data/{pegelname}_capacities_100.csv") # always use sample size 100
     cap = cap[cap["Zeitreihe"] != "original"]
     cap_sort = sorted(cap["Kapazität"])
     
