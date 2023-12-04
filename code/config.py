@@ -57,7 +57,7 @@ tu_red = (181/255, 28/255, 28/255)
 # --------------------------------------
 
 T = 12                  # max i index
-N_TIMESERIES = 100       # Anzahl generierte Zeitreihen
+N_TIMESERIES = 10       # Anzahl generierte Zeitreihen
 N_YEARS = 40            # Anzahl Jahre pro generierte Zeitreihe
 
 # --------------------------------------

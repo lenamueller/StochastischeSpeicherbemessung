@@ -93,30 +93,24 @@ def gen_timeseries(df: pd.DataFrame, n_years: int = 1) -> float:
             sp_before = parameter_sp(df, index_month_before(i))
             rp_before = parameter_rp(df, index_month_before(i))
             
-            # New value of time series initialized with a value that is
-            # smaller than 0.1
-            x_new = -1
-            while x_new <= 0.1:
-                # Random value from normal distribution with mean 0 and std 1
-                ti = np.random.normal(loc=0, scale=1, size=1)[0]
-                # Unbiased sample skewness
-                csi = skew(_monthly_vals(df, i), bias=False)
-                cti = (csi - rp_before**3*csi - 1) / ((1 - rp**2))**(3/2)
-                # Random value from gamma distribution
-                tg = 2/cti * (1 + (cti*ti)/6 - (cti**2)/36)**3 - 2/cti
-
-                # Thomas-Fiering model equation
-                term1 = xp
-                term2 = (rp * sp/sp_before) * (value_month_before - xp_before)
-                term3 = tg*sp*np.sqrt(1-rp**2)
-                
-                # New value for month i
-                x_new = term1 + term2 + term3
+            # Random value from normal distribution with mean 0 and std 1
+            ti = np.random.normal(loc=0, scale=1, size=1)[0]
             
-            if x_new <= 0:
-                raise ValueError("Negative value generated!")
-            else:
-                new_time_series.append(x_new)
+            # Unbiased sample skewness
+            csi = skew(_monthly_vals(df, i), bias=False)
+            cti = (csi - csi*(rp_before**3) - 1) / (((1 - rp**2))**(3/2))
+            
+            # Random value from gamma distribution
+            tg = 2/cti * (1 + (cti*ti)/6 - (cti**2)/36)**3 - 2/cti
+
+            # Thomas-Fiering model equation
+            term1 = xp
+            term2 = (rp * sp/sp_before) * (value_month_before - xp_before)
+            term3 = tg*sp*np.sqrt(1-rp**2)
+            
+            # New value for month i
+            x_new = term1 + term2 + term3
+            new_time_series.append(x_new)
 
     return new_time_series
 

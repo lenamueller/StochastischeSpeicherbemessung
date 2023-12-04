@@ -496,26 +496,25 @@ def plot_thomasfierung_eval(raw_data: pd.DataFrame, gen_data: pd.DataFrame):
             axs[row_i, col_i].set_xlabel("Durchfluss [m³/s]")
             axs[row_i, col_i].set_ylabel("Absolute Häufigkeit [-]")
 
-    plt.savefig(image_path+f"{pegelname}_thomasfiering_eval.png", dpi=300, bbox_inches="tight")                    
+    plt.savefig(image_path+f"{pegelname}_thomasfiering_eval_gammaverteilt.png", dpi=300, bbox_inches="tight")                    
 
 def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
     """Plot monthly discharge values."""
     
-    plt.figure(figsize=(15, 5))
-
-    # original time series    
-    plt.scatter(np.arange(1,13), df_dis.iloc[0].to_numpy(), 
-                marker="x", color=tu_mediumblue, alpha=0.5, label="original")
-
-    # generated time series
-    plt.boxplot(df_dis, patch_artist=True,
-                boxprops=dict(facecolor=tu_red, color=tu_red, alpha=0.3),
-                capprops=dict(color=tu_red, alpha=0.6),
-                whiskerprops=dict(color=tu_red, alpha=0.6),
-                flierprops=dict(color=tu_red, alpha=0.6, markeredgecolor=tu_red),
-                medianprops=dict(color=tu_red, alpha=1)
-                )
-    plt.legend()
+    plt.figure(figsize=(12, 5))
+    for i in range(len(df_dis)):
+        if i == 0:
+            # original time series    
+            plt.plot(np.arange(1,13), df_dis.iloc[i].to_numpy(), color=tu_mediumblue, 
+                 alpha=0.7, linewidth=0.8)
+        else:
+            # generated time series
+            plt.scatter(np.arange(1,13), df_dis.iloc[i].to_numpy(), color=tu_red, 
+                 alpha=0.5, marker="x")
+    
+    plt.plot([], [], color=tu_mediumblue, label="original")
+    plt.scatter([], [], marker="x", color=tu_red, label="generiert")
+    plt.legend(loc="upper left", ncols=3)
     plt.grid(color="grey", alpha=0.3)
     plt.xticks(np.arange(1, 13), MONTH_ABB)
     plt.xlabel("Monat")
