@@ -103,6 +103,9 @@ if SIMULATION:
     # Variation: leere Anfangsfüllung
     run_simulation(var="original", cap=cap90, initial_storage=0)
     
+    # Variation: volle Anfangsfüllung
+    run_simulation(var="original", cap=cap90, initial_storage=cap90)
+    
     # Variation: Kapazität der hist. Zeitreihe
     cap_hist = 22.896
     run_simulation(var="original", cap=cap_hist, initial_storage=0.5*cap_hist)
