@@ -622,8 +622,8 @@ def plot_capacity(
     
     plt.plot([cap_90, cap_90], [0, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
     plt.plot([0, cap_90], [0.9, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
-    plt.text(cap_90+0.1, 0.5, f"K = {round(cap_90, 2)} hm³", ha="left", 
-             va="center", fontsize=10, color=tu_mediumblue, rotation=270)
+    plt.text(cap_90+0.1, 0.5, f"K = {round(cap_90, 3)} hm³", ha="left", 
+             va="center", fontsize=12, color=tu_mediumblue, rotation=270)
     plt.text(15, 0.91, f"$P_u$ = 0.9", fontsize=10, color=tu_mediumblue)
     
     plt.xlabel("Maximalkapazität des Speichers [h³]")
