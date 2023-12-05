@@ -628,16 +628,16 @@ def qq_plot(emp: list[float], theo: list[float]):
     r_qq = np.corrcoef(emp, theo)[0][1]
     
     plt.figure(figsize=(5,5))
-    plt.plot(theo, emp, color=tu_red, marker="x", markersize=5)
+    plt.scatter(theo, emp, color=tu_red, marker="x", s=5)
     plt.plot([0,40], [0, 40], color="k", alpha=0.4)
-    plt.text(10.5, 38.5, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
+    plt.text(5.5, 38.5, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
              va="center", fontsize=10, color=tu_red)
     plt.xlabel("Theoretische Quantile [hm³]")
     plt.ylabel("Empirische Quantile [hm³]")
     plt.xticks(np.arange(0,45,5))
     plt.yticks(np.arange(0,45,5))
-    plt.xlim([10, 40])
-    plt.ylim([10, 40])
+    plt.xlim([5, 40])
+    plt.ylim([5, 40])
     plt.grid(color="grey", alpha=0.3)
     plt.savefig(image_path+f"{pegelname}_fit_lognv_qq.png", dpi=300, bbox_inches="tight")
     
