@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
 
-from utils.plotting import plot_monthly_discharge, plot_fsa, \
-    plot_storage
+from utils.plotting import plot_monthly_discharge, plot_fsa
 from config import pegelname, ALPHA, ABGABEN, SEC_PER_MONTH, \
     N_TIMESERIES, MONTH_HYD_YEAR_TXT
+
+from utils.data_structures import read_data, read_gen_data
 
 
 def monthly_discharge(arr: np.ndarray) -> dict:
@@ -36,7 +37,7 @@ def monthly_discharge(arr: np.ndarray) -> dict:
         10:     mean_discharge * ABGABEN[10]/100 * ALPHA
     }
 
-def storage_sim(
+def calc_storage_simulation(
         q_in: np.ndarray, 
         q_out: np.ndarray, 
         initial_storage: float = 0,
@@ -146,7 +147,8 @@ def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
     else: 
         return 0, 0, 0, 0, 0
 
-def fsa(raw_data: pd.DataFrame, gen_data: pd.DataFrame) -> dict:
+
+def fsa() -> dict:
     
     print("\n--------------------------------------")
     print("\nBerechnung monatlicher Soll-Abgaben\n")
@@ -172,7 +174,14 @@ def fsa(raw_data: pd.DataFrame, gen_data: pd.DataFrame) -> dict:
     capacities = {}
     
     # -----------------------------------------
-    #   convert inflow from m³/s to hm³
+    # read data
+    # -----------------------------------------
+    
+    raw_data = read_data("data/Klingenthal_raw.txt")
+    gen_data = read_gen_data()
+    
+    # -----------------------------------------
+    # convert inflow from m³/s to hm³
     # -----------------------------------------
     
     raw_data["Durchfluss_hm3"] = raw_data["Durchfluss_m3s"] * SEC_PER_MONTH/1000000
@@ -182,47 +191,43 @@ def fsa(raw_data: pd.DataFrame, gen_data: pd.DataFrame) -> dict:
             gen_data[f"G{str(i+1).zfill(3)}_m3s"] * SEC_PER_MONTH/1000000
     
     # -----------------------------------------
-    #               original data
+    # capacity for original data
     # -----------------------------------------
     
     q_in = raw_data["Durchfluss_hm3"].to_numpy()
     q_out = np.tile(monthly_dis.loc["original", :].to_numpy(), 40)
     
-    storage, _, _, _ = storage_sim(q_in, q_out, initial_storage=0, max_cap=np.inf)
+    storage, _, _, _ = calc_storage_simulation(q_in, q_out, initial_storage=0, max_cap=np.inf)
     
     cap, cap_min_index, cap_min, _, cap_max = calc_capacity(storage)
     capacities["original"] = cap
     
-    # Plot FSA for original data
+    # -----------------------------------------
+    # plot FSA for original data
+    # -----------------------------------------
+    
     max_vals, max_indices = calc_maxima(storage=storage)
     min_vals, min_indices = calc_minima(storage=storage, max_indices=max_indices)
     plot_fsa(storage, max_vals=max_vals, max_indices=max_indices, 
              min_vals=min_vals, min_indices=min_indices, cap=cap, 
              cap_min_index=cap_min_index, cap_min=cap_min, cap_max=cap_max)
-
-    # Plot storage simulation for unlimited reservoir
-    storage, deficit, overflow, q_out_real = storage_sim(
-        q_in, q_out, initial_storage=0, max_cap=np.inf)
-    plot_storage(q_in, q_out, q_out_real, storage, deficit, overflow, 
-                fn_ending="unlimited")
-
-    # Plot storage simulation for limited reservoir
-    storage, deficit, overflow, q_out_real = storage_sim(
-        q_in, q_out, initial_storage=0, max_cap=cap)
-    plot_storage(q_in, q_out, q_out_real, storage, deficit, overflow, 
-                fn_ending=str(round(cap, 3)))
     
     # -----------------------------------------
-    #            generated data
+    # capacities for generated data
     # -----------------------------------------
     
     for i in range(N_TIMESERIES):
         q_in = gen_data[f"G{str(i+1).zfill(3)}_hm3"]
         q_out = np.tile(monthly_dis.loc[f"G{str(i+1).zfill(3)}", :].to_numpy(), 40)
-        storage, _, _, _ = storage_sim(q_in, q_out, initial_storage=0, max_cap=np.inf)
+        
+        storage, _, _, _ = calc_storage_simulation(q_in, q_out, initial_storage=0, max_cap=np.inf)
         cap, _, _, _, _ = calc_capacity(storage)
         capacities[f"G{str(i+1).zfill(3)}"] = cap
 
+    # -----------------------------------------
+    # save capacities
+    # -----------------------------------------
+    
     df_capacities = pd.DataFrame()
     df_capacities["Zeitreihe"] = capacities.keys()
     df_capacities["Kapazität"] = capacities.values()

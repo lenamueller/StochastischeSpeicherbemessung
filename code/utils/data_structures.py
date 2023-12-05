@@ -20,7 +20,7 @@ def read_data(filepath: str) -> pd.DataFrame:
 
 def read_gen_data() -> pd.DataFrame:
     """Read generated data from file."""
-    data = pd.read_csv("data/Klingenthal_thomasfiering_timeseries.csv",
+    data = pd.read_csv("data/Klingenthal_thomasfiering_timeseries_100.csv",
                        index_col=0)
     return data
 

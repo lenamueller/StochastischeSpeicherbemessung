@@ -1,9 +1,10 @@
+import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 
 from config import pegelname, image_path
 
-from utils.data_structures import read_data, check_path
+from utils.data_structures import read_data, read_gen_data, check_path
 check_path(image_path)
 
 from utils.plotting import plot_raw
@@ -22,13 +23,15 @@ from utils.thomasfiering import thomasfiering
 
 from utils.dimensioning.fsa import fsa
 from utils.dimensioning.fit_capacity import fit_capacity
+from utils.dimensioning.simulation import run_simulation
 
 
 # Agenda
 CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
-FIT_CAPACITIES = True
+FIT_CAPACITIES = False
+SIMULATION = True
 
 # -----------------------------------------
 #               read data
@@ -70,8 +73,7 @@ if CALC_STATS:
 
 GEN_TIMESERIES = False      # ! Don't generate new data
 if GEN_TIMESERIES:
-    gen_data = thomasfiering(df)
-    
+    thomasfiering(df)
 
 # -----------------------------------------
 #           calc. capacity (FSA)
@@ -79,7 +81,7 @@ if GEN_TIMESERIES:
 
 CALC_CAPACITIES = False     # ! Don't generate new data
 if CALC_CAPACITIES:
-    fsa(raw_data=df, gen_data=gen_data)
+    fsa()
 
 # -----------------------------------------
 #      fit distribution to capactities
@@ -92,5 +94,25 @@ if FIT_CAPACITIES:
 #            simulate storage 
 # -----------------------------------------
 
+if SIMULATION:
+    cap_hist = 22.896
+    cap90 = 26.006
+    cap95 = 28.718
+    cap_large = 100.000
+    
+    # Kapazität und Anfangsfüllung gem. Aufgabenstellung
+    run_simulation(var="original", cap=cap90, initial_storage=0.5*cap90)
+    
+    # Variation: leere Anfangsfüllung
+    run_simulation(var="original", cap=cap90, initial_storage=0)
+    
+    # Variation: 95%-Kapazität, sehr große Kapazität, unbegrenzte Kapazität
+    run_simulation(var="original", cap=cap_hist, initial_storage=0)
+    run_simulation(var="original", cap=np.inf, initial_storage=0)
+    run_simulation(var="original", cap=cap95, initial_storage=0)
+    run_simulation(var="original", cap=cap_large, initial_storage=0)
+    
+    # generated data
+    run_simulation(var="G001", cap=cap90, initial_storage=0.5*cap_hist)
 
 print("\n--------------------------------------")

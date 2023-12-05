@@ -521,22 +521,30 @@ def plot_monthly_discharge(df_dis: pd.DataFrame) -> None:
     plt.ylabel("Durchfluss [hm³]")
     plt.savefig(image_path+f"{pegelname}_monthly_discharge.png", dpi=300, bbox_inches="tight")
 
-def plot_storage(
+def plot_storage_simulation(
         q_in: np.ndarray,
         q_out: np.ndarray,
         q_out_real: np.ndarray,
         storage: np.ndarray, 
         deficit: np.ndarray,
         overflow: np.ndarray,
-        fn_ending: str
-        ):
+        var: str, 
+        cap: float,
+        initial_storage: float
+        ) -> None:
+    """Plot storage simulation with inflow, outflow, storage volume and deficit/overflow."""
+    
+    # Number of month with deficit and overflow
+    n_deficit = len([i for i in deficit if i < 0])
+    n_overflow = len([i for i in overflow if i > 0])
     
     _, ax = plt.subplots(nrows=6, ncols=1, figsize=(10, 11), sharex=False)
+    plt.suptitle(f"Speichersimulation [Zeitreihe: {var}]")
+    titles = ["A. Zufluss", "B. Sollabgabe", "C. Istabgabe", "D. Zufluss-Sollabgabe", 
+              f"E. Speicherinhalt [Anfangsfüllung = {initial_storage} hm³, Maximale Kapazität = {cap} hm³]", 
+              f"F. Defizit ({n_deficit} Monate)/ Überlauf ({n_overflow} Monate)"]
     
     x = np.arange(len(q_in))
-    titles = ["A. Zufluss", "B. Sollabgabe", "C. Istabgabe", "D. Zufluss-Abgabe", 
-              "E. Speicherinhalt", "F. Defizit/ Überlauf"]
-    
     ax[0].plot(x, q_in, c=tu_mediumblue)
     ax[1].plot(x, q_out, c=tu_grey)
     ax[2].plot(x, q_out_real, c=tu_grey)
@@ -553,9 +561,13 @@ def plot_storage(
         ax[i].set_title(titles[i], loc="left", color="grey", fontsize=10, fontweight="bold")
         ax[i].set_xlabel("Zeit [Monate]")    
         ax[i].grid()
-    
+
+    for i in [1,2]:
+        ax[i].set_ylim([0, max(np.max(q_out), max(q_out_real))+1])
+
     plt.tight_layout()
-    plt.savefig(image_path+f"{pegelname}_storage_{fn_ending}.png", dpi=300, bbox_inches="tight")
+    plt.savefig(image_path+f"{pegelname}_storagesim_{var}_{str(round(initial_storage, 3))}_{str(round(cap, 3))}.png", 
+                dpi=300, bbox_inches="tight")
 
 def plot_fsa(
         storage: np.ndarray,
@@ -567,7 +579,8 @@ def plot_fsa(
         cap_min_index: float, 
         cap_min: float,
         cap_max: float
-        ):
+        ) -> None:
+    """Plot FSA algortihm."""
     
     plt.figure(figsize=(15,8))
     plt.title(f"Maximalkapazität des Speichers: {round(cap, 3)} hm³",
@@ -598,7 +611,7 @@ def plot_capacity(
         pu_emp: list[float],
         pu_theo: list[float],
         cap_90: float
-        ):
+        ) -> None:
     """Pu plot of theoretical and empirical Pu."""
     
     plt.figure(figsize=(5,5))
@@ -622,7 +635,7 @@ def plot_capacity(
     plt.legend(loc="lower right")
     plt.savefig(image_path+f"{pegelname}_fit_lognv_pu.png", dpi=300, bbox_inches="tight")
 
-def qq_plot(emp: list[float], theo: list[float]):
+def qq_plot(emp: list[float], theo: list[float]) -> None:
     """Quantile-Quantile plot of theoretical and empirical quantiles."""
     
     r_qq = np.corrcoef(emp, theo)[0][1]
