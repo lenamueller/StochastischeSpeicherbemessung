@@ -36,11 +36,11 @@ def fit_capacity():
     print(f"Std: {lognorm.std(shape, loc, scale)}")
     pu_theo = lognorm.cdf(x=cap_sort, s=shape, loc=loc, scale=scale)
 
-    pd.DataFrame(data={"Rangzahl [-]": rangzahlen, "empirische Pu [-]": pu_emp, "theoretische Pu  [-]": pu_theo}).round(3).to_csv(
+    pd.DataFrame(data={"Rangzahl [-]": rangzahlen, "Kapazität [hm³]": cap_sort, "empirische Pu [-]": pu_emp, "theoretische Pu  [-]": pu_theo}).round(3).to_csv(
         f"data/{pegelname}_pu.csv", index=False)
-    pd.DataFrame(data={"Rangzahl [-]": rangzahlen, "empirische Pu [-]": pu_emp, "theoretische Pu [-]": pu_theo}).round(3).to_latex(
+    pd.DataFrame(data={"Rangzahl [-]": rangzahlen, "Kapazität [hm³]": cap_sort, "empirische Pu [-]": pu_emp, "theoretische Pu [-]": pu_theo}).round(3).to_latex(
         f"data/{pegelname}_pu.tex", index=False, float_format="%.3f")
-    
+        
     # -----------------------------------------
     # emp. and theo. quantiles
     # -----------------------------------------

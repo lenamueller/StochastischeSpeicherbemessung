@@ -31,9 +31,9 @@ from utils.dimensioning.speicherausbaugrad import speicherausbaugrad
 CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
-FIT_CAPACITIES = False
-SIMULATION = True
-CALC_BETA = True
+FIT_CAPACITIES = True
+SIMULATION = False
+CALC_BETA = False
 
 # -----------------------------------------
 #               read data
