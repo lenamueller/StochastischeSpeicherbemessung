@@ -30,8 +30,8 @@ from utils.dimensioning.simulation import run_simulation
 CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
-FIT_CAPACITIES = True
-SIMULATION = False
+FIT_CAPACITIES = False
+SIMULATION = True
 
 # -----------------------------------------
 #               read data
@@ -95,25 +95,36 @@ if FIT_CAPACITIES:
 # -----------------------------------------
 
 if SIMULATION:
-    cap_hist = 22.896
-    cap90 = 26.006
-    cap95 = 28.718
-    cap_large = 100.000
-    
-    cap_min_gen = 11.923
-    cap_max_gen = 37.386
-    
+
     # Kapazität und Anfangsfüllung gem. Aufgabenstellung
+    cap90 = 26.006
     run_simulation(var="original", cap=cap90, initial_storage=0.5*cap90)
     
     # Variation: leere Anfangsfüllung
     run_simulation(var="original", cap=cap90, initial_storage=0)
     
-    # Variation: 95%-Kapazität, sehr große Kapazität, unbegrenzte Kapazität
+    # Variation: Kapazität der hist. Zeitreihe
+    cap_hist = 22.896
     run_simulation(var="original", cap=cap_hist, initial_storage=0.5*cap_hist)
+    
+    # Variation: 95%-Kapazität
+    cap95 = 28.718
     run_simulation(var="original", cap=cap95, initial_storage=0.5*cap95)
-    run_simulation(var="original", cap=cap_large, initial_storage=0.5*cap_large)
+    
+    # Variation: sehr große Kapazität
+    run_simulation(var="original", cap=100.000, initial_storage=0.5*100.00)
+    
+    # Variation: geringste Kapazität der generierten Zeitreihen
+    cap_min_gen = 11.923
+    run_simulation(var="original", cap=cap_min_gen, initial_storage=0.5*cap_min_gen)
+    
+    # Variation: größte Kapazität der generierten Zeitreihen
+    cap_max_gen = 37.386
+    run_simulation(var="original", cap=cap_max_gen, initial_storage=0.5*cap_max_gen)
+    
+    # Variation: unbegrenzte Kapazität
     run_simulation(var="original", cap=np.inf, initial_storage=0)
+    
     
     # generated data
     run_simulation(var="G001", cap=cap90, initial_storage=0.5*cap_hist)
