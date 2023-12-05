@@ -6,7 +6,8 @@ import seaborn as sns
 from scipy.stats import lognorm, gamma
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
-    tu_darkblue, var_remapper, N_TIMESERIES, MONTH_ABB
+    tu_darkblue, var_remapper, N_TIMESERIES, MONTH_ABB, MONTH_HYD_YEAR_TXT, \
+    MONTH_HYD_YEAR
 import utils.statistics as st
 from utils.data_structures import _monthly_vals
 
@@ -676,3 +677,62 @@ def plot_capacities_hist(capacities: list[float], hist_cap: float):
     plt.grid(color="grey", alpha=0.3)
     plt.xlim([10,40])
     plt.savefig("images/Klingenthal_capacities_100.png", dpi=300, bbox_inches="tight")
+
+def plot_deficit_overflow(
+        deficit: np.ndarray, 
+        overflow: np.ndarray,
+        months: np.ndarray, 
+        var: np.ndarray,
+        cap: np.ndarray,
+        initial_storage: np.ndarray) -> None:
+    
+    # ------------------------------------
+    # Bin months with deficit and overflow
+    # ------------------------------------
+    
+    deficit_months = {
+        11:0, 12:0, 1:0, 2:0, 3:0, 4:0, 
+        5:0,6:0, 7:0, 8:0, 9:0, 10:0
+    }
+    overflow_months = {
+        11:0, 12:0, 1:0, 2:0, 3:0, 4:0, 
+        5:0,6:0, 7:0, 8:0, 9:0, 10:0
+    }
+    
+    
+    for i in range(len(deficit)):
+        mo = int(months[i][:2])
+        
+        if deficit[i] < 0:
+            deficit_months[mo] += 1
+        if overflow[i] > 0:
+            overflow_months[mo] += 1
+    
+    # ------------------------------------
+    # Plot as hist
+    # ------------------------------------
+    
+    _, axs = plt.subplots(1, 2, figsize=(9, 4))
+
+    axs[0].set_title("Defizit", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[1].set_title("Überlauf", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[0].barh(MONTH_HYD_YEAR, deficit_months.values(), color=tu_red, alpha=0.5)
+    axs[1].barh(MONTH_HYD_YEAR, overflow_months.values(), color=tu_red, alpha=0.5)
+    for m in MONTH_HYD_YEAR:
+        axs[0].text(deficit_months[m]+0.5, m, f"{deficit_months[m]}", ha="left",
+                    va="center", fontsize=10, color=tu_red)
+        axs[1].text(overflow_months[m]+0.5, m, f"{overflow_months[m]}", ha="left",
+                    va="center", fontsize=10, color=tu_red)
+    
+    axs[1].set_xlim([0, max(overflow_months.values())+5])
+    axs[0].set_xlim([0, max(deficit_months.values())+5])
+
+    for i in [0, 1]:
+        axs[i].set_xlabel("Anzahl Monate [-]")
+        axs[i].set_yticks(MONTH_HYD_YEAR)
+        axs[i].set_yticklabels(MONTH_HYD_YEAR_TXT)
+        
+    plt.savefig(f"{image_path}/{pegelname}_deficit_overflow_{var}_{str(round(initial_storage, 3))}_{str(round(cap, 3))}.png", 
+                dpi=300, bbox_inches="tight")
+    
+        

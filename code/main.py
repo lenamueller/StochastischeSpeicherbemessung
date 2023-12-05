@@ -100,7 +100,6 @@ if SIMULATION:
     cap90 = 26.006
     run_simulation(var="original", cap=cap90, initial_storage=0.5*cap90)
 
-    """
     # Variation: leere Anfangsfüllung
     run_simulation(var="original", cap=cap90, initial_storage=0)
     
@@ -128,7 +127,6 @@ if SIMULATION:
     
     # Variation: unbegrenzte Kapazität
     run_simulation(var="original", cap=np.inf, initial_storage=0)
-    """
     
     # generated data
     run_simulation(var="G002", cap=cap90, initial_storage=0.5*cap90)

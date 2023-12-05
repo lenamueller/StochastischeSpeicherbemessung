@@ -3,7 +3,7 @@ import numpy as np
 
 from utils.data_structures import read_gen_data, read_data
 from utils.dimensioning.fsa import calc_storage_simulation
-from utils.plotting import plot_storage_simulation
+from utils.plotting import plot_storage_simulation, plot_deficit_overflow
 
 from config import pegelname, SEC_PER_MONTH
 
@@ -59,6 +59,9 @@ def run_simulation(
     plot_storage_simulation(q_in, q_out, q_out_real, storage, deficit, overflow, 
                 var=var, cap=cap, initial_storage=initial_storage, 
                 xticklabels=months)
+    
+    plot_deficit_overflow(deficit, overflow, months=months,
+                          var=var, cap=cap, initial_storage=initial_storage)
 
     # -----------------------------------------
     # save data
