@@ -4,7 +4,7 @@ warnings.filterwarnings("ignore")
 
 from config import pegelname, image_path
 
-from utils.data_structures import read_data, read_gen_data, check_path
+from utils.data_structures import read_data, check_path
 check_path(image_path)
 
 from utils.plotting import plot_raw
@@ -24,6 +24,7 @@ from utils.thomasfiering import thomasfiering
 from utils.dimensioning.fsa import fsa
 from utils.dimensioning.fit_capacity import fit_capacity
 from utils.dimensioning.simulation import run_simulation
+from utils.dimensioning.speicherausbaugrad import speicherausbaugrad
 
 
 # Agenda
@@ -31,7 +32,8 @@ CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
 FIT_CAPACITIES = False
-SIMULATION = True
+SIMULATION = False
+CALC_BETA = True
 
 # -----------------------------------------
 #               read data
@@ -130,5 +132,13 @@ if SIMULATION:
     
     # generated data
     run_simulation(var="G002", cap=cap90, initial_storage=0.5*cap90)
+
+# -----------------------------------------
+#           Speicherausbaugrad
+# -----------------------------------------
+
+if CALC_BETA:
+    mq_hm3 = 1.188 * 60*60*24*365/1000000
+    speicherausbaugrad(var="original", mq=mq_hm3)
 
 print("\n--------------------------------------")
