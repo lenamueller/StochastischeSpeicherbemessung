@@ -34,12 +34,15 @@ def run_simulation(
     
     if var == "original":
         raw_data = read_data("data/Klingenthal_raw.txt")
+        months = raw_data["Monat"].to_numpy()
         q_in = raw_data["Durchfluss_m3s"].to_numpy() * SEC_PER_MONTH/1000000
         q_out = get_q_out(var)
 
     else:
         gen_data = read_gen_data()
+        months = gen_data.index.to_numpy()
         q_in = gen_data[f"{var}_m3s"].to_numpy() * SEC_PER_MONTH/1000000
+        q_in[q_in < 0] = 0
         q_out = get_q_out(var)
     
     # -----------------------------------------
@@ -54,7 +57,8 @@ def run_simulation(
     # -----------------------------------------
 
     plot_storage_simulation(q_in, q_out, q_out_real, storage, deficit, overflow, 
-                var=var, cap=cap, initial_storage=initial_storage)
+                var=var, cap=cap, initial_storage=initial_storage, 
+                xticklabels=months)
 
     # -----------------------------------------
     # save data

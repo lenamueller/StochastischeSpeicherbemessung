@@ -530,7 +530,8 @@ def plot_storage_simulation(
         overflow: np.ndarray,
         var: str, 
         cap: float,
-        initial_storage: float
+        initial_storage: float,
+        xticklabels: list[str]
         ) -> None:
     """Plot storage simulation with inflow, outflow, storage volume and deficit/overflow."""
     
@@ -538,7 +539,8 @@ def plot_storage_simulation(
     n_deficit = len([i for i in deficit if i < 0])
     n_overflow = len([i for i in overflow if i > 0])
     
-    _, ax = plt.subplots(nrows=6, ncols=1, figsize=(10, 11), sharex=False)
+    _, ax = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), 
+                         sharex=True)
     plt.suptitle(f"Speichersimulation [Zeitreihe: {var}]")
     titles = ["A. Zufluss", "B. Sollabgabe", "C. Istabgabe", "D. Zufluss-Sollabgabe", 
               f"E. Speicherinhalt [Anfangsfüllung = {initial_storage} hm³, Maximale Kapazität = {cap} hm³]", 
@@ -561,10 +563,16 @@ def plot_storage_simulation(
         ax[i].set_title(titles[i], loc="left", color="grey", fontsize=10, fontweight="bold")
         ax[i].set_xlabel("Zeit [Monate]")    
         ax[i].grid()
+        
+        # tick labels
+        x_ticks = [x[0]] + list(x[::24])
+        x_tick_labels = [xticklabels[0]] + list(xticklabels[::24])
+        ax[i].set_xticks(x_ticks)
+        ax[i].set_xticklabels(x_tick_labels, rotation=90)
 
     for i in [1,2]:
         ax[i].set_ylim([0, max(np.max(q_out), max(q_out_real))+1])
-
+        
     plt.tight_layout()
     plt.savefig(image_path+f"{pegelname}_storagesim_{var}_{str(round(initial_storage, 3))}_{str(round(cap, 3))}.png", 
                 dpi=300, bbox_inches="tight")
