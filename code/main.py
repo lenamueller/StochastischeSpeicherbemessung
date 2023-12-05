@@ -32,7 +32,7 @@ CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
 FIT_CAPACITIES = False
-SIMULATION = False
+SIMULATION = True
 CALC_BETA = True
 
 # -----------------------------------------
