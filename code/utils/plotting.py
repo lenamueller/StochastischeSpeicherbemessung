@@ -714,7 +714,7 @@ def plot_deficit_overflow(
     
     _, axs = plt.subplots(1, 2, figsize=(9, 4))
 
-    axs[0].set_title("Defizit", loc="left", color="grey", fontsize=10, fontweight="bold")
+    axs[0].set_title("Leerlauf", loc="left", color="grey", fontsize=10, fontweight="bold")
     axs[1].set_title("Überlauf", loc="left", color="grey", fontsize=10, fontweight="bold")
     axs[0].barh(MONTH_HYD_YEAR, deficit_months.values(), color=tu_red, alpha=0.5)
     axs[1].barh(MONTH_HYD_YEAR, overflow_months.values(), color=tu_red, alpha=0.5)
