@@ -3,7 +3,7 @@ import numpy as np
 from scipy.stats import lognorm, kstest
 
 from config import pegelname
-from utils.plotting import plot_capacity, qq_plot
+from utils.plotting import plot_pu, qq_plot, plot_capacities_hist
 
 
 def pu_weibull(n: int):
@@ -19,6 +19,7 @@ def fit_capacity():
     # -----------------------------------------
     
     cap = pd.read_csv(f"data/{pegelname}_capacities_100.csv") # always use sample size 100
+    cap_hist = cap[cap["Zeitreihe"] == "original"].to_numpy()[0][1:][0]
     cap = cap[cap["Zeitreihe"] != "original"]
     cap_sort = sorted(cap["Kapazität"])
     
@@ -82,5 +83,6 @@ def fit_capacity():
     # plot
     # -----------------------------------------
 
-    plot_capacity(capacities_sort=cap_sort, pu_emp=pu_emp, pu_theo=pu_theo, cap_90=cap_90)
+    plot_pu(capacities_sort=cap_sort, pu_emp=pu_emp, pu_theo=pu_theo, cap_90=cap_90)
+    plot_capacities_hist(cap["Kapazität"], cap_hist)
     qq_plot(emp=q_emp, theo=q_theo)

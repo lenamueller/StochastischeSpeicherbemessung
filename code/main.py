@@ -30,8 +30,8 @@ from utils.dimensioning.simulation import run_simulation
 CHECK_DATA = False
 CALC_COMPONENTS = False
 CALC_STATS = False
-FIT_CAPACITIES = False
-SIMULATION = True
+FIT_CAPACITIES = True
+SIMULATION = False
 
 # -----------------------------------------
 #               read data
@@ -100,6 +100,9 @@ if SIMULATION:
     cap95 = 28.718
     cap_large = 100.000
     
+    cap_min_gen = 11.923
+    cap_max_gen = 37.386
+    
     # Kapazität und Anfangsfüllung gem. Aufgabenstellung
     run_simulation(var="original", cap=cap90, initial_storage=0.5*cap90)
     
@@ -107,10 +110,10 @@ if SIMULATION:
     run_simulation(var="original", cap=cap90, initial_storage=0)
     
     # Variation: 95%-Kapazität, sehr große Kapazität, unbegrenzte Kapazität
-    run_simulation(var="original", cap=cap_hist, initial_storage=0)
+    run_simulation(var="original", cap=cap_hist, initial_storage=0.5*cap_hist)
+    run_simulation(var="original", cap=cap95, initial_storage=0.5*cap95)
+    run_simulation(var="original", cap=cap_large, initial_storage=0.5*cap_large)
     run_simulation(var="original", cap=np.inf, initial_storage=0)
-    run_simulation(var="original", cap=cap95, initial_storage=0)
-    run_simulation(var="original", cap=cap_large, initial_storage=0)
     
     # generated data
     run_simulation(var="G001", cap=cap90, initial_storage=0.5*cap_hist)

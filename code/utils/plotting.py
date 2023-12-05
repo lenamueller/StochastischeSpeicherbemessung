@@ -6,7 +6,7 @@ import seaborn as sns
 from scipy.stats import lognorm, gamma
 
 from config import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
-    var_remapper, N_TIMESERIES, MONTH_ABB
+    tu_darkblue, var_remapper, N_TIMESERIES, MONTH_ABB
 import utils.statistics as st
 from utils.data_structures import _monthly_vals
 
@@ -606,7 +606,7 @@ def plot_fsa(
     plt.ylabel("Speicherinhalt [hm³]")
     plt.savefig(image_path+f"{pegelname}_fsa.png", dpi=300, bbox_inches="tight")
 
-def plot_capacity(
+def plot_pu(
         capacities_sort: list[float],
         pu_emp: list[float],
         pu_theo: list[float],
@@ -653,4 +653,18 @@ def qq_plot(emp: list[float], theo: list[float]) -> None:
     plt.ylim([5, 40])
     plt.grid(color="grey", alpha=0.3)
     plt.savefig(image_path+f"{pegelname}_fit_lognv_qq.png", dpi=300, bbox_inches="tight")
+
+def plot_capacities_hist(capacities: list[float], hist_cap: float):
+    """Plot histogram of all generated capacities."""
     
+    plt.figure(figsize=(6, 5))
+    bins = np.arange(10, 40, 1)
+    plt.hist(capacities, bins=bins, color=tu_grey, alpha=0.5, edgecolor="black")
+    plt.axvline(x=hist_cap, color=tu_darkblue, linestyle="--", linewidth=1)
+    plt.text(hist_cap+0.5, 14.6, f"{round(hist_cap, 3)} hm³", ha="left",
+                va="bottom", fontsize=10, color=tu_darkblue)
+    plt.ylabel("Absolute Häufigkeit [-]")
+    plt.xlabel("Kapazität [hm³]")
+    plt.grid(color="grey", alpha=0.3)
+    plt.xlim([10,40])
+    plt.savefig("images/Klingenthal_capacities_100.png", dpi=300, bbox_inches="tight")
