@@ -3,7 +3,7 @@ import numpy as np
 
 from utils.plotting import plot_monthly_discharge, plot_fsa
 from config import pegelname, ALPHA, ABGABEN, SEC_PER_MONTH, \
-    N_TIMESERIES, MONTH_HYD_YEAR_TXT
+    N_TIMESERIES, MONTH_HYD_YEAR_TXT, N_YEARS
 
 from utils.data_structures import read_data, read_gen_data
 
@@ -15,7 +15,7 @@ def monthly_discharge(arr: np.ndarray) -> dict:
     arr_hm3 = np.array([i* SEC_PER_MONTH/1000000 for i in arr])
 
     # Calculate yearly sums
-    arr_hm3 = np.reshape(arr_hm3, (40, 12))
+    arr_hm3 = np.reshape(arr_hm3, (int(len(arr_hm3)/12), 12))
     yearly_sums = np.sum(arr_hm3, axis=1)
 
     # Calculate mean yearly sum    
@@ -148,7 +148,15 @@ def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
         return 0, 0, 0, 0, 0
 
 
-def fsa() -> dict:
+def fsa(raw_data: pd.DataFrame) -> dict:
+        
+    # -----------------------------------------
+    # read data
+    # -----------------------------------------
+    
+    raw_data = read_data("data/Klingenthal_raw.txt")
+    gen_data = read_gen_data()
+    
     
     print("\n--------------------------------------")
     print("\nBerechnung monatlicher Soll-Abgaben\n")
@@ -168,17 +176,12 @@ def fsa() -> dict:
     
     plot_monthly_discharge(monthly_dis)
     
+    
+    
     print("\n--------------------------------------")
     print("\nBerechnung Speicherkapazität\n")
     
     capacities = {}
-    
-    # -----------------------------------------
-    # read data
-    # -----------------------------------------
-    
-    raw_data = read_data("data/Klingenthal_raw.txt")
-    gen_data = read_gen_data()
     
     # -----------------------------------------
     # convert inflow from m³/s to hm³
@@ -195,7 +198,7 @@ def fsa() -> dict:
     # -----------------------------------------
     
     q_in = raw_data["Durchfluss_hm3"].to_numpy()
-    q_out = np.tile(monthly_dis.loc["original", :].to_numpy(), 40)
+    q_out = np.tile(monthly_dis.loc["original", :].to_numpy(), N_YEARS)
     
     storage, _, _, _ = calc_storage_simulation(q_in, q_out, initial_storage=0, max_cap=np.inf)
     
@@ -218,7 +221,7 @@ def fsa() -> dict:
     
     for i in range(N_TIMESERIES):
         q_in = gen_data[f"G{str(i+1).zfill(3)}_hm3"]
-        q_out = np.tile(monthly_dis.loc[f"G{str(i+1).zfill(3)}", :].to_numpy(), 40)
+        q_out = np.tile(monthly_dis.loc[f"G{str(i+1).zfill(3)}", :].to_numpy(), N_YEARS)
         
         storage, _, _, _ = calc_storage_simulation(q_in, q_out, initial_storage=0, max_cap=np.inf)
         cap, _, _, _, _ = calc_capacity(storage)

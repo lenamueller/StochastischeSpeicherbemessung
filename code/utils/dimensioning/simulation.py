@@ -72,11 +72,14 @@ def run_simulation(
         cap_str = str(round(cap, 3))
             
     pd.DataFrame(data={
+        "Monat": months,
         "Zufluss [hm³]": q_in,
         "Soll-Abgabe [hm³]": q_out,
         "Ist-Abgabe [hm³]": q_out_real,
-        "storage": storage, 
-        "deficit": deficit, 
-        "overflow": overflow}
+        "Speicherinhalt [hm³]": storage, 
+        "Defizit [hm³]": deficit, 
+        "Überschuss [hm³]": overflow
+        }
                  ).to_csv(
-        f"data/{pegelname}_storagesim_{var}_{cap_str}.csv", index=False, float_format="%.3f")
+        f"data/{pegelname}_storagesim_{var}_{str(round(initial_storage, 3))}_{str(round(cap_str, 3))}.csv", 
+        index=False, float_format="%.3f")

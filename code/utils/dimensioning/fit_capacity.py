@@ -22,6 +22,8 @@ def fit_capacity():
     cap_hist = cap[cap["Zeitreihe"] == "original"].to_numpy()[0][1:][0]
     cap = cap[cap["Zeitreihe"] != "original"]
     cap_sort = sorted(cap["Kapazität"])
+    print("Min. Kapazität: ", cap_sort[0])
+    print("Max. Kapazität: ", cap_sort[-1])
     
     # -----------------------------------------
     # emp. and theo. Pu
@@ -32,8 +34,7 @@ def fit_capacity():
 
     shape, loc, scale = lognorm.fit(cap_sort)
     print(f"LogNV Parameter: Shape = {shape}, Loc = {loc}, Scale = {scale}")
-    print(f"Mean: {lognorm.mean(shape, loc, scale)}")
-    print(f"Std: {lognorm.std(shape, loc, scale)}")
+    print(f"LogNV Mean: {lognorm.mean(shape, loc, scale)}, LogNV Std: {lognorm.std(shape, loc, scale)}")
     pu_theo = lognorm.cdf(x=cap_sort, s=shape, loc=loc, scale=scale)
 
     pd.DataFrame(data={"Rangzahl [-]": rangzahlen, "Kapazität [hm³]": cap_sort, "empirische Pu [-]": pu_emp, "theoretische Pu  [-]": pu_theo}).round(3).to_csv(

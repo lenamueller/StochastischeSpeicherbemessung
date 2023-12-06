@@ -641,7 +641,7 @@ def plot_pu(
     plt.ylabel("$P_u$ [-]")
     plt.yticks(np.arange(0,1.1,0.1))
     plt.ylim([0, 1])
-    plt.xlim([10,40])
+    plt.xlim([10,45])
     plt.grid(color="grey", alpha=0.3)
     plt.legend(loc="lower right")
     plt.savefig(image_path+f"{pegelname}_fit_lognv_pu.png", dpi=300, bbox_inches="tight")
@@ -672,7 +672,7 @@ def plot_capacities_hist(capacities: list[float], hist_cap: float):
     bins = np.arange(10, 40, 1)
     plt.hist(capacities, bins=bins, color=tu_grey, alpha=0.5, edgecolor="black")
     plt.axvline(x=hist_cap, color=tu_darkblue, linestyle="--", linewidth=1)
-    plt.text(hist_cap+0.5, 14.6, f"{round(hist_cap, 3)} hm³", ha="left",
+    plt.text(hist_cap+0.5, 10, f"{round(hist_cap, 3)} hm³", ha="left",
                 va="bottom", fontsize=10, color=tu_darkblue)
     plt.ylabel("Absolute Häufigkeit [-]")
     plt.xlabel("Kapazität [hm³]")
