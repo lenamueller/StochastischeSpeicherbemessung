@@ -298,6 +298,58 @@ def plot_characteristics(df: pd.DataFrame) -> None:
     plt.tight_layout()
     plt.savefig(image_path+f"{pegelname}_characteristics.png", dpi=300, bbox_inches="tight")    
 
+def plot_characteristics_short(df: pd.DataFrame) -> None:
+    """Plot statistics and histograms for different components."""
+    
+    _, ax = plt.subplots(nrows=3, ncols=2, figsize=(13, 10))
+    labels = ["Rohdaten", "Zufallskomponente"]
+    vars = ["Durchfluss_m3s", "zufall"]
+    colors = [tu_grey, "orange"]
+    ylabels = ["Arith. Mittel (m³/s)", "Standardabweichung m³/s"]
+    letters = ["A. Arith. Mittel", "B. Standardabweichung", "C. Arith. Mittel", "D. Standardabweichung", "E. Emp. Häufigkeit", "F. Emp. Häufigkeit"]
+    
+    for i in range(len(labels)):
+        var, label, color = vars[i], labels[i], colors[i]
+
+        x_months = np.arange(1, 13)
+        x_years = st.hyd_years(df)
+        
+        # upper row plots
+        ax[0,0].plot(x_months, st.binned_stats(df, var=var, bin="monthly", func=np.mean),
+                    c=color, linewidth=1, label=label)
+        ax[0,1].plot(x_months, st.binned_stats(df, var=var, bin="monthly", func=np.std),
+                    c=color, linewidth=1, label=label)
+         
+        # middle row plots
+        ax[1,0].plot(x_years, st.binned_stats(df, var=var, bin="yearly", func=np.mean),
+                    c=color, linewidth=1, label=label)
+        ax[1,1].plot(x_years, st.binned_stats(df, var=var, bin="yearly", func=np.std),
+                    c=color, linewidth=1, label=label)
+        
+        # lower row plots
+        hist_kwargs = {"bins": np.arange(-2, 8, 0.25), "lw": 0.8, "edgecolor": "black", "alpha": 0.8}
+        ax[2,i].hist(df[vars[i]], color=colors[i], label=labels[i], **hist_kwargs)
+    
+    for row_i in range(len(ax)):
+        for col_i in range(len(ax[row_i])):
+            ax[row_i, col_i].set_title(letters[row_i*len(ax[row_i])+col_i], loc='left', fontsize=12, fontweight="bold", color="grey")
+            ax[row_i, col_i].grid()
+            ax[0, col_i].set_xlabel("Monat")
+            ax[1, col_i].set_xlabel("Jahre")
+            ax[2, col_i].set_xlabel("Durchfluss [m³/s]")
+            ax[2, col_i].set_ylabel("Emp. Häufigkeit")
+            ax[0, col_i].set_ylabel(ylabels[col_i])
+            ax[1, col_i].set_ylabel(ylabels[col_i])
+            ax[0, col_i].set_xticks(x_months)
+            ax[0, col_i].set_xticklabels(MONTH_ABB)
+            ax[1, col_i].set_xticks([1960, 1970, 1980, 1990, 2000])
+            ax[1, col_i].set_xticklabels([1960, 1970, 1980, 1990, 2000])
+            ax[2, col_i].set_ylim([0, 130])
+            ax[2, col_i].legend(frameon=False, loc="upper left")
+            
+    plt.tight_layout()
+    plt.savefig(image_path+f"{pegelname}_characteristics.png", dpi=300, bbox_inches="tight")    
+
 def pairplot(df: pd.DataFrame) -> None:
     """Plot pairplot."""
     
