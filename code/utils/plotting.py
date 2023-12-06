@@ -706,7 +706,7 @@ def qq_plot(emp: list[float], theo: list[float]) -> None:
     plt.figure(figsize=(5,5))
     plt.scatter(theo, emp, color=tu_red, marker="x", s=5)
     plt.plot([0,50], [0, 50], color="k", alpha=0.4)
-    plt.text(5.5, 38.5, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
+    plt.text(10.5, 43.5, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
              va="center", fontsize=10, color=tu_red)
     plt.xlabel("Theoretische Quantile [hm³]")
     plt.ylabel("Empirische Quantile [hm³]")
