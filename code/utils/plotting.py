@@ -464,18 +464,20 @@ def plot_thomasfierung_eval(raw_data: pd.DataFrame, gen_data: pd.DataFrame):
         skews.append(s)
         hists.append(h)
         
-        axs[0,0].plot(x, m, color=tu_red, alpha=0.15, lw=1)
-        axs[0,1].plot(x, v, color=tu_red, alpha=0.15, lw=1)
-        axs[1,0].plot(x, s, color=tu_red, alpha=0.15, lw=1)
-        axs[1,1].hist(gen_i.ravel()[:len(raw_data)], bins=bins, 
-                      histtype="step", density=False, alpha=0.15, color=tu_red)
+        # Plot only first 40 time series
+        if i < 40:
+            axs[0,0].plot(x, m, color=tu_red, alpha=0.1, lw=1)
+            axs[0,1].plot(x, v, color=tu_red, alpha=0.1, lw=1)
+            axs[1,0].plot(x, s, color=tu_red, alpha=0.1, lw=1)
+            axs[1,1].hist(gen_i.ravel()[:len(raw_data)], bins=bins, 
+                        histtype="step", density=False, alpha=0.1, color=tu_red)
 
     # gen data means    
     axs[0,0].plot(x, np.mean(means, axis=0), color=tu_red, alpha=1, lw=1)
     axs[0,1].plot(x, np.mean(vars, axis=0), color=tu_red, alpha=1, lw=1)
     axs[1,0].plot(x, np.mean(skews, axis=0), color=tu_red, alpha=1, lw=1)
-    axs[1,1].step(bins[:-1], np.mean([h[0] for h in hists], axis=0), 
-                  color=tu_red, alpha=1, lw=1) 
+    # axs[1,1].step(bins[:-1], np.mean([h[0] for h in hists], axis=0), 
+    #               color=tu_red, alpha=1, lw=1) 
 
     # plotting config
     for i in range(4):
