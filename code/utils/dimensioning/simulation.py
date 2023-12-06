@@ -81,5 +81,5 @@ def run_simulation(
         "Überschuss [hm³]": overflow
         }
                  ).to_csv(
-        f"data/{pegelname}_storagesim_{var}_{str(round(initial_storage, 3))}_{str(round(cap_str, 3))}.csv", 
+        f"data/{pegelname}_storagesim_{var}_{str(round(initial_storage, 3))}_{cap_str}.csv", 
         index=False, float_format="%.3f")
