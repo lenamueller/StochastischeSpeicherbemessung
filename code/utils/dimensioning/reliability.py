@@ -58,10 +58,13 @@ def rel_amount(
         ): 
     """Return the amout of deficit and overflow from Soll-Abgabe."""
     
-    sum_deficit = np.sum(deficit)
+    sum_deficit = -np.sum(deficit)
     sum_overflow = np.sum(overflow)
     sum_soll_abgabe = np.sum(soll_abgabe)
-
+    print("Summe Defizit", sum_deficit, "hm³")
+    print("Summe Überschuss", sum_overflow, "hm³")
+    print("Summe Sollabgabe", sum_soll_abgabe, "hm³")
+    
     r_def = sum_deficit / sum_soll_abgabe
     r_ovf = sum_overflow / sum_soll_abgabe
 
@@ -70,18 +73,18 @@ def rel_amount(
 def reliability(fn: list[str]):
     
     print("\n--------------------------------------")
-    print(f"\nZuverlässigkeitsprüfung für Zeitreihen {fn}\n")
+    
     
     for fn_i in fn:
-
+        print(f"\nZuverlässigkeitsprüfung für Zeitreihen {fn_i}\n")
+        
         # -----------------------------------------
         # read data
         # -----------------------------------------
         
         df = pd.read_csv(fn_i)
-        print(df)
-        deficit = df["deficit"].to_numpy()
-        overflow = df["overflow"].to_numpy()
+        deficit = df["Defizit [hm³]"].to_numpy()
+        overflow = df["Überschuss [hm³]"].to_numpy()
         soll_abgabe = df["Soll-Abgabe [hm³]"].to_numpy()
         
         # -----------------------------------------
@@ -90,7 +93,6 @@ def reliability(fn: list[str]):
         
         print("Anzahl Monate", rel_monthly(deficit=deficit, overflow=overflow, n_years=80))
         print("Anzahl Jahre", rel_yearly(deficit=deficit, overflow=overflow, n_years=80))
-        print("Summe Sollabgabe", np.sum(soll_abgabe), "hm³")
         print("Menge", rel_amount(deficit=deficit, overflow=overflow, soll_abgabe=soll_abgabe))
         
         
