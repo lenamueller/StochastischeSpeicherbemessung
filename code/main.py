@@ -31,8 +31,8 @@ from utils.dimensioning.reliability import reliability
 CHECK_DATA = False          # Finished
 CALC_COMPONENTS = False     # TODO Check
 CALC_STATS = False          # TODO Check
-FIT_CAPACITIES = False      # Finished
-SIMULATION = True           # Finished
+FIT_CAPACITIES = True      # Finished
+SIMULATION = False          # Finished
 CALC_BETA = False           # Finished
 RELIABILITY = False         # Finished
 

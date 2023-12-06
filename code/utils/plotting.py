@@ -653,15 +653,15 @@ def qq_plot(emp: list[float], theo: list[float]) -> None:
     
     plt.figure(figsize=(5,5))
     plt.scatter(theo, emp, color=tu_red, marker="x", s=5)
-    plt.plot([0,40], [0, 40], color="k", alpha=0.4)
+    plt.plot([0,50], [0, 50], color="k", alpha=0.4)
     plt.text(5.5, 38.5, f"$r_{{qq}}$ = {round(r_qq, 3)}", ha="left", 
              va="center", fontsize=10, color=tu_red)
     plt.xlabel("Theoretische Quantile [hm³]")
     plt.ylabel("Empirische Quantile [hm³]")
-    plt.xticks(np.arange(0,45,5))
-    plt.yticks(np.arange(0,45,5))
-    plt.xlim([5, 40])
-    plt.ylim([5, 40])
+    plt.xticks(np.arange(0,50,5))
+    plt.yticks(np.arange(0,50,5))
+    plt.xlim([10, 45])
+    plt.ylim([10, 45])
     plt.grid(color="grey", alpha=0.3)
     plt.savefig(image_path+f"{pegelname}_fit_lognv_qq.png", dpi=300, bbox_inches="tight")
 
