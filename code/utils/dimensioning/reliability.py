@@ -4,8 +4,7 @@ import pandas as pd
 
 def rel_yearly(
         deficit: np.ndarray,
-        overflow: np.ndarray,
-        n_years: int
+        overflow: np.ndarray
         ):
     
     """Return reliability metrics for yearly values."""
@@ -24,15 +23,14 @@ def rel_yearly(
             n_ovf += 1
     
     # relibaility metrics
-    rel_deficit = round(1 - n_def / n_years, 3)
-    rel_overflow = round(1 - n_ovf / n_years, 3)
+    rel_deficit = round(1 - n_def / 40, 3)
+    rel_overflow = round(1 - n_ovf / 40, 3)
     
     return rel_deficit, rel_overflow
 
 def rel_monthly(
     deficit: np.ndarray,
-    overflow: np.ndarray,
-    n_years: int
+    overflow: np.ndarray
     ):
     """Return reliability metrics for monthly values."""
     
@@ -46,8 +44,8 @@ def rel_monthly(
             n_ovf += 1
         
     # relibaility metrics
-    rel_deficit = round(1 - n_def / (n_years*12), 3)
-    rel_overflow = round(1 - n_ovf / (n_years*12), 3)
+    rel_deficit = round(1 - n_def / (40*12), 3)
+    rel_overflow = round(1 - n_ovf / (40*12), 3)
     
     return rel_deficit, rel_overflow
 
@@ -91,8 +89,8 @@ def reliability(fn: list[str]):
         # calculate reliability
         # -----------------------------------------
         
-        print("Anzahl Monate", rel_monthly(deficit=deficit, overflow=overflow, n_years=80))
-        print("Anzahl Jahre", rel_yearly(deficit=deficit, overflow=overflow, n_years=80))
+        print("Anzahl Monate", rel_monthly(deficit=deficit, overflow=overflow))
+        print("Anzahl Jahre", rel_yearly(deficit=deficit, overflow=overflow))
         print("Menge", rel_amount(deficit=deficit, overflow=overflow, soll_abgabe=soll_abgabe))
         
         
