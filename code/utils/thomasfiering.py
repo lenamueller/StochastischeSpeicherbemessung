@@ -3,7 +3,7 @@ import numpy as np
 from scipy.stats import skew
 import time
 
-from config import pegelname, N_TIMESERIES, N_YEARS, MONTH_HYD_YEAR, MONTH
+from config import pegelname, N_TIMESERIES, N_YEARS, MONTH_HYD_YEAR, MONTH, MONTH_80A
 from utils.plotting import plot_monthly_fitting, plot_thomasfierung_eval
 from utils.statistics import hyd_years
 from utils.data_structures import _monthly_vals
@@ -136,8 +136,10 @@ def thomasfiering(raw_data: pd.DataFrame):
     
     # generate data
     gen_data = pd.DataFrame()
-    gen_data["Monat"] = raw_data["Monat"]
+    gen_data["Monat"] = MONTH_80A
+    
     for i in range(N_TIMESERIES):
+        print("\nGeneriere Zeitreihe", i+1, "von", N_TIMESERIES, "...")
         gen_data[f"G{str(i+1).zfill(3)}_m3s"] = gen_timeseries(raw_data, n_years=N_YEARS)
         
     gen_data.to_csv(

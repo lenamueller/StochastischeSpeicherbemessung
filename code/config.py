@@ -43,6 +43,17 @@ MONTH_ABB = ["N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S", "O"]
 MONTH_HYD_YEAR = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 ,10]
 MONTH_HYD_YEAR_TXT = ["Nov", "Dez", "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep" ,"Okt"]
 
+def __month_list__():
+    import numpy as np
+    years = np.arange(1959, 1959+80, 1)    
+    month_list = []
+    for i in years:
+        for j in MONTH_HYD_YEAR:
+            month_list.append(f"{str(j).zfill(2)}/{i}")
+    
+    return month_list
+MONTH_80A = __month_list__()
+
 # --------------------------------------
 # TU CD colors
 # --------------------------------------
@@ -57,8 +68,8 @@ tu_red = (181/255, 28/255, 28/255)
 # --------------------------------------
 
 T = 12                  # max i index
-N_TIMESERIES = 10       # Anzahl generierte Zeitreihen
-N_YEARS = 40            # Anzahl Jahre pro generierte Zeitreihe
+N_TIMESERIES = 100       # Anzahl generierte Zeitreihen
+N_YEARS = 80            # Anzahl Jahre pro generierte Zeitreihe
 
 # --------------------------------------
 # Folgescheitelalgorithmus (FSA)
