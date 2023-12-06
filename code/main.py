@@ -25,15 +25,17 @@ from utils.dimensioning.fsa import fsa
 from utils.dimensioning.fit_capacity import fit_capacity
 from utils.dimensioning.simulation import run_simulation
 from utils.dimensioning.speicherausbaugrad import speicherausbaugrad
-
+from utils.dimensioning.reliability import reliability
 
 # Agenda
-CHECK_DATA = False
-CALC_COMPONENTS = False
-CALC_STATS = False
-FIT_CAPACITIES = True
-SIMULATION = False
-CALC_BETA = False
+CHECK_DATA = False          # Finished
+CALC_COMPONENTS = False     # TODO Check
+CALC_STATS = False          # TODO Check
+FIT_CAPACITIES = False      # Finished
+SIMULATION = True           # Finished
+CALC_BETA = False           # Finished
+RELIABILITY = False         # Finished
+
 
 # -----------------------------------------
 #               read data
@@ -83,7 +85,7 @@ if GEN_TIMESERIES:
 
 CALC_CAPACITIES = False     # ! Don't generate new data
 if CALC_CAPACITIES:
-    fsa()
+    fsa(raw_data=df)
 
 # -----------------------------------------
 #      fit distribution to capactities
@@ -97,42 +99,29 @@ if FIT_CAPACITIES:
 # -----------------------------------------
 
 if SIMULATION:
+    cap_hist = 22.896
+    cap90 = 28.873
+    cap95 = 32.061
+    cap_min_gen = 11.923
+    cap_max_gen = 41.820
     
     # Kapazität und Anfangsfüllung gem. Aufgabenstellung
-    cap90 = 26.006
     run_simulation(var="original", cap=cap90, initial_storage=0.5*cap90)
 
-    # Variation: leere Anfangsfüllung
+    # Variation der Anfangsfüllung
     run_simulation(var="original", cap=cap90, initial_storage=0)
-    
-    # Variation: volle Anfangsfüllung
     run_simulation(var="original", cap=cap90, initial_storage=cap90)
     
-    # Variation: Kapazität der hist. Zeitreihe
-    cap_hist = 22.896
+    # Variation der Kapazität
     run_simulation(var="original", cap=cap_hist, initial_storage=0.5*cap_hist)
-    
-    # Variation: 95%-Kapazität
-    cap95 = 28.718
     run_simulation(var="original", cap=cap95, initial_storage=0.5*cap95)
-    
-    # Variation: sehr große Kapazität
     run_simulation(var="original", cap=100.000, initial_storage=0.5*100.00)
-    
-    # Variation: geringste Kapazität der generierten Zeitreihen
-    cap_min_gen = 11.923
     run_simulation(var="original", cap=cap_min_gen, initial_storage=0.5*cap_min_gen)
-    
-    # Variation: größte Kapazität der generierten Zeitreihen
-    cap_max_gen = 37.386
     run_simulation(var="original", cap=cap_max_gen, initial_storage=0.5*cap_max_gen)
-    
-    # Variation: unbegrenzte Kapazität
+
+    # unendlicher Speicher
     run_simulation(var="original", cap=np.inf, initial_storage=0)
     
-    # generated data
-    run_simulation(var="G002", cap=cap90, initial_storage=0.5*cap90)
-
 # -----------------------------------------
 #           Speicherausbaugrad
 # -----------------------------------------
@@ -140,5 +129,23 @@ if SIMULATION:
 if CALC_BETA:
     mq_hm3 = 1.188 * 60*60*24*365/1000000
     speicherausbaugrad(var="original", mq=mq_hm3)
+
+# -----------------------------------------
+#          Zuverlässigkeit
+# -----------------------------------------
+
+if RELIABILITY:
+    fn_storage_sim = [
+        "data/Klingenthal_storagesim_original_0_28.873.csv",
+        "data/Klingenthal_storagesim_original_0_inf.csv",
+        "data/Klingenthal_storagesim_original_5.962_11.923.csv",
+        "data/Klingenthal_storagesim_original_11.448_22.896.csv",
+        "data/Klingenthal_storagesim_original_14.437_28.873.csv",
+        "data/Klingenthal_storagesim_original_16.03_32.061.csv",
+        "data/Klingenthal_storagesim_original_20.91_41.82.csv",
+        "data/Klingenthal_storagesim_original_28.873_28.873.csv",
+        "data/Klingenthal_storagesim_original_50.0_100.0.csv"
+    ]
+    reliability(fn_storage_sim)
 
 print("\n--------------------------------------")
