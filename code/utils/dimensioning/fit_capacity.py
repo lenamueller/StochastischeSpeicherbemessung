@@ -18,7 +18,7 @@ def fit_capacity():
     # read capacities
     # -----------------------------------------
     
-    cap = pd.read_csv(f"data/{pegelname}_capacities_100.csv") # always use sample size 100
+    cap = pd.read_csv(f"data/{pegelname}_capacities.csv") # always use sample size 100
     cap_hist = cap[cap["Zeitreihe"] == "original"].to_numpy()[0][1:][0]
     cap = cap[cap["Zeitreihe"] != "original"]
     cap_sort = sorted(cap["Kapazität"])
@@ -61,9 +61,9 @@ def fit_capacity():
     q = np.arange(0,1,0.05)
     q_theo_fixed = lognorm.ppf(q, shape, loc=loc, scale=scale)
 
-    pd.DataFrame(data={"Pu":q, "theoretische Quantile [hm³]":q_theo_fixed}).round(3).to_csv(
+    pd.DataFrame(data={"Pu [-]":q, "theoretische Quantile [hm³]":q_theo_fixed}).round(3).to_csv(
         f"data/{pegelname}_quantile_fixed.csv", index=False)
-    pd.DataFrame(data={"Pu":q, "theoretische Quantile [hm³]":q_theo_fixed}).round(3).to_latex(
+    pd.DataFrame(data={"Pu [-]":q, "theoretische Quantile [hm³]":q_theo_fixed}).round(3).to_latex(
         f"data/{pegelname}_quantile_fixed.tex", index=False, float_format="%.3f")
     
     # 90 % quantile

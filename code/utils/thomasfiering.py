@@ -136,20 +136,18 @@ def thomasfiering(raw_data: pd.DataFrame):
     
     # generate data
     gen_data = pd.DataFrame()
-    gen_data["Monat"] = MONTH_80A
+    # gen_data["Monat"] = MONTH_80A
     
     for i in range(N_TIMESERIES):
         print("\nGeneriere Zeitreihe", i+1, "von", N_TIMESERIES, "...")
         gen_data[f"G{str(i+1).zfill(3)}_m3s"] = gen_timeseries(raw_data, n_years=N_YEARS)
         
     gen_data.to_csv(
-        f"data/{pegelname}_thomasfiering_timeseries_{N_TIMESERIES}.csv", index=False)
-    gen_data.iloc[:].round(3).to_latex(
-        f"data/{pegelname}_thomasfiering_timeseries_{N_TIMESERIES}.tex", index=False)
+        f"data/{pegelname}_thomasfiering_timeseries.csv", index=True)
     gen_data.iloc[:, :11].round(3).to_latex(
-        f"data/{pegelname}_thomasfiering_timeseries_first10.tex", index=False)
+        f"data/{pegelname}_thomasfiering_timeseries_first10.tex", index=True)
 
-    print(f"-> generierte Zeitreihen: data/{pegelname}_thomasfiering_timeseries_{N_TIMESERIES}.csv")
+    print(f"-> generierte Zeitreihen: data/{pegelname}_thomasfiering_timeseries.csv")
     print("Dauer der Generierung:", round(time.time()-start_time, 1), "Sekunden")
     
     plot_thomasfierung_eval(raw_data=raw_data, gen_data=gen_data)

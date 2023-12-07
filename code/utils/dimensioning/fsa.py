@@ -233,9 +233,9 @@ def fsa(raw_data: pd.DataFrame) -> dict:
     
     df_capacities = pd.DataFrame()
     df_capacities["Zeitreihe"] = capacities.keys()
-    df_capacities["Kapazität"] = capacities.values()
+    df_capacities["Kapazität [hm³]"] = capacities.values()
 
-    df_capacities.to_csv(f"data/{pegelname}_capacities_{N_TIMESERIES}.csv", index=False)
-    df_capacities.round(3).transpose().to_latex(f"data/{pegelname}_capacities_{N_TIMESERIES}.tex", index=False)
+    df_capacities.to_csv(f"data/{pegelname}_capacities.csv", index=False)
+    df_capacities.round(3).transpose().to_latex(f"data/{pegelname}_capacities.tex", index=False)
     
-    print(f"-> data/{pegelname}_capacities_{N_TIMESERIES}.csv")
+    print(f"-> data/{pegelname}_capacities.csv")
