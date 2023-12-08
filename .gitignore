@@ -1,20 +1,10 @@
 env/*
 
+# cache
+__pycache__/*
 tests/__pycache__/*
-code/__pycache__/*
-code/utils/__pycache__/*
-code/utils/checks/__pycache__/*
-code/utils/components/__pycache__/*
-code/utils/dimensioning/__pycache__/*
-
-
-
-data/others/*
-data/*.tex
-data_1/*
-data_abgabeversion/*
-
-other.py
-Aufgabenstellung_Beleg_FGB23_annotated.pdf
-excel_tools/*
-code/find_bug.py
+1_Zeitreihenanalyse/__pycache__/*
+2_Zeitreihengenerierung/__pycache__/*
+3_Speicherbemessung/__pycache__/*
+4_sonstiges/__pycache__/*
+utils/__pycache__/*
