@@ -5,7 +5,7 @@ import sys
 sys.path.insert(1, '/home/lena/Dokumente/FGB/StochastischeSpeicherbemessung/')
 
 import utils.stats as st
-  
+
 
 @pytest.fixture
 def random_arr():
@@ -30,8 +30,6 @@ def first_4_rows():
             pd.Timestamp("1960-02-01")
             ]
     })
-
-
 
 def test_primary_stats(first_4_rows: pd.DataFrame):
     
@@ -61,18 +59,6 @@ def test_binned_stats():
     # TODO
     assert True
 
-def test_hydrological_values():
-    # TODO
-    assert True
-    
-def test_consistency_check():
-    # TODO
-    assert True
-
-def test_fft_analysis():
-    # TODO
-    assert True
-
-def test_trend_analysis():
+def test_FSA():
     # TODO
     assert True
