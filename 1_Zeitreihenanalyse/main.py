@@ -33,12 +33,11 @@ for PEGEL in PEGEL_NAMES:
             os.mkdir(path)
     
     plot_path = f"1_Zeitreihenanalyse/results/{PEGEL}/plots/"
-                
-    logger = logging.getLogger('__name__')
-    logging.basicConfig(filename=f"1_Zeitreihenanalyse/results/{PEGEL}/Zeitreihenanalyse.log", 
+
+    log_path = f"1_Zeitreihenanalyse/results/Zeitreihenanalyse.log"
+    logging.basicConfig(filename=log_path, 
                         format='%(asctime)s %(message)s',datefmt='%m/%d/%Y %I:%M:%S',
                         level=logging.INFO, filemode='w')
-    logging.getLogger('requests').setLevel(logging.DEBUG)
     
     logging.info("-----------------------------------------")
     logging.info(f"PEGEL: {PEGEL}")

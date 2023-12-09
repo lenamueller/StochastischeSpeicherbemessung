@@ -419,7 +419,6 @@ def pairplot(df: pd.DataFrame, fn: str) -> None:
                      "Zufallskomponente"
                  ],
                  corner=False, plot_kws={"s":3, "alpha":0.5})
-    plt.legend(fontsize='x-large', title_fontsize='50')
     plt.savefig(fn, dpi=300, bbox_inches="tight")
 
     
