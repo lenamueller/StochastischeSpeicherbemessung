@@ -49,13 +49,3 @@ def outlier_test_grubbs(df: pd.DataFrame, var: str = "Durchfluss_m3s") -> tuple[
     OutlierTestGrubbs = namedtuple("OutlierTestGrubbs",
                                    ["bound", "outlier"])
     return OutlierTestGrubbs(g, df.loc[df[var] > g])
-
-def consistency_check(df: pd.DataFrame) -> None:
-    print("\n--------------------------------------")
-    print("\n\tKonsistenzprüfung\n")
-    print(f"Fehlwerte: {missing_values(df)}")
-    print(f"Fehlende Zeitschritte: {missing_dates(df)}")
-    print(f"Duplikate: {duplicates(df)}")
-    print(f"\n\n",outlier_test_iqr(df))
-    print(f"\n\n",outlier_test_zscore(df))
-    print(f"\n\n",outlier_test_grubbs(df))

@@ -2,9 +2,6 @@ import pandas as pd
 import numpy as np
 import scipy
 
-from utils.plotting import plot_sin_waves, plot_spectrum
-from utils.statistics import binned_stats
-
 
 def calc_spectrum(df: pd.DataFrame, sample_rate: int = 1) -> tuple[list, list]:
     """Calculate the FFT of the time series."""
@@ -51,22 +48,3 @@ def get_dominant_frequency(
     period = [round(1/f, 2) for f in freqs] # unit: months
     
     return freqs, period
-
-def seasonal_comp(df: pd.DataFrame):
-    print("\n--------------------------------------")
-    print("\nBestimmung der saisonalen Komponente\n")
-    
-    freqs, spectrum = calc_spectrum(df)
-    plot_spectrum(freqs, spectrum)
-    
-    freqs, period = get_dominant_frequency(freqs, spectrum, n=5)
-    print("Top 5 Frequenzen: ", freqs, "1/Monat")
-    print("Top 5 Periodendauern", period, "Monate")
-    plot_sin_waves(freqs, period)
-    
-    # calculate components
-    df["saisonfigur_mean"] = np.tile(binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.mean), 40)
-    df["saisonfigur_std"] = np.tile(binned_stats(df, var="Durchfluss_m3s", bin="monthly", func=np.std), 40)
-    df["saisonber"] = df["Durchfluss_m3s"] - df["saisonfigur_mean"]
-    df["normiert"] = (df["Durchfluss_m3s"] - df["saisonfigur_mean"]) / df["saisonfigur_std"]
-

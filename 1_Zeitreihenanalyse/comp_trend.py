@@ -3,9 +3,10 @@ import pandas as pd
 import scipy
 import pymannkendall as mk
 from types import FunctionType    
+import sys
+sys.path.insert(1, '/home/lena/Dokumente/FGB/StochastischeSpeicherbemessung/')
 
-from utils.statistics import hyd_years, binned_stats
-from utils.plotting import plot_trend
+from utils.stats import binned_stats, hyd_years
 
 
 def __preprocess(df: pd.DataFrame, which: str):
@@ -58,36 +59,3 @@ def moving_average(df: pd.DataFrame, which: str, window: int) -> np.ndarray[floa
     """Returns the moving average of the time series."""
     x, _, _ = __preprocess(df, which)
     return np.convolve(x, np.ones(window), "valid") / window
-
-def trend_comp(df: pd.DataFrame):
-    print("\n--------------------------------------")
-    print("\nBestimmung der Trendkomponente\n")    
-    
-    # Lin. Regression
-    linreg_m = linreg(df, which="monthly")
-    linreg_y = linreg(df, which="yearly")
-    print("Lineare Regression (Jahreswerte):", linreg_y)
-    print("Lineare Regression (Monatswerte):", linreg_m)
-    print("Teststatistik lin. Regression (Jahreswerte):", np.round(t_test_statistic(df, which="yearly"), 3))
-    print("Teststatistik lin. Regression (Monatswerte):", np.round(t_test_statistic(df, which="monthly"), 3))
-    
-    # Mann-Kendall test
-    mk_m = mk.original_test(df["Durchfluss_m3s"], alpha=0.05)
-    mk_y = mk.seasonal_test(df["Durchfluss_m3s"], alpha=0.05, period=12)
-    print("\nMK-Test (Jahreswerte):", mk_y)
-    print("MK-Test (Monatswerte):", mk_m)
-    
-    # Moving average
-    ma_m = moving_average(df, which="monthly", window=12)
-    ma_y = moving_average(df, which="yearly", window=5)
-    
-    plot_trend(df, 
-               linreg_m=linreg_m, linreg_y=linreg_y, 
-               mk_m=mk_m, mk_y=mk_y, 
-               ma_m=ma_m, ma_y=ma_y
-               )
-    
-    # calculate components
-    df["trendber"] = np.mean(df["Durchfluss_m3s"].to_numpy()) + \
-        scipy.signal.detrend(df["Durchfluss_m3s"].to_numpy(), type="linear")
-    df["trend"] = df["Durchfluss_m3s"].to_numpy() - df["trendber"].to_numpy()

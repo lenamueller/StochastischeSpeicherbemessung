@@ -30,10 +30,34 @@ MQ_HM3 = {
     }
 
 # --------------------------------------
-# Sonstiges
+# Doppelsummenanalyse: Referenzpegel
 # --------------------------------------
 
-SEC_PER_MONTH = (365/12)*24*60*60   
+REF_PEGEL = {
+    "Ammelsdorf":       "Klingenthal",
+    "Klingenthal":      "Rothenthal",
+    "Rothenthal":       "Klingenthal",
+    "Seifhennersdorf":  "Klingenthal",
+    "Tannenberg":       "Klingenthal",
+    "Wiesa":            "Klingenthal",
+    }
+
+# --------------------------------------
+# Zeitreihenanalyse
+# --------------------------------------
+
+var_remapper = {
+        "Durchfluss_m3s": "Rohdaten",
+        "trendber": "Trendbereinigte Zeitreihe",
+        "trend": "Trendkomponente",
+        "saisonfigur_mean": "Saisonale Komponente (Mittel)",
+        "saisonfigur_std": "Saisonale Komponente (Standardabweichung)",
+        "saisonber": "Saisonbereinigte Zeitreihe",
+        "normiert": "Normierte Zeitreihe",
+        "autokorr_saisonfigur": "Autokorrelation (Saisonfigur)",
+        "autokorr": "Autokorrelative Komponente",
+        "zufall": "Zufallskomponente"
+    }
 
 # --------------------------------------
 # Zeitreihengenerierung
@@ -51,3 +75,9 @@ ABGABEN = {
     }
 
 vars = ["original"] + [f"G{str(i+1).zfill(3)}" for i in range(N_GEN_TIMESERIES)]
+
+# --------------------------------------
+# Sonstiges
+# --------------------------------------
+
+SEC_PER_MONTH = (365/12)*24*60*60   

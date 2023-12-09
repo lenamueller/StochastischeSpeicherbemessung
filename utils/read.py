@@ -6,7 +6,6 @@ def read_raw_data(filepath: str) -> pd.DataFrame:
     data.columns = ["Monat", "Durchfluss_m3s"]
     data["Monat"] = data["Monat"].astype(str)
     data["Durchfluss_m3s"] = data["Durchfluss_m3s"].astype(float)
-    # data["Datum"] = pd.to_datetime(data["Monat"], format="%m/%Y")
     return data
 
 def monthly_vals(df: pd.DataFrame, month: int) -> list:
