@@ -67,7 +67,7 @@ def plot_monthly_fitting(df: pd.DataFrame, fn: str) -> None:
     plt.savefig(fn, dpi=300, bbox_inches="tight")
     plt.close()
 
-def plot_thomasfierung_eval(raw_data: pd.DataFrame, gen_data: pd.DataFrame, fn: str):
+def plot_thomasfierung_eval(raw_data: pd.DataFrame, gen_data: pd.DataFrame, fn: str) -> None:
     """Plot evaluation of generated data compared to original data."""
     
     _, axs = plt.subplots(3, 2, figsize=(12, 11), gridspec_kw={'hspace': 0.3, 'wspace': 0.3})

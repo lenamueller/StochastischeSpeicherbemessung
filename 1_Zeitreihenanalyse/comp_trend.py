@@ -10,6 +10,7 @@ from utils.stats import binned_stats, hyd_years
 
 
 def __preprocess(df: pd.DataFrame, which: str):
+    """Helper function."""
     if which == "monthly":
         x = df["Durchfluss_m3s"].tolist()
         t = np.arange(hyd_years(df)[0], hyd_years(df)[-1]+1, 1/12)

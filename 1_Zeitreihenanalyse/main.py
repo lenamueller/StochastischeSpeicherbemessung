@@ -207,7 +207,6 @@ for PEGEL in PEGEL_NAMES:
 
     # plot comparison of components    
     plot_characteristics_short(df, fn=plot_path + "Zeitreihenkomponenten_Vergleich.png")
-    plot_characteristics(df, fn=plot_path + "Zeitreihenkomponenten_Vergleich_xxx.png")
     pairplot(df, fn=plot_path + "Zeitreihenkomponenten_Pairplot.png")
     plot_components(df, fn=plot_path + "Zeitreihenkomponenten.png")
 

@@ -8,6 +8,13 @@ def pu_weibull(n: int):
     return [m/(n+1) for m in np.arange(1, n+1, 1)]
 
 def fit_lognv(capacities: list[float], print_parameters: bool = False):
+    """
+    Fit LogNV distribution to a given list of capacities.
+    Return results: 
+    - empirical and theoretical Pu
+    - empirical and theoretical quantiles
+    - theoretical quantiles for fixed Pu
+    """
     
     n = len(capacities)
     cap_sort = sorted(capacities)
@@ -46,7 +53,9 @@ def fit_lognv(capacities: list[float], print_parameters: bool = False):
     return result, result_2
 
 def fit_lognv_kstest(pu_emp: list[float], pu_theo: list[float]):
+    """Calculate the Kolmogorov-Smirnov test."""
     return kstest(pu_emp, pu_theo)
 
 def fit_lognv_rqq(q_emp: list[float], q_theo: list[float]) -> float:
+    """Calculate the quantile correlation coefficient."""
     return np.corrcoef(q_emp, q_theo)[0][1]

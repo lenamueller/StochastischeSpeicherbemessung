@@ -55,7 +55,6 @@ def parameter_rp(df: pd.DataFrame, i:int) -> float:
         x_current_month = x_current_month[1:]
         x_month_before = x_month_before[1:]
         
-        
     # Calculate correlation coefficient
     sum_term = sum([x*y for x,y in zip(x_current_month, x_month_before)])
     rp = (sum_term - m*xp*xp_before) / (sp_i*sp_i_before*(m-1))
@@ -66,7 +65,7 @@ def parameter_rp(df: pd.DataFrame, i:int) -> float:
     else:
         raise ValueError("r_p is not in [-1,1] for month", i)
 
-def gen_timeseries(df: pd.DataFrame) -> float:
+def gen_timeseries(df: pd.DataFrame) -> list[float]:
     """
     Returns a time series with monthly discharge values starting
     in November ending in October, generated with the Thomas-Fiering 

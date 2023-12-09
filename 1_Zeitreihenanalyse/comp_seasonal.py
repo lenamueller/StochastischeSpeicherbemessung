@@ -43,6 +43,7 @@ def get_dominant_frequency(
         n: int
         ) -> tuple[np.ndarray, np.ndarray]:
     """Returns the n-th most dominant frequencies in ascending order."""
+    
     idx = np.argpartition(spectrum, -n)[-n:]
     freqs = freqs[idx] # unit: 1/month
     period = [round(1/f, 2) for f in freqs] # unit: months

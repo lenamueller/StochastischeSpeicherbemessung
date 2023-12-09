@@ -151,6 +151,7 @@ def plot_deficit_overflow(
         months: np.ndarray, 
         fn: str
         ) -> None:
+    """Plot monthly distribution of deficit and overflow situations."""
     
     # Bin months with deficit and overflow
     deficit_months = {

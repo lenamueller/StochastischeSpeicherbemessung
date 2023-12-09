@@ -4,6 +4,7 @@ from settings import SEC_PER_MONTH, ABGABEN, SPEICHERAUSGLEICHSGRAD
 
 
 def convert_m3s_hm3(x):
+    """Convert discharge from m³/s to hm³/month."""
     return x * SEC_PER_MONTH/1000000
     
 def soll_abgabe(timeseries: list[float]) -> dict:
@@ -43,6 +44,7 @@ def calc_storage_simulation(
         q_in_convert: bool = True,
         q_out_soll_convert: bool = False,
         ) -> tuple[list[float], list[float], list[float], list[float]]:
+    """Run a storage simulation."""
     
     # convert inflow from m³/s to hm³ if necessary
     if q_in_convert:
@@ -96,9 +98,11 @@ def calc_storage_simulation(
     return storage, deficit, overflow, q_out_ist
 
 def calc_maxima(storage: np.ndarray) -> tuple[list[float], list[float]]:
-    """A maximum is a value greater than its predecessor and 
+    """
+    A maximum is a value greater than its predecessor and 
     its successor and all following maxima must be greater 
-    than the previous one."""
+    than the previous one.
+    """
     
     max_vals = []
     max_indices = []
@@ -118,8 +122,10 @@ def calc_minima(
         storage: np.ndarray, 
         max_indices: np.ndarray
         ) -> tuple[list[float], list[float]]:
-    """A minima is the smallest value between two maxima which
-    locations are given as max_indices."""
+    """
+    A minimum is the smallest value between two maxima which
+    locations are given as max_indices.
+    """
     
     min_vals = []
     min_indices = []
@@ -130,6 +136,7 @@ def calc_minima(
     return min_vals, min_indices
 
 def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
+    """Calculate the capacity for a given storage time series."""
     
     # Calculate maxima and minima of SDL
     max_vals, max_indices = calc_maxima(storage)
