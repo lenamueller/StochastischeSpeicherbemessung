@@ -9,9 +9,6 @@ def read_raw_data(filepath: str) -> pd.DataFrame:
     # data["Datum"] = pd.to_datetime(data["Monat"], format="%m/%Y")
     return data
 
-def read_gen_data(filepath: str) -> pd.DataFrame:
-    return pd.read_csv(filepath, index_col=0)
-
 def monthly_vals(df: pd.DataFrame, month: int) -> list:
     df = df[df["Monat"].str.startswith(str(month).zfill(2))]
     return df["Durchfluss_m3s"].to_list()
