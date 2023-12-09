@@ -9,6 +9,7 @@ from settings import N_GEN_TIMESERIES
 from utils.read import monthly_vals
 from utils.stats import binned_stats, monthly_autocorr
 
+
 # TU CD colors
 tu_darkblue = (0/255, 48/255, 93/255)
 tu_mediumblue = (0/255, 105/255, 180/255)

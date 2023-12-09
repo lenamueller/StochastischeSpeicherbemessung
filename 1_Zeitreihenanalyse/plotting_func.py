@@ -6,9 +6,15 @@ import seaborn as sns
 import sys
 sys.path.insert(1, '/home/lena/Doconfigkumente/FGB/StochastischeSpeicherbemessung/')
 
-from settings import image_path, pegelname, tu_mediumblue, tu_grey, tu_red, \
-    var_remapper, MONTH_ABB
+from settings import image_path, pegelname, var_remapper, MONTH_ABB
 import statistics as st
+
+
+# TU CD colors
+tu_darkblue = (0/255, 48/255, 93/255)
+tu_mediumblue = (0/255, 105/255, 180/255)
+tu_grey = (114/255, 119/255, 119/255)
+tu_red = (181/255, 28/255, 28/255)
 
 
 def plot_raw(df: pd.DataFrame) -> None:

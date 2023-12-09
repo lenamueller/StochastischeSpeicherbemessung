@@ -11,8 +11,23 @@ PEGEL_NAMES = [
     "Wiesa",
     ]
 
-MQ_M3S = 1.188
-MQ_HM3 = MQ_M3S * 60*60*24*365/1000000
+MQ_M3S = {
+    "Ammelsdorf":       0.946,
+    "Klingenthal":      1.188,
+    "Rothenthal":       1.320,
+    "Seifhennersdorf":  0.885,
+    "Tannenberg":       1.450,
+    "Wiesa":            1.610,
+    }
+
+MQ_HM3 = {
+    "Ammelsdorf":       MQ_M3S["Ammelsdorf"] * 60*60*24*365/1000000,
+    "Klingenthal":      MQ_M3S["Klingenthal"] * 60*60*24*365/1000000,
+    "Rothenthal":       MQ_M3S["Rothenthal"] * 60*60*24*365/1000000,
+    "Seifhennersdorf":  MQ_M3S["Seifhennersdorf"] * 60*60*24*365/1000000,
+    "Tannenberg":       MQ_M3S["Tannenberg"] * 60*60*24*365/1000000,
+    "Wiesa":            MQ_M3S["Wiesa"] * 60*60*24*365/1000000,
+    }
 
 # --------------------------------------
 # Sonstiges
@@ -36,12 +51,3 @@ ABGABEN = {
     }
 
 vars = ["original"] + [f"G{str(i+1).zfill(3)}" for i in range(N_GEN_TIMESERIES)]
-
-# --------------------------------------
-# TU CD colors
-# --------------------------------------
-
-tu_darkblue = (0/255, 48/255, 93/255)
-tu_mediumblue = (0/255, 105/255, 180/255)
-tu_grey = (114/255, 119/255, 119/255)
-tu_red = (181/255, 28/255, 28/255)
