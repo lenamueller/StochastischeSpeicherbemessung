@@ -1,8 +1,10 @@
 import pytest
 import numpy as np
 import pandas as pd
+import sys
+sys.path.insert(1, '/home/lena/Dokumente/FGB/StochastischeSpeicherbemessung/')
 
-import code.utils.statistics as st
+import utils.stats as st
   
 
 @pytest.fixture
@@ -31,26 +33,6 @@ def first_4_rows():
 
 
 
-def test_binned_stats():
-    # TODO
-    assert True
-
-def test_consistency_check():
-    # TODO
-    assert True
-
-def test_data_structures():
-    # TODO
-    assert True
-
-def test_fft_analysis():
-    # TODO
-    assert True
-
-def test_hydrological_values():
-    # TODO
-    assert True
-
 def test_primary_stats(first_4_rows: pd.DataFrame):
     
     assert st.sample_number(first_4_rows) == 4
@@ -74,7 +56,22 @@ def test_primary_stats(first_4_rows: pd.DataFrame):
     assert st.quantiles(first_4_rows, q=0.50) == 1.0
     assert st.quantiles(first_4_rows, q=0.75) == 1.0
     assert st.iqr(first_4_rows) == 0.0
+    
+def test_binned_stats():
+    # TODO
+    assert True
 
+def test_hydrological_values():
+    # TODO
+    assert True
+    
+def test_consistency_check():
+    # TODO
+    assert True
+
+def test_fft_analysis():
+    # TODO
+    assert True
 
 def test_trend_analysis():
     # TODO
