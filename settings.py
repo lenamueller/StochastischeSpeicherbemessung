@@ -2,7 +2,15 @@
 # Pegelinformationen
 # --------------------------------------
 
-PEGEL = "Klingenthal" # Rothenthal
+PEGEL_NAMES = [
+    "Ammelsdorf",
+    "Klingenthal",
+    "Rothenthal",
+    "Seifhennersdorf",
+    "Tannenberg",
+    "Wiesa",
+    ]
+
 MQ_M3S = 1.188
 MQ_HM3 = MQ_M3S * 60*60*24*365/1000000
 

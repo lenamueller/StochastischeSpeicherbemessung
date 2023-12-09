@@ -1,7 +1,6 @@
-import pandas as pd
 import numpy as np
 
-from settings import SEC_PER_MONTH, ABGABEN, SPEICHERAUSGLEICHSGRAD, PEGEL
+from settings import SEC_PER_MONTH, ABGABEN, SPEICHERAUSGLEICHSGRAD
 
 
 def convert_m3s_hm3(x):
@@ -154,16 +153,3 @@ def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
         return cap, cap_min_index, cap_min, cap_max_index, cap_max
     else: 
         return 0, 0, 0, 0, 0
-
-
-
-
-# # -----------------------------------------
-# # plot FSA for original data
-# # -----------------------------------------
-
-# max_vals, max_indices = calc_maxima(storage=storage)
-# min_vals, min_indices = calc_minima(storage=storage, max_indices=max_indices)
-# plot_fsa(storage, max_vals=max_vals, max_indices=max_indices, 
-#             min_vals=min_vals, min_indices=min_indices, cap=cap, 
-#             cap_min_index=cap_min_index, cap_min=cap_min, cap_max=cap_max)
