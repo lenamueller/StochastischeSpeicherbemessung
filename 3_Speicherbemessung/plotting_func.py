@@ -88,22 +88,25 @@ def plot_pu(
     """Pu plot of theoretical and empirical Pu."""
     
     plt.figure(figsize=(5,5))
+    x_lower_lim = 5*round(min(capacities_sort)/5)-5
+    x_upper_lim = 5*round(max(capacities_sort)/5)+5
+    x_text = (cap_90 + x_lower_lim)/2
+    
     plt.plot(capacities_sort, pu_emp, color=tu_red, label="Emp. $P_u$ [-]", 
              marker="x", markersize=5, alpha=0.5)
     plt.plot(capacities_sort, pu_theo, color=tu_mediumblue, alpha=0.5,
              label="Theoretische $P_u$ der LogNV [-]")
-    
     plt.plot([cap_90, cap_90], [0, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
     plt.plot([0, cap_90], [0.9, 0.9], color=tu_mediumblue, linestyle="--", alpha=0.5)
     plt.text(cap_90+0.1, 0.5, f"K = {round(cap_90, 3)} hm³", ha="left", 
              va="center", fontsize=12, color=tu_mediumblue, rotation=270)
-    plt.text(15, 0.91, f"$P_u$ = 0.9", fontsize=10, color=tu_mediumblue)
+    plt.text(x_text, 0.91, f"$P_u$ = 0.9", ha="center", fontsize=10, color=tu_mediumblue)
     
     plt.xlabel("Maximalkapazität des Speichers [h³]")
     plt.ylabel("$P_u$ [-]")
     plt.yticks(np.arange(0,1.1,0.1))
     plt.ylim([0, 1])
-    plt.xlim([10,45])
+    plt.xlim([x_lower_lim, x_upper_lim])
     plt.grid(color="grey", alpha=0.3)
     plt.legend(loc="lower right")
     plt.savefig(fn, dpi=300, bbox_inches="tight")

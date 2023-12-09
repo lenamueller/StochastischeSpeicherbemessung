@@ -430,7 +430,7 @@ def plot_components(df: pd.DataFrame, fn: str) -> None:
                            sharex=True, sharey=False)
     plot_config = {
         "Durchfluss_m3s": ("A. Rohdaten", tu_grey, [0, 8]),
-        "trend": ("B. Trendkomponente (nicht sig.)", tu_red, [-0.1, 0.1]),
+        "trend": ("B. Trendkomponente (nicht sig.)", tu_red, [-0.2, 0.2]),
         "saisonfigur_mean": ("C. Saisonfigur (Mittelwert)", tu_mediumblue, [0, 4]),
         "saisonfigur_std": ("D.Saisonfigur (Standardabweichung)", tu_mediumblue, [0, 2]),
         "saisonber": ("E. Saisonbereinigte Zeitreihe", tu_mediumblue, [-2, 8]),
