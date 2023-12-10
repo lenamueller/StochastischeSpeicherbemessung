@@ -1,7 +1,10 @@
 import numpy as np
 import os
 import sys
-sys.path.insert(1, '/home/lena/Documents/Studium/Master_Hydrologie/2_Flussgebietsbewirtschaftung/StochastischeSpeicherbemessung/')
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 
 from speicherausbaugrad import speicherausbaugrad
 from settings import MQ_HM3, PEGEL_NAMES
