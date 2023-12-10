@@ -20,9 +20,9 @@ for PEGEL in PEGEL_NAMES:
     print(f"PEGEL: {PEGEL}")
     
     paths = [
-        "3_Speicherbemessung/results/",
-        f"3_Speicherbemessung/results/{PEGEL}",
-        f"3_Speicherbemessung/results/{PEGEL}/plots"
+        "O3_Speicherbemessung/results/",
+        f"O3_Speicherbemessung/results/{PEGEL}",
+        f"O3_Speicherbemessung/results/{PEGEL}/plots"
         ]
 
     for path in paths:
@@ -34,7 +34,7 @@ for PEGEL in PEGEL_NAMES:
     # ---------------------------------------
 
     raw_data = read_raw_data(f"Rohdaten/Daten_{PEGEL}.txt")
-    gen_data = pd.read_csv(f"2_Zeitreihengenerierung/results/{PEGEL}/GenerierteZeitreihen.csv")
+    gen_data = pd.read_csv(f"O2_Zeitreihengenerierung/results/{PEGEL}/GenerierteZeitreihen.csv")
 
 
     def data(var):
@@ -50,11 +50,11 @@ for PEGEL in PEGEL_NAMES:
     abgaben = pd.DataFrame()
     for var in vars:
         abgaben[var] = soll_abgabe(timeseries=data(var))
-    abgaben.to_csv(f"3_Speicherbemessung/results/{PEGEL}/SollAbgabe.csv", index=False)
+    abgaben.to_csv(f"O3_Speicherbemessung/results/{PEGEL}/SollAbgabe.csv", index=False)
 
     plot_monthly_discharge(
         df_dis=abgaben,
-        fn=f"3_Speicherbemessung/results/{PEGEL}/plots/MonatlicheAbgabe.png"
+        fn=f"O3_Speicherbemessung/results/{PEGEL}/plots/MonatlicheAbgabe.png"
         )
 
     # ---------------------------------------
@@ -89,12 +89,12 @@ for PEGEL in PEGEL_NAMES:
                 cap_min_index=cap_min_index,
                 cap_min=cap_min,
                 cap_max=cap_max,
-                fn=f"3_Speicherbemessung/results/{PEGEL}/plots/FSA_{var}.png"
+                fn=f"O3_Speicherbemessung/results/{PEGEL}/plots/FSA_{var}.png"
                 )
                     
     capacities["Zeitreihe"] = vars
     capacities["Speicherkapazität [hm³]"] = c
-    capacities.to_csv(f"3_Speicherbemessung/results/{PEGEL}/Speicherkapazitaet.csv", index=False)
+    capacities.to_csv(f"O3_Speicherbemessung/results/{PEGEL}/Speicherkapazitaet.csv", index=False)
 
     chist = capacities.iloc[0]["Speicherkapazität [hm³]"]
 
@@ -105,8 +105,8 @@ for PEGEL in PEGEL_NAMES:
     gen_capacities = capacities.iloc[1:]
     gen_capacities = gen_capacities["Speicherkapazität [hm³]"].to_list()
     capacities_lognv, fixed_quantiles = fit_lognv(gen_capacities, print_parameters=False)
-    capacities_lognv.to_csv(f"3_Speicherbemessung/results/{PEGEL}/Speicherkapazitaet_Fit.csv", index=False)
-    fixed_quantiles.to_csv(f"3_Speicherbemessung/results/{PEGEL}/Speicherkapazitaet_FixedQuantiles.csv", index=False)
+    capacities_lognv.to_csv(f"O3_Speicherbemessung/results/{PEGEL}/Speicherkapazitaet_Fit.csv", index=False)
+    fixed_quantiles.to_csv(f"O3_Speicherbemessung/results/{PEGEL}/Speicherkapazitaet_FixedQuantiles.csv", index=False)
 
     def cap_fixed_quantile(q: float):
         """Return the capacity for a fixed quantile."""
@@ -123,7 +123,7 @@ for PEGEL in PEGEL_NAMES:
     plot_capacities_hist(
         capacities=gen_capacities,
         hist_cap=chist,
-        fn=f"3_Speicherbemessung/results/{PEGEL}/plots/Speicherkapazitaet_Histogramm.png"
+        fn=f"O3_Speicherbemessung/results/{PEGEL}/plots/Speicherkapazitaet_Histogramm.png"
         )
         
     plot_pu(
@@ -131,13 +131,13 @@ for PEGEL in PEGEL_NAMES:
         pu_emp=capacities_lognv["empirische Pu [-]"].to_list(),
         pu_theo=capacities_lognv["theoretische Pu [-]"].to_list(),
         cap_90=c90,
-        fn=f"3_Speicherbemessung/results/{PEGEL}/plots/Pu.png"
+        fn=f"O3_Speicherbemessung/results/{PEGEL}/plots/Pu.png"
         )
 
     plot_qq(
         emp=capacities_lognv["empirische Quantile [hm³]"].to_list(),
         theo=capacities_lognv["theoretische Quantile [hm³]"].to_list(),
-        fn=f"3_Speicherbemessung/results/{PEGEL}/plots/QQ.png"
+        fn=f"O3_Speicherbemessung/results/{PEGEL}/plots/QQ.png"
         )
 
     # ---------------------------------------
@@ -180,7 +180,7 @@ for PEGEL in PEGEL_NAMES:
         sim["Speicherinhalt [hm³]"] = storage
         sim["Defizit [hm³]"] = deficit
         sim["Überschuss [hm³]"] = overflow
-        sim.to_csv(f"3_Speicherbemessung/results/{PEGEL}/Simulation_{scen_i}.csv", index=False)
+        sim.to_csv(f"O3_Speicherbemessung/results/{PEGEL}/Simulation_{scen_i}.csv", index=False)
 
         plot_storage_simulation(
             q_in=q_in,
@@ -193,14 +193,14 @@ for PEGEL in PEGEL_NAMES:
             cap=max_cap,
             initial_storage=initial_storage,
             xticklabels=raw_data["Monat"].to_list(),
-            fn=f"3_Speicherbemessung/results/{PEGEL}/plots/Speichersimulation_{scen_i}.png"
+            fn=f"O3_Speicherbemessung/results/{PEGEL}/plots/Speichersimulation_{scen_i}.png"
             )
 
         plot_deficit_overflow(
             deficit=deficit,
             overflow=overflow,
             months=raw_data["Monat"].to_list(),
-            fn=f"3_Speicherbemessung/results/{PEGEL}/plots/Defizit_Ueberschuss_{scen_i}.png"
+            fn=f"O3_Speicherbemessung/results/{PEGEL}/plots/Defizit_Ueberschuss_{scen_i}.png"
             )
 
         # ---------------------------------------
@@ -220,4 +220,4 @@ for PEGEL in PEGEL_NAMES:
         result = pd.DataFrame()
         result["Metrik"] = reliability.keys()
         result["Zuverlässigkeit"] = reliability.values()
-        result.to_csv(f"3_Speicherbemessung/results/{PEGEL}/Zuverlaessigkeit_{scen_i}.csv", index=False)
+        result.to_csv(f"O3_Speicherbemessung/results/{PEGEL}/Zuverlaessigkeit_{scen_i}.csv", index=False)

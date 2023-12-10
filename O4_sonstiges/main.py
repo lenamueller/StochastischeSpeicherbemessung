@@ -10,8 +10,8 @@ from settings import MQ_HM3, PEGEL_NAMES
 for PEGEL in PEGEL_NAMES:
 
     paths = [
-        "4_sonstiges/results/",
-        f"4_sonstiges/results/{PEGEL}"
+        "O4_sonstiges/results/",
+        f"O4_sonstiges/results/{PEGEL}"
         ]
 
     for path in paths:
@@ -24,4 +24,4 @@ for PEGEL in PEGEL_NAMES:
     # ---------------------------------------
 
     beta = speicherausbaugrad(cap=np.arange(5, 55, 5), mq=MQ_HM3[PEGEL])
-    beta.to_csv(f"4_sonstiges/results/{PEGEL}/Speicherausbaugrad.csv", index=False)
+    beta.to_csv(f"O4_sonstiges/results/{PEGEL}/Speicherausbaugrad.csv", index=False)

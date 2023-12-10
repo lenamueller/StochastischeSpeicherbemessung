@@ -14,9 +14,9 @@ for PEGEL in PEGEL_NAMES:
     print("PEGEL:", PEGEL)
 
     paths = [
-        "2_Zeitreihengenerierung/results/",
-        f"2_Zeitreihengenerierung/results/{PEGEL}",
-        f"2_Zeitreihengenerierung/results/{PEGEL}/plots"
+        "O2_Zeitreihengenerierung/results/",
+        f"O2_Zeitreihengenerierung/results/{PEGEL}",
+        f"O2_Zeitreihengenerierung/results/{PEGEL}/plots"
         ]
 
     for path in paths:
@@ -39,7 +39,7 @@ for PEGEL in PEGEL_NAMES:
     parameters["Parameter xp"] = [parameter_xp(df, i) for i in month_list]
     parameters["Parameter sp"] = [parameter_sp(df, i) for i in month_list]
     parameters["Parameter rp"] = [parameter_rp(df, i) for i in month_list]
-    parameters.to_csv(f"2_Zeitreihengenerierung/results/{PEGEL}/ThomasFiering_Parameter.csv", index=False)
+    parameters.to_csv(f"O2_Zeitreihengenerierung/results/{PEGEL}/ThomasFiering_Parameter.csv", index=False)
         
     # ---------------------------------------        
     # Generierung von Zeitreihen
@@ -49,7 +49,7 @@ for PEGEL in PEGEL_NAMES:
     for i in range(N_GEN_TIMESERIES):
         print("Generiere Zeitreihe: ", i+1)
         gen_data[f"G{str(i+1).zfill(3)}"] = gen_timeseries(df)
-    gen_data.to_csv(f"2_Zeitreihengenerierung/results/{PEGEL}/GenerierteZeitreihen.csv", index=False)
+    gen_data.to_csv(f"O2_Zeitreihengenerierung/results/{PEGEL}/GenerierteZeitreihen.csv", index=False)
 
     # ---------------------------------------
     # Plots
@@ -60,10 +60,10 @@ for PEGEL in PEGEL_NAMES:
 
     plot_monthly_fitting(
         df=raw_data,
-        fn=f"2_Zeitreihengenerierung/results/{PEGEL}/plots/AnpassungGammaLogNV.png"
+        fn=f"O2_Zeitreihengenerierung/results/{PEGEL}/plots/AnpassungGammaLogNV.png"
         )
 
     plot_thomasfierung_eval(
         raw_data=raw_data, gen_data=gen_data,
-        fn=f"2_Zeitreihengenerierung/results/{PEGEL}/plots/ThomasFiering_Evaluation.png"
+        fn=f"O2_Zeitreihengenerierung/results/{PEGEL}/plots/ThomasFiering_Evaluation.png"
     )

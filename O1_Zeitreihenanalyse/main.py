@@ -23,18 +23,18 @@ from plotting_func import *
 for PEGEL in PEGEL_NAMES:
 
     paths = [
-        "1_Zeitreihenanalyse/results/",
-        f"1_Zeitreihenanalyse/results/{PEGEL}",
-        f"1_Zeitreihenanalyse/results/{PEGEL}/plots"
+        "O1_Zeitreihenanalyse/results/",
+        f"O1_Zeitreihenanalyse/results/{PEGEL}",
+        f"O1_Zeitreihenanalyse/results/{PEGEL}/plots"
         ]
 
     for path in paths:
         if not os.path.exists(path):
             os.mkdir(path)
     
-    plot_path = f"1_Zeitreihenanalyse/results/{PEGEL}/plots/"
+    plot_path = f"O1_Zeitreihenanalyse/results/{PEGEL}/plots/"
 
-    log_path = f"1_Zeitreihenanalyse/results/Zeitreihenanalyse.log"
+    log_path = f"O1_Zeitreihenanalyse/results/Zeitreihenanalyse.log"
     logging.basicConfig(filename=log_path, 
                         format='%(asctime)s %(message)s',datefmt='%m/%d/%Y %I:%M:%S',
                         level=logging.INFO, filemode='w')
@@ -182,7 +182,7 @@ for PEGEL in PEGEL_NAMES:
         "Autokorrelation_Rohdaten": ac_raw,
         "UnterKonfGrenze": lower_conf,
         "ObereKonfGrenze": upper_conf
-        }).to_csv(f"1_Zeitreihenanalyse/results/{PEGEL}/Autokorrelation.csv", index=False)
+        }).to_csv(f"O1_Zeitreihenanalyse/results/{PEGEL}/Autokorrelation.csv", index=False)
     
     plot_acf(lags, ac_raw, lower_conf=lower_conf, upper_conf=upper_conf, 
              fn=plot_path + "Autokorrelation_Rohdaten.png")
@@ -260,7 +260,7 @@ for PEGEL in PEGEL_NAMES:
                 
     df_statistics = pd.DataFrame.from_dict(data)
     df_statistics.round({"Rohdaten":3, "Saisonbereinigte Zeitreihe":3, "Zufallskomponente der Zeitreihe":3})
-    df_statistics.to_csv(f"1_Zeitreihenanalyse/results/{PEGEL}/Statistiken.csv", index=False)
+    df_statistics.to_csv(f"O1_Zeitreihenanalyse/results/{PEGEL}/Statistiken.csv", index=False)
     
     # -----------------------------------------
     # Speichern der Zeitreihenkomponenten
@@ -268,7 +268,7 @@ for PEGEL in PEGEL_NAMES:
     
     df.rename(columns=var_remapper, inplace=True)
     df.drop(columns=["Datum"], inplace=True)
-    df.to_csv(f"1_Zeitreihenanalyse/results/{PEGEL}/Zeitreihenkomponenten.csv", index=False)
+    df.to_csv(f"O1_Zeitreihenanalyse/results/{PEGEL}/Zeitreihenkomponenten.csv", index=False)
     
     logging.info("-----------------------------------------")
     logging.info("Ende")

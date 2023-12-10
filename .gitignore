@@ -4,7 +4,7 @@ env/*
 __pycache__/*
 tests/__pycache__/*
 1_Zeitreihenanalyse/__pycache__/*
-2_Zeitreihengenerierung/__pycache__/*
-3_Speicherbemessung/__pycache__/*
-4_sonstiges/__pycache__/*
+O2_Zeitreihengenerierung/__pycache__/*
+O3_Speicherbemessung/__pycache__/*
+O4_sonstiges/__pycache__/*
 utils/__pycache__/*

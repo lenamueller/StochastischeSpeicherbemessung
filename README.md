@@ -18,10 +18,10 @@ pip install -r requirements.txt
 ```
 #### 3. Ausführen der Skripte
 ```bash 
-python 1_Zeitreihenanalyse/main.py
-python 2_Zeitreihengenerierung/main.py
-python 3_Speicherbemessung/main.py
-python 4_sonstiges/main.py
+python O1_Zeitreihenanalyse/main.py
+python O2_Zeitreihengenerierung/main.py
+python O3_Speicherbemessung/main.py
+python O4_sonstiges/main.py
 ```
 
 # Inhalt
@@ -29,7 +29,7 @@ python 4_sonstiges/main.py
 ### Rohdaten
 Durchflussdaten in monatlicher Auflösung für die Pegel Ammelsdorf, Klingenthal, Rothenthal, Seifhennersdorf, Tannenberg, Wiesa.
 
-### 1_Zeitreihenanalyse
+### O1_Zeitreihenanalyse
 - `check_consistency.py`: Überprüfung der Konsistenz der Zeitreihe
 - `ceck_homogenity.py`: Überprüfung der Homogenität der Zeitreihe
 - `check_stationarity.py`: Überprüfung der Stationarität der Zeitreihe
@@ -37,15 +37,15 @@ Durchflussdaten in monatlicher Auflösung für die Pegel Ammelsdorf, Klingenthal
 - `comp_seasonal`: Analyse der saisonellen Komponente
 - `comp_autocorr`: Analyse der autokorrelativen Komponente
 
-### 2_Zeitreihengeneriering
+### O2_Zeitreihengeneriering
 - `thomas_fiering.py`: Stochastisches Zeitreihenmodell (Thomas-Fiering-Modell)
 
-### 3_Speicherbemessung
+### O3_Speicherbemessung
 - `sequent_peak_algorithm.py`: Folgescheitelalgorithmus und Speichersimulation
 - `fit_capacity`: Anpassen der Log-NV 
 - `reliability.py`: Berechnung der Zuverlässigkeit des Speicherbetriebs
 
-### 4_sonstiges
+### O4_sonstiges
 - `speicherausbaugrad.py`: Berechnung des Speicherausbaugrades
 
 ### utils
