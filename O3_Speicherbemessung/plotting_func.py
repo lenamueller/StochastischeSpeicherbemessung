@@ -220,7 +220,7 @@ def plot_storage_simulation(
                          sharex=True)
     plt.suptitle(f"Speichersimulation [Zeitreihe: {var}]")
     titles = ["A. Zufluss", "B. Sollabgabe", "C. Istabgabe", "D. Zufluss-Sollabgabe", 
-              f"E. Speicherinhalt [Anfangsfüllung = {initial_storage} hm³, Maximale Kapazität = {cap} hm³]", 
+              f"E. Speicherinhalt [Anfangsfüllung = {round(initial_storage, 3)} hm³, Maximale Kapazität = {round(cap, 3)} hm³]", 
               f"F. Defizit ({n_deficit} Monate)/ Überlauf ({n_overflow} Monate)"]
     
     x = np.arange(len(q_in))

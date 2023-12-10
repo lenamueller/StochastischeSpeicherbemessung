@@ -147,20 +147,20 @@ for PEGEL in PEGEL_NAMES:
     scenarios = [
         (1, "original", 0.5*c90, c90),
         
-        # # Variation Anfangsfüllung
-        # (2, "original", 0.00*c90, c90),
-        # (3, "original", 0.25*c90, c90),
-        # (4, "original", 0.75*c90, c90),
-        # (5, "original", 1.00*c90, c90),
+        # Variation Anfangsfüllung
+        (2, "original", 0.00*c90, c90),
+        (3, "original", 0.25*c90, c90),
+        (4, "original", 0.75*c90, c90),
+        (5, "original", 1.00*c90, c90),
         
-        # # Variation Kapazität
-        # (6, "original", 0.5*c50, c50),
-        # (7, "original", 0.5*c95, c95),
-        # (8, "original", 0.5*chist, chist),
+        # Variation Kapazität
+        (6, "original", 0.5*c50, c50),
+        (7, "original", 0.5*c95, c95),
+        (8, "original", 0.5*chist, chist),
         
-        # # fiktive Szenerien
-        # (9, "original", 50.0, 100.00),
-        # (10, "original", 0.0, np.inf),
+        # fiktive Szenerien
+        (9, "original", 50.0, 100.00),
+        (10, "original", 0.0, np.inf),
     ]
 
     for (scen_i, var, initial_storage, max_cap) in scenarios:
