@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-sys.path.insert(1, '/home/lena/Dokumente/FGB/StochastischeSpeicherbemessung/')
+sys.path.insert(1, '/home/lena/Documents/Studium/Master_Hydrologie/2_Flussgebietsbewirtschaftung/StochastischeSpeicherbemessung/')
 
 from settings import PEGEL_NAMES, N_GEN_TIMESERIES
 from utils.read import read_raw_data

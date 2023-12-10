@@ -56,7 +56,7 @@ def calc_storage_simulation(
     storage = []
     deficit = []
     overflow = []    
-    q_out_ist = [] # Ist-Abgabe
+    q_out_ist = []
 
     # Initial storage    
     current_storage = initial_storage

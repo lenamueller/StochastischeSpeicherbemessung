@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 import os
 import sys
-sys.path.insert(1, '/home/lena/Dokumente/FGB/StochastischeSpeicherbemessung/')
+sys.path.insert(1, '/home/lena/Documents/Studium/Master_Hydrologie/2_Flussgebietsbewirtschaftung/StochastischeSpeicherbemessung/')
 import warnings
 warnings.filterwarnings("ignore")
 

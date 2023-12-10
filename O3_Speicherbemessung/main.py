@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import sys
-sys.path.insert(1, '/home/lena/Dokumente/FGB/StochastischeSpeicherbemessung/')
+sys.path.insert(1, '/home/lena/Documents/Studium/Master_Hydrologie/2_Flussgebietsbewirtschaftung/StochastischeSpeicherbemessung/')
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -76,8 +76,8 @@ for PEGEL in PEGEL_NAMES:
         # Plot FSA only for original time series
         if var == "original":
             
-            max_vals, max_indices = calc_maxima(storage=storage)
-            min_vals, min_indices = calc_minima(storage=storage, max_indices=max_indices) 
+            max_vals, max_indices = calc_maxima(cum_storage=storage)
+            min_vals, min_indices = calc_minima(cum_storage=storage, max_indices=max_indices) 
             
             plot_fsa(
                 storage=storage, 

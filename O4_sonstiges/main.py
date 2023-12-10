@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import sys
-sys.path.insert(1, '/home/lena/Dokumente/FGB/StochastischeSpeicherbemessung/')
+sys.path.insert(1, '/home/lena/Documents/Studium/Master_Hydrologie/2_Flussgebietsbewirtschaftung/StochastischeSpeicherbemessung/')
 
 from speicherausbaugrad import speicherausbaugrad
 from settings import MQ_HM3, PEGEL_NAMES
