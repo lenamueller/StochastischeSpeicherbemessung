@@ -213,12 +213,13 @@ for PEGEL in PEGEL_NAMES:
 
         reliability = {
             "Zeitreihe": var,
-            "R(Monat, Defizit)": rel_monthly(data=deficit),
-            "R(Monat, Überschuss)": rel_monthly(data=overflow),
-            "R(Jahr, Defizit)": rel_yearly(data=deficit),
-            "R(Jahr, Überschuss)": rel_yearly(data=overflow),
-            "R(Menge, Defizit)": rel_amount(data=deficit, soll_abgabe=q_out_soll),
-            "R(Menge, Überschuss)": rel_amount(data=overflow, soll_abgabe=q_out_soll)
+            "Zuverlässigkeit innerjährlicher Regelbetrieb: Defizit [-]": rel_monthly(data=deficit),
+            "Zuverlässigkeit innerjährlicher Regelbetrieb: Überschuss [-]": rel_monthly(data=overflow),
+            "Zuverlässigkeit jährlicher Regelbetrieb: Defizit [-]": rel_yearly(data=deficit),
+            "Zuverlässigkeit jährlicher Regelbetrieb: Überschuss [-]": rel_yearly(data=overflow),
+            "Soll-Abgabevolumen [hm³]": np.sum(q_out_soll),
+            "Anteil Defizitvolumen vom Soll-Abgabevolumen [-]": rel_amount(data=deficit, soll_abgabe=q_out_soll),
+            "Anteil Überschussvolumen vom Soll-Abgabevolumen [-]": rel_amount(data=overflow, soll_abgabe=q_out_soll)
             }
 
         result = pd.DataFrame()
