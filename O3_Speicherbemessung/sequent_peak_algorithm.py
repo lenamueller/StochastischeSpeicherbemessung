@@ -1,6 +1,7 @@
 import numpy as np
 
 from settings import SEC_PER_MONTH, ABGABEN, SPEICHERAUSGLEICHSGRAD
+from O3_Speicherbemessung.sequent_peak_algorithm import *
 
 
 def convert_m3s_hm3(x):
@@ -71,7 +72,7 @@ def calc_storage_simulation(
             storage.append(0)
             deficit.append(current_storage)
             overflow.append(0)
-            q_out_ist.append(q_out_soll[i]-current_storage)
+            q_out_ist.append(q_out_soll[i]+current_storage)
             
             current_storage = 0
 
@@ -97,29 +98,31 @@ def calc_storage_simulation(
     
     return storage, deficit, overflow, q_out_ist
 
-def calc_maxima(storage: np.ndarray) -> tuple[list[float], list[float]]:
+def calc_maxima(cum_storage: np.ndarray) -> tuple[list[float], list[float]]:
     """
     A maximum is a value greater than its predecessor and 
     its successor and all following maxima must be greater 
     than the previous one.
     """
     
+    assert cum_storage != [], "Cumulative storage is empty!"
+    
     max_vals = []
     max_indices = []
-    for i in range(1, len(storage)-1):
-        if storage[i-1] < storage[i] and storage[i] > storage[i+1]:
+    for i in range(1, len(cum_storage)-1):
+        if cum_storage[i-1] < cum_storage[i] and cum_storage[i] > cum_storage[i+1]:
             if len(max_vals) == 0:
-                max_vals.append(storage[i])
+                max_vals.append(cum_storage[i])
                 max_indices.append(i)
             else:
-                if storage[i] >= max_vals[-1]:
-                    max_vals.append(storage[i])
+                if cum_storage[i] > max_vals[-1]:
+                    max_vals.append(cum_storage[i])
                     max_indices.append(i)
     
     return max_vals, max_indices
 
 def calc_minima(
-        storage: np.ndarray, 
+        cum_storage: np.ndarray, 
         max_indices: np.ndarray
         ) -> tuple[list[float], list[float]]:
     """
@@ -127,11 +130,14 @@ def calc_minima(
     locations are given as max_indices.
     """
     
+    assert cum_storage != [], "Cumulative storage is empty!"
+    assert max_indices != [], "Maxima indices are empty!"
+    
     min_vals = []
     min_indices = []
     for i in range(len(max_indices)-1):
-        min_vals.append(min(storage[max_indices[i]:max_indices[i+1]]))
-        min_indices.append(np.argmin(storage[max_indices[i]:max_indices[i+1]]) + max_indices[i])
+        min_vals.append(min(cum_storage[max_indices[i]:max_indices[i+1]]))
+        min_indices.append(np.argmin(cum_storage[max_indices[i]:max_indices[i+1]]) + max_indices[i])
     
     return min_vals, min_indices
 
@@ -141,6 +147,11 @@ def calc_capacity(storage: np.ndarray) -> tuple[float, int]:
     # Calculate maxima and minima of SDL
     max_vals, max_indices = calc_maxima(storage)
     min_vals, min_indices = calc_minima(storage, max_indices)
+    
+    assert max_vals != [], "Maxima values are empty!"
+    assert max_indices != [], "Maxima indices are empty!"
+    assert min_vals != [], "Minima values are empty!"
+    assert min_indices != [], "Minima indices are empty!"
 
     # Remove last maximum because no minimum can follow.
     max_vals = max_vals[:-1]
